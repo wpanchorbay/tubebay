@@ -4,10 +4,11 @@ import Button from "../common/Button";
 import Card from "../common/Card";
 import { LinkIcon, YouTubeIcon, GoogleIcon } from "../common/Icons";
 import { PluginSettings } from "../../utils/types";
-import { CheckCircle, XCircle, Info } from "lucide-react";
+import { CheckCircle, XCircle, Info, Trash2 } from "lucide-react";
 import { Tooltip } from "../common/ToolTip";
 // @ts-ignore
 import channelIdImg from "../../img/channel_id.png";
+import { useWpabStore } from "../../store/wpabStore";
 
 export type FeedbackType = "success" | "error" | "info";
 
@@ -18,8 +19,18 @@ export interface ConnectionFeedback {
 
 interface ConnectAccountCardProps {
   settings: PluginSettings;
-  tmpCredentials: { api_key: string; channel_id: string };
-  setTmpCredentials: (creds: { api_key: string; channel_id: string }) => void;
+  tmpCredentials: {
+    api_key: string;
+    channel_id: string;
+    refresh_token: string;
+    connection_method: "oauth" | "api";
+  };
+  setTmpCredentials: (creds: {
+    api_key: string;
+    channel_id: string;
+    refresh_token: string;
+    connection_method: "oauth" | "api";
+  }) => void;
   editingConnection: boolean;
   setEditingConnection: (editing: boolean) => void;
   saving: boolean;
@@ -30,6 +41,7 @@ interface ConnectAccountCardProps {
   connectYouTube: () => void;
   feedback: ConnectionFeedback | null;
   setFeedback: (feedback: ConnectionFeedback | null) => void;
+  handleDisconnect: () => void;
 }
 
 const feedbackStyles: Record<FeedbackType, string> = {
@@ -68,10 +80,23 @@ export default function ConnectAccountCard({
   connectYouTube,
   feedback,
   setFeedback,
+  handleDisconnect,
 }: ConnectAccountCardProps) {
+  const { rest_url } = useWpabStore();
+  const method = tmpCredentials.connection_method;
+
+  const setMethod = (m: "oauth" | "api") => {
+    setTmpCredentials({ ...tmpCredentials, connection_method: m });
+  };
+
+  const [showTokenInput, setShowTokenInput] = useState(
+    !!tmpCredentials.refresh_token,
+  );
+
   return (
-    <Card className="tubebay-flex tubebay-flex-col tubebay-items-center">
-      <div className="tubebay-flex tubebay-items-center tubebay-gap-[8px] tubebay-mb-[16px]">
+    <Card className="tubebay-flex tubebay-flex-col">
+      {/* Header Section */}
+      <div className="tubebay-flex tubebay-items-center tubebay-gap-[8px] tubebay-mb-[5px] tubebay-pb-4">
         <LinkIcon size={24} className="tubebay-text-[#3858e9]" />
         <h2 className="tubebay-text-[22px] tubebay-font-bold tubebay-text-[#111827]">
           Connect Account
@@ -147,69 +172,187 @@ export default function ConnectAccountCard({
               Change Credentials
             </Button>
           </div>
+
+          {/* Remove Account Section */}
+          <div className="tubebay-w-full tubebay-flex tubebay-justify-center tubebay-pt-2">
+            <button
+              onClick={handleDisconnect}
+              disabled={saving}
+              className="tubebay-text-[#4b5563] hover:tubebay-text-red-600 tubebay-text-[13px] tubebay-font-medium tubebay-flex tubebay-items-center tubebay-gap-1.5 tubebay-transition-colors"
+            >
+              <Trash2 size={14} />
+              Remove Account & Clear Credentials
+            </button>
+          </div>
         </div>
       ) : (
         <div className="tubebay-w-full tubebay-flex tubebay-flex-col tubebay-gap-[12px]">
-          <div className="tubebay-w-full tubebay-flex tubebay-flex-row tubebay-gap-[12px]">
-            <div className="tubebay-w-full">
-              <Input
-                label="YouTube Channel ID"
-                value={tmpCredentials.channel_id}
-                onChange={(e) =>
-                  setTmpCredentials({
-                    ...tmpCredentials,
-                    channel_id: (e.target as HTMLInputElement).value,
-                  })
-                }
-                placeholder="UCxxxxxxxxxxxxxxx"
-              />
-              <p className="tubebay-text-[12px] tubebay-text-gray-500 tubebay-mt-[4px]">
-                Find your Channel ID in your
-                <Tooltip
-                  content={<ChannelIdTooltip />}
-                  color="light"
-                  position="bottom"
-                  className="!tubebay-max-w-[min(700px,90vw)]"
-                >
+          {/* Method Toggle - Pill Shaped Container */}
+          <div className="tubebay-flex tubebay-p-[4px] tubebay-bg-gray-100 tubebay-rounded-[12px] tubebay-mb-[12px] tubebay-w-full">
+            <button
+              onClick={() => setMethod("oauth")}
+              className={`tubebay-flex-1 tubebay-py-[10px] tubebay-text-[14px] tubebay-font-bold tubebay-rounded-[9px] tubebay-transition-all ${
+                method === "oauth"
+                  ? "tubebay-bg-white tubebay-text-blue-600 tubebay-shadow-sm"
+                  : "tubebay-text-gray-500 hover:tubebay-text-gray-700"
+              }`}
+            >
+              Google OAuth (Recommended)
+            </button>
+            <button
+              onClick={() => setMethod("api")}
+              className={`tubebay-flex-1 tubebay-py-[10px] tubebay-text-[14px] tubebay-font-bold tubebay-rounded-[9px] tubebay-transition-all ${
+                method === "api"
+                  ? "tubebay-bg-white tubebay-text-blue-600 tubebay-shadow-sm"
+                  : "tubebay-text-gray-500 hover:tubebay-text-gray-700"
+              }`}
+            >
+              Manual Setup (Advanced)
+            </button>
+          </div>
+
+          {method === "oauth" ? (
+            <div className="tubebay-flex tubebay-flex-col tubebay-gap-[20px] tubebay-animate-fadeIn">
+              <div className="tubebay-flex tubebay-flex-col tubebay-gap-[4px]">
+                <h4 className="tubebay-text-[16px] tubebay-font-bold tubebay-text-gray-900">
+                  Get your Google Access Code
+                </h4>
+                <p className="tubebay-text-[14px] tubebay-text-gray-600">
+                  Simply click the button below to authorize TubeBay and
+                  instantly receive your access code.
+                </p>
+                <div className="tubebay-mt-2">
                   <a
-                    href="https://www.youtube.com/account_advanced"
+                    href={`${rest_url}tubebay/v1/youtube/oauth-connect`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setShowTokenInput(true)}
+                    className="tubebay-inline-flex tubebay-items-center tubebay-gap-[12px] tubebay-bg-white tubebay-text-gray-700 tubebay-px-[24px] tubebay-py-[12px] tubebay-rounded-[12px] tubebay-border tubebay-border-gray-200 tubebay-shadow-sm hover:tubebay-shadow-md tubebay-transition-all tubebay-font-bold tubebay-text-[15px]"
+                  >
+                    <GoogleIcon size={20} />
+                    Sign in with Google
+                  </a>
+                </div>
+              </div>
+
+              {showTokenInput && (
+                <div className="tubebay-flex tubebay-flex-col tubebay-gap-[4px] tubebay-animate-fadeIn">
+                  <h4 className="tubebay-text-[16px] tubebay-font-bold tubebay-text-gray-900">
+                    Enter Access Code
+                  </h4>
+                  <p className="tubebay-text-[14px] tubebay-text-gray-600 tubebay-mb-2">
+                    Paste the code you received from Google below to connect
+                    your store.
+                  </p>
+                  <Input
+                    label="Access Code"
+                    type="password"
+                    autoComplete="off"
+                    value={tmpCredentials.refresh_token}
+                    onChange={(e) =>
+                      setTmpCredentials({
+                        ...tmpCredentials,
+                        refresh_token: (e.target as HTMLInputElement).value,
+                      })
+                    }
+                    placeholder="Paste your access code here..."
+                    className="tubebay-w-full"
+                  />
+                </div>
+              )}
+
+              <div className="tubebay-bg-blue-50 tubebay-border tubebay-border-blue-100 tubebay-rounded-[12px] tubebay-p-[16px] tubebay-flex tubebay-gap-[12px]">
+                <Info
+                  size={20}
+                  className="tubebay-text-blue-600 tubebay-flex-shrink-0 tubebay-mt-[2px]"
+                />
+                <p className="tubebay-text-[13px] tubebay-text-blue-800 tubebay-leading-[20px]">
+                  <strong>Read-only access:</strong> TubeBay only reads your
+                  public video data (titles, thumbnails, and IDs) to sync your
+                  library. We will never upload, edit, or modify your YouTube
+                  channel in any way.
+                  <br />
+                  <br />
+                  <strong>Why does it say "WPAnchorBay"?</strong> TubeBay is
+                  developed and published by{" "}
+                  <a
+                    href="https://wpanchorbay.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tubebay-underline"
+                  >
+                    WPAnchorBay
+                  </a>
+                  . You will see this name on the Google authorization screen —
+                  this is expected and your connection is fully secure.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="tubebay-w-full tubebay-flex tubebay-flex-col tubebay-gap-[16px] tubebay-animate-fadeIn">
+              <div className="tubebay-w-full">
+                <Input
+                  label="YouTube Channel ID"
+                  autoComplete="off"
+                  value={tmpCredentials.channel_id}
+                  onChange={(e) =>
+                    setTmpCredentials({
+                      ...tmpCredentials,
+                      channel_id: (e.target as HTMLInputElement).value,
+                    })
+                  }
+                  placeholder="UCxxxxxxxxxxxxxxx"
+                />
+                <p className="tubebay-text-[12px] tubebay-text-gray-500 tubebay-mt-[4px]">
+                  Find your Channel ID in your{" "}
+                  <Tooltip
+                    content={<ChannelIdTooltip />}
+                    color="light"
+                    position="bottom"
+                    className="!tubebay-max-w-[min(700px,90vw)]"
+                  >
+                    <a
+                      href="https://www.youtube.com/account_advanced"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tubebay-text-blue-600 tubebay-underline hover:tubebay-text-blue-800"
+                    >
+                      YouTube Advanced Settings
+                    </a>
+                  </Tooltip>
+                  .
+                </p>
+              </div>
+              <div className="tubebay-w-full">
+                <Input
+                  label="Google Cloud API Key"
+                  type="password"
+                  autoComplete="off"
+                  value={tmpCredentials.api_key}
+                  onChange={(e) =>
+                    setTmpCredentials({
+                      ...tmpCredentials,
+                      api_key: (e.target as HTMLInputElement).value,
+                    })
+                  }
+                  placeholder="AIzaSyB-xxxxxxxxxxxxxxx"
+                />
+                <p className="tubebay-text-[12px] tubebay-text-gray-500 tubebay-mt-[4px]">
+                  Generate an API Key in the{" "}
+                  <a
+                    href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/credentials"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="tubebay-text-blue-600 tubebay-underline hover:tubebay-text-blue-800"
                   >
-                    YouTube Advanced Settings
+                    Google Cloud Console
                   </a>
-                </Tooltip>
-                .
-              </p>
+                  .
+                </p>
+              </div>
             </div>
-            <div className="tubebay-w-full">
-              <Input
-                label="Google Cloud API Key"
-                type="password"
-                value={tmpCredentials.api_key}
-                onChange={(e) =>
-                  setTmpCredentials({
-                    ...tmpCredentials,
-                    api_key: (e.target as HTMLInputElement).value,
-                  })
-                }
-                placeholder="AIzaSyB-xxxxxxxxxxxxxxx"
-              />
-              <p className="tubebay-text-[12px] tubebay-text-gray-500 tubebay-mt-[4px]">
-                Generate an API Key in the{" "}
-                <a
-                  href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/credentials"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="tubebay-text-blue-600 tubebay-underline hover:tubebay-text-blue-800"
-                >
-                  Google Cloud Console
-                </a>
-                .
-              </p>
-            </div>
-          </div>
+          )}
+
           {/* Inline Feedback Message */}
           {feedback && (
             <div
@@ -228,24 +371,35 @@ export default function ConnectAccountCard({
               disabled={
                 saving ||
                 (!credentialsChanged() &&
-                  settings.connection_status === "connected")
+                  settings.connection_status === "connected") ||
+                (method === "oauth" && !tmpCredentials.refresh_token) ||
+                (method === "api" &&
+                  (!tmpCredentials.api_key || !tmpCredentials.channel_id))
               }
               color="primary"
+              className="tubebay-h-[48px] tubebay-px-8"
             >
-              {saving ? "Connecting..." : "Connect"}
-            </Button>
-            <Button
-              onClick={handleTestConnection}
-              disabled={
-                testing || !tmpCredentials.api_key || !tmpCredentials.channel_id
-              }
-              color="secondary"
-              variant="outline"
-            >
-              {testing ? "Testing..." : "Test Connection"}
+              {saving
+                ? "Connecting..."
+                : method === "oauth"
+                ? "Connect Account"
+                : "Save & Connect"}
             </Button>
 
-            {settings.channel_name && (
+            {settings.connection_status === "connected" &&
+              !editingConnection && (
+                <Button
+                  onClick={handleTestConnection}
+                  disabled={testing}
+                  color="secondary"
+                  variant="outline"
+                  className="tubebay-h-[48px]"
+                >
+                  {testing ? "Testing..." : "Test Connection"}
+                </Button>
+              )}
+
+            {settings.channel_name && editingConnection && (
               <Button
                 onClick={() => {
                   setFeedback(null);
@@ -254,7 +408,7 @@ export default function ConnectAccountCard({
                 color="secondary"
                 variant="ghost"
                 disabled={saving}
-                className="tubebay-ml-auto"
+                className="tubebay-ml-auto tubebay-h-[48px]"
               >
                 Cancel
               </Button>
@@ -262,6 +416,38 @@ export default function ConnectAccountCard({
           </div>
         </div>
       )}
+
+      {/* Card Footer Section */}
+      <div className="tubebay-border-t tubebay-border-gray-100 tubebay-pt-4 tubebay-mt-8 tubebay-flex tubebay-justify-between tubebay-items-center">
+        <div className="tubebay-text-[13px] tubebay-text-gray-400">
+          Need Help?{" "}
+          <a
+            href="https://wpanchorbay.com/docs/tubebay"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tubebay-text-blue-500 hover:tubebay-underline"
+          >
+            Read Documentation
+          </a>
+        </div>
+        <div className="tubebay-text-[13px] tubebay-text-gray-400 tubebay-flex tubebay-gap-3">
+          <a
+            href="https://wpanchorbay.com/terms-and-conditions/"
+            className="hover:tubebay-text-gray-600 hover:tubebay-underline"
+            target="_blank"
+          >
+            Terms & Conditions
+          </a>
+          <span className="tubebay-text-gray-200">|</span>
+          <a
+            href="https://wpanchorbay.com/privacy-policy/"
+            className="hover:tubebay-text-gray-600 hover:tubebay-underline"
+            target="_blank"
+          >
+            Privacy Policy
+          </a>
+        </div>
+      </div>
     </Card>
   );
 }

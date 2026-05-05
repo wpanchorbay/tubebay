@@ -1,0 +1,17 @@
+{
+	"name": "tubebay-docs",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"docs:dev": "vitepress dev",
+		"docs:build": "vitepress build",
+		"docs:preview": "vitepress preview"
+	},
+	"devDependencies": {
+		"vitepress": "^1.6.3",
+		"autoprefixer": "^10.4.19"
+	},
+	"dependencies": {
+		"medium-zoom": "^1.1.0"
+	}
+}

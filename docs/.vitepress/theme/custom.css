@@ -1,0 +1,150 @@
+/**
+ * TubeBay docs theme overrides
+ * Colors inspired by the plugin's admin panel branding
+ */
+
+:root {
+  /* Brand colors */
+  --vp-c-brand-1: #ff0000;
+  --vp-c-brand-2: #cc0000;
+  --vp-c-brand-3: #990000;
+  --vp-c-brand-soft: rgba(255, 0, 0, 0.1);
+
+  /* Hero gradient */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg,
+      #ff0000 30%,
+      #ff5555);
+  --vp-home-hero-image-background-image: linear-gradient(-45deg,
+      #ff0000dd 50%,
+      #ff555577);
+  --vp-home-hero-image-filter: blur(44px);
+}
+
+.dark {
+  --vp-c-brand-1: #ff3333;
+  --vp-c-brand-2: #ff6666;
+  --vp-c-brand-3: #cc0000;
+  --vp-c-brand-soft: rgba(255, 51, 51, 0.14);
+
+  --vp-home-hero-image-background-image: linear-gradient(-45deg,
+      #cc0000dd 50%,
+      #ff333377);
+}
+
+/* Slightly rounded buttons */
+.VPButton.medium {
+  border-radius: 8px;
+}
+
+/* Nav logo size */
+.VPNav .logo {
+  height: 36px;
+}
+
+/* Hero icon border */
+.VPHero .VPImage {
+  filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.3));
+  width: 280px;
+  height: 280px;
+}
+
+@media (max-width: 959px) {
+  .VPHero .image-container {
+    margin-bottom: 24px;
+  }
+}
+
+/* Feature card SVG icon colors */
+.VPFeature .icon svg {
+  color: var(--vp-c-brand-1);
+}
+
+/* Force 3 cards per row on large screens */
+@media (min-width: 960px) {
+  .VPFeatures .items .item {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+  }
+}
+
+/* Last feature card spans full width if needed, or maintain consistency */
+.VPFeatures .items .item:last-child {
+  /* flex: 0 0 100%;
+  max-width: 100%; */
+}
+
+/* Footer WPAnchorBay link styling */
+.VPFooter a {
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.VPFooter a:hover {
+  text-decoration: underline;
+}
+
+/* Custom Navbar Title */
+.tubebay-site-title {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin-left: 10px;
+  color: var(--vp-c-text-1);
+}
+
+.tubebay-site-title .tube-bold {
+  font-weight: 800;
+  color: var(--vp-c-brand-1);
+}
+
+/* Adjust logo alignment with custom title */
+.VPNavBarTitle.has-sidebar .title {
+  display: flex;
+  align-items: center;
+}
+
+/* Version badge in navbar */
+.VPNavBar .VPNavBarMenu .VPFlyout:first-child .text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+}
+
+/* Image Zoom */
+.main img {
+  cursor: zoom-in;
+}
+
+/* Documentation Content Images Styling */
+.vp-doc img {
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.vp-doc img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Maintain styles when zooming */
+.medium-zoom-image--opened {
+  border-radius: 8px !important;
+  border: 1px solid var(--vp-c-divider) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  z-index: 201 !important;
+}
+
+.medium-zoom-overlay {
+  z-index: 200 !important;
+}
+
+.medium-zoom-image--opened {
+  z-index: 201 !important;
+}

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-07T06:22:25+00:00\n"
+"POT-Creation-Date: 2026-05-05T11:15:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: tubebay\n"
@@ -167,59 +167,75 @@ msgstr ""
 msgid "Invalid or missing nonce."
 msgstr ""
 
-#: app/Api/SampleController.php:104
-msgid "Hello from TubeBay!"
+#: app/Api/SettingsController.php:152
+msgid "Refresh token is missing."
 msgstr ""
 
-#: app/Api/SettingsController.php:213
+#: app/Api/SettingsController.php:164
+msgid "API Key and Channel ID are required for manual connection."
+msgstr ""
+
+#: app/Api/SettingsController.php:202
+msgid "Connected successfully!"
+msgstr ""
+
+#: app/Api/SettingsController.php:343
 msgid "Settings saved successfully."
 msgstr ""
 
-#: app/Api/SettingsController.php:300
+#: app/Api/SettingsController.php:430
 msgid "All TubeBay data has been deleted and settings reset to defaults."
 msgstr ""
 
-#: app/Api/YouTubeController.php:133
 #: app/Api/YouTubeController.php:170
-#: app/Api/YouTubeController.php:216
+#: app/Api/YouTubeController.php:207
+#: app/Api/YouTubeController.php:253
 msgid "API Key or Channel ID missing."
 msgstr ""
 
-#: app/Api/YouTubeController.php:148
+#: app/Api/YouTubeController.php:185
 msgid "Connection successful!"
 msgstr ""
 
-#: app/Api/YouTubeController.php:192
-#: app/Api/YouTubeController.php:236
+#: app/Api/YouTubeController.php:229
+#: app/Api/YouTubeController.php:273
 msgid "Library synced successfully."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:75
-#: app/Data/Entities/Channel.php:238
-#: app/Data/Entities/Channel.php:353
+#: app/Api/YouTubeController.php:391
+msgid "Account disconnected successfully."
+msgstr ""
+
+#: app/Data/Entities/Channel.php:117
+#: app/Data/Entities/Channel.php:366
+#: app/Data/Entities/Channel.php:484
 msgid "TubeBay API Key or Channel ID is missing."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:147
+#: app/Data/Entities/Channel.php:273
 msgid "Could not find the uploads playlist for this channel."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:382
+#: app/Data/Entities/Channel.php:521
 msgid "Could not fetch channel details."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:411
+#: app/Data/Entities/Channel.php:552
 msgid "API Key or Channel ID is missing."
+msgstr ""
+
+#: app/Data/Entities/Channel.php:579
+msgid "Failed to validate OAuth connection. Could not generate access token."
 msgstr ""
 
 #: app/Integration/WooCommerce.php:118
 msgid "TubeBay Product Video"
 msgstr ""
 
-#: build/admin.js:13
+#: build/admin.js:1
 msgid "Documentation"
 msgstr ""
 
-#: build/admin.js:13
+#: build/admin.js:1
 msgid "Support"
 msgstr ""

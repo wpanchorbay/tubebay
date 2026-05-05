@@ -44,6 +44,8 @@ export interface PluginSettings {
     muted_autoplay: boolean;
     show_controls: boolean;
     is_onboarding_completed: boolean;
+    connection_method: "oauth" | "api";
+    refresh_token: string;
 }
 
 export interface SyncPlacementSettings {

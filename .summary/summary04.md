@@ -51,13 +51,13 @@ A **3-step guided wizard** for first-time setup:
 
 | Step | Title              | What Happens                                                       |
 | ---- | ------------------ | ------------------------------------------------------------------ |
-| 1    | Connect YouTube    | User enters API Key + Channel ID → Test Connection                 |
+| 1    | Connect YouTube    | User chooses connection method (OAuth or API Key) → Connect account |
 | 2    | Configure Settings | Set video placement, autoplay, controls, cache duration, auto-sync |
 | 3    | Done               | Success screen with link to Channel Library                        |
 
 **Key Functions**:
 
-- `handleConnect()` — Saves API key + channel ID, updates connection status
+- `handleConnect()` — Handles OAuth redirect or API key validation
 - `handleTestConnection()` — Calls `POST /youtube/test-connection` endpoint
 - `handleSyncLibrary()` — Calls `GET /youtube/sync-library-status` to sync videos
 - `handleSaveSettings()` — Saves all settings, triggers library sync
@@ -105,7 +105,7 @@ Full plugin configuration split into cards:
 
 | Card Component          | Contents                                                                                                              |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `ConnectAccountCard`    | API Key, Channel ID, Test Connection, connection status, channel info display                                         |
+| `ConnectAccountCard`    | Toggle between OAuth (recommended) and API Key, test connection, view channel info display                            |
 | `SyncCard`              | Auto-sync toggle, cache duration slider, manual sync button, last sync time                                           |
 | `PlacementSettingsCard` | Video placement selector (radio cards with visual previews), muted autoplay, show controls, video placeholder preview |
 | `AdvancedSettingsCard`  | Debug mode toggle, delete all data on uninstall toggle, "Delete All Data Now" button with confirmation modal          |

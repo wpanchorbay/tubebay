@@ -14,9 +14,11 @@ mkdir -p dist/$PLUGIN_SLUG
 # Copy folders
 echo "Copying folders..."
 cp -r app dist/$PLUGIN_SLUG/
-cp -r languages dist/$PLUGIN_SLUG/
 cp -r assets dist/$PLUGIN_SLUG/
 cp -r build dist/$PLUGIN_SLUG/
+cp -r config dist/$PLUGIN_SLUG/
+cp -r languages dist/$PLUGIN_SLUG/
+cp -r vendor dist/$PLUGIN_SLUG/
 
 # Copy files
 echo "Copying files..."
@@ -24,6 +26,7 @@ cp index.php dist/$PLUGIN_SLUG/
 cp readme.txt dist/$PLUGIN_SLUG/
 cp uninstall.php dist/$PLUGIN_SLUG/
 cp tubebay.php dist/$PLUGIN_SLUG/
+cp composer.json dist/$PLUGIN_SLUG/
 
 # Create the zip file
 echo "Creating zip file..."

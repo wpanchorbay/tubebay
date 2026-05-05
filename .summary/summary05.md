@@ -316,7 +316,6 @@ Utility script to rebrand the plugin:
 
 | Item                   | Type          | Detail                                                                                             |
 | ---------------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| OAuth Proxy            | Phase 2       | Replace manual API keys with one-click Google OAuth via proxy server                               |
 | Max 50 Videos          | Current       | Playlist API fetches up to 50 videos per request (YouTube limit)                                   |
 | Shop Page Videos       | Commented Out | Code exists for shop/loop page video replacement but is disabled                                   |
 | Custom Database Tables | Stub          | `DbManager::create_tables()` is prepared but no tables are created yet                             |

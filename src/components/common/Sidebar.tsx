@@ -148,7 +148,14 @@ const Sidebar: FC = () => {
                   <img
                     src={plugin_settings.thumbnails_default}
                     alt={channelName}
-                    className="tubebay-w-[36px] tubebay-h-[36px] tubebay-rounded-full tubebay-flex-shrink-0 tubebay-object-cover"
+                    referrerPolicy="no-referrer" /* <-- Fixes the Google CDN blocking issue */
+                    className="tubebay-w-[36px] tubebay-h-[36px] tubebay-rounded-full tubebay-flex-shrink-0 tubebay-object-cover tubebay-bg-gray-200"
+                    onError={(e) => {
+                      /* <-- Fallback if the image fails completely */
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239ca3af'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+                    }}
                   />
                 ) : (
                   <div className="tubebay-w-[36px] tubebay-h-[36px] tubebay-bg-red-100 tubebay-rounded-full tubebay-flex tubebay-items-center tubebay-justify-center tubebay-text-red-600 tubebay-flex-shrink-0">

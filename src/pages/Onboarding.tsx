@@ -57,6 +57,8 @@ const Onboarding: FC = () => {
   const [tmpCredentials, setTmpCredentials] = useState({
     api_key: settings.api_key || "",
     channel_id: settings.channel_id || "",
+    refresh_token: settings.refresh_token || "",
+    connection_method: (settings.connection_method as "oauth" | "api") || "oauth",
   });
 
   const [tmpOtherSettings, setTmpOtherSettings] = useState({
@@ -89,17 +91,27 @@ const Onboarding: FC = () => {
     setSaving(true);
     setConnectionFeedback(null);
     try {
+      const isOAuth = tmpCredentials.connection_method === "oauth";
+
+      const data = isOAuth
+        ? {
+            refresh_token: tmpCredentials.refresh_token,
+            connection_method: "oauth",
+          }
+        : {
+            api_key: tmpCredentials.api_key,
+            channel_id: tmpCredentials.channel_id,
+            connection_method: "api",
+          };
+
       const response = await apiFetch<{
         success: boolean;
         message: string;
         data: SettingsData;
       }>({
-        path: "/tubebay/v1/settings",
+        path: "/tubebay/v1/auth/connect",
         method: "POST",
-        data: {
-          api_key: tmpCredentials.api_key,
-          channel_id: tmpCredentials.channel_id,
-        },
+        data,
       });
 
       if (response.success) {
@@ -107,6 +119,8 @@ const Onboarding: FC = () => {
         setTmpCredentials({
           api_key: response.data.api_key || "",
           channel_id: response.data.channel_id || "",
+          refresh_token: response.data.refresh_token || "",
+          connection_method: (response.data.connection_method as "oauth" | "api") || "oauth",
         });
 
         if (
@@ -116,7 +130,7 @@ const Onboarding: FC = () => {
           setConnectionFeedback({
             type: "error",
             message:
-              "Could not verify the API key or Channel ID. Please double-check your credentials.",
+              "Could not verify the connection. Please double-check your credentials.",
           });
         } else {
           setConnectionFeedback({
@@ -154,6 +168,8 @@ const Onboarding: FC = () => {
         data: {
           api_key: tmpCredentials.api_key,
           channel_id: tmpCredentials.channel_id,
+          refresh_token: tmpCredentials.refresh_token,
+          connection_method: tmpCredentials.connection_method,
         },
       });
 
@@ -250,7 +266,9 @@ const Onboarding: FC = () => {
   const credentialsChanged = () => {
     return (
       tmpCredentials.api_key !== (settings.api_key || "") ||
-      tmpCredentials.channel_id !== (settings.channel_id || "")
+      tmpCredentials.channel_id !== (settings.channel_id || "") ||
+      tmpCredentials.refresh_token !== (settings.refresh_token || "") ||
+      tmpCredentials.connection_method !== (settings.connection_method || "oauth")
     );
   };
 

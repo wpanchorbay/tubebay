@@ -8,12 +8,10 @@ import CustomModal from "../components/common/CustomModal";
 import {
   RefreshIcon,
   CheckIcon,
-  InfoIcon,
   ListIcon,
   LayoutGridIcon,
   EyeIcon,
   CalendarIcon,
-  CodeIcon,
   YouTubeFilledIcon,
 } from "../components/common/Icons";
 import Select from "../components/common/Select";
@@ -22,6 +20,7 @@ import { useWpabStore, useWpabStoreActions } from "../store/wpabStore";
 import { timeDiff } from "../utils/Dates";
 import { Toggler } from "../components/common/Toggler";
 import { Copy } from "lucide-react";
+import Skeleton from "../components/common/Skeleton";
 
 interface VideoData {
   id: string;
@@ -91,6 +90,7 @@ export default function ChannelLibrary() {
 
   const handleSyncNow = async () => {
     setSyncing(true);
+    setLoading(true);
     try {
       const response = await apiFetch<{
         success: boolean;
@@ -135,6 +135,7 @@ export default function ChannelLibrary() {
       addToast(`Sync Failed: ${(error as any).message}`, "error");
     } finally {
       setSyncing(false);
+      setLoading(false);
     }
   };
 
@@ -217,32 +218,52 @@ export default function ChannelLibrary() {
       </div>
 
       {/* Status Banner */}
-      <div className="tubebay-bg-green-50 tubebay-border tubebay-border-green-200 tubebay-rounded-[12px] tubebay-p-[24px]  tubebay-flex tubebay-flex-col md:tubebay-flex-row md:tubebay-items-center md:tubebay-justify-between">
-        <div className="tubebay-flex tubebay-items-center tubebay-gap-[16px]">
-          <div className="tubebay-bg-green-500 tubebay-text-white tubebay-rounded-full tubebay-p-[8px] tubebay-flex tubebay-items-center tubebay-justify-center">
-            <CheckIcon size={24} />
+      {loading ? (
+        <div className="tubebay-bg-gray-100 tubebay-border tubebay-border-gray-200 tubebay-rounded-[12px] tubebay-p-[24px] tubebay-flex tubebay-flex-col md:tubebay-flex-row md:tubebay-items-center md:tubebay-justify-between">
+          <div className="tubebay-flex tubebay-items-center tubebay-gap-[16px]">
+            <Skeleton
+              width="10"
+              height="10"
+              borderRadius="full"
+              className="tubebay-flex-shrink-0"
+            />
+            <div>
+              <Skeleton width="48" height="4" className="tubebay-mb-2" />
+              <Skeleton width="64" height="3" />
+            </div>
           </div>
-          <div>
-            <h3 className="tubebay-text-[16px] tubebay-font-bold tubebay-text-gray-900">
-              {videos.length > 0 ? "All Videos Synced" : "No Videos YET"}
-            </h3>
-            <p className="tubebay-text-[14px] tubebay-text-gray-600">
-              {videos.length} videos from your YouTube channel are available
-            </p>
+          <div className="tubebay-mt-[16px] md:tubebay-mt-0">
+            <Skeleton width="32" height="4" />
           </div>
         </div>
-        <div className="tubebay-text-right tubebay-mt-[16px] md:tubebay-mt-0">
-          <p className="tubebay-text-[14px] tubebay-font-medium tubebay-text-gray-900">
-            Last sync:{" "}
-            {isConnected
-              ? timeDiff(Number(plugin_settings.last_sync_time))
-              : "Never"}
-          </p>
-          {/* <p className="tubebay-text-[12px] tubebay-text-gray-500">
+      ) : (
+        <div className="tubebay-bg-green-50 tubebay-border tubebay-border-green-200 tubebay-rounded-[12px] tubebay-p-[24px]  tubebay-flex tubebay-flex-col md:tubebay-flex-row md:tubebay-items-center md:tubebay-justify-between">
+          <div className="tubebay-flex tubebay-items-center tubebay-gap-[16px]">
+            <div className="tubebay-bg-green-500 tubebay-text-white tubebay-rounded-full tubebay-p-[8px] tubebay-flex tubebay-items-center tubebay-justify-center">
+              <CheckIcon size={24} />
+            </div>
+            <div>
+              <h3 className="tubebay-text-[16px] tubebay-font-bold tubebay-text-gray-900">
+                {videos.length > 0 ? "All Videos Synced" : "No Videos YET"}
+              </h3>
+              <p className="tubebay-text-[14px] tubebay-text-gray-600">
+                {videos.length} videos from your YouTube channel are available
+              </p>
+            </div>
+          </div>
+          <div className="tubebay-text-right tubebay-mt-[16px] md:tubebay-mt-0">
+            <p className="tubebay-text-[14px] tubebay-font-medium tubebay-text-gray-900">
+              Last sync:{" "}
+              {isConnected
+                ? timeDiff(Number(plugin_settings.last_sync_time))
+                : "Never"}
+            </p>
+            {/* <p className="tubebay-text-[12px] tubebay-text-gray-500">
             Cache is active
           </p> */}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Toolbar */}
       <div className="tubebay-flex tubebay-flex-col md:tubebay-flex-row tubebay-gap-[16px] tubebay-p-[24px] tubebay-bg-white tubebay-rounded-[16px] tubebay-border tubebay-shadow-sm ">

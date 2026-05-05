@@ -60,6 +60,7 @@ class Settings {
 		'show_controls'                 => false,
 		'is_onboarding_completed'       => false,
 		'last_sync_time'                => 0,
+		'connection_method'             => 'oauth',
 
 
 		/*
@@ -162,6 +163,16 @@ class Settings {
 	 */
 	public static function get_channel_id() {
 		return self::get( 'channel_id' );
+	}
+
+	/**
+	 * Get the configured Connection Method.
+	 *
+	 * @return string
+	 * @since 1.0.0
+	 */
+	public static function get_connection_method() {
+		return self::get( 'connection_method' );
 	}
 
 	/**

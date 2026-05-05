@@ -213,6 +213,11 @@ class WooCommerce {
 
 		// SCENARIO B: LAST SLIDE
 		if ( 'add_to_gallery_last' === $placement ) {
+			// No main image at all — append the video to the placeholder.
+			if ( empty( $main_image_id ) ) {
+				return  $video_slide_html;
+			}
+
 			$product = wc_get_product( $post->ID );
 			if ( $product ) {
 				$gallery_ids = $product->get_gallery_image_ids();

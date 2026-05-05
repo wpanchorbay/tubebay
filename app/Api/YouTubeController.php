@@ -24,6 +24,7 @@ use TubeBay\Data\Entities\Channel;
  */
 class YouTubeController extends ApiController {
 
+
 	/**
 	 * The single instance of the class.
 	 *
@@ -63,6 +64,13 @@ class YouTubeController extends ApiController {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'test_connection' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'args'                => array(
+						'connection_method' => array(
+							'required' => true,
+							'type'     => 'string',
+							'enum'     => array( 'api', 'oauth' ),
+						),
+					),
 				),
 			)
 		);
@@ -105,6 +113,32 @@ class YouTubeController extends ApiController {
 				),
 			)
 		);
+		// Route to disconnect the YouTube account.
+		register_rest_route(
+			$namespace,
+			'/youtube/disconnect',
+			array(
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'disconnect' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				),
+			)
+		);
+		// Route to redirect user to OAuth Proxy with domain tracking.
+		register_rest_route(
+			$namespace,
+			'/youtube/oauth-connect',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'oauth_connect' ),
+					'permission_callback' => function () {
+						return true;
+					},
+				),
+			)
+		);
 	}
 
 	/**
@@ -115,19 +149,22 @@ class YouTubeController extends ApiController {
 	 * @since 1.0.0
 	 */
 	public function test_connection( $request ) {
-		$params     = $request->get_params();
-		$api_key    = $params['api_key'];
-		$channel_id = $params['channel_id'];
+		$params            = $request->get_params();
+		$api_key           = $params['api_key'];
+		$channel_id        = $params['channel_id'];
+		$refresh_token     = $params['refresh_token'];
+		$connection_method = $params['connection_method'];
 
 		tubebay_log( "Testing connection for Channel ID: {$channel_id}", 'debug' );
 
 		$channel = new Channel(
 			array(
-				'api_key'    => $api_key ? $api_key : '--',
-				'channel_id' => $channel_id ? $channel_id : '--',
+				'api_key'           => $api_key,
+				'channel_id'        => $channel_id,
+				'refresh_token'     => $refresh_token,
+				'connection_method' => $connection_method,
 			)
 		);
-
 		if ( ! $channel->is_configured() ) {
 			tubebay_log( 'Connection test failed: API Key or Channel ID missing', 'error' );
 			return new \WP_Error( 'not_configured', __( 'API Key or Channel ID missing.', 'tubebay' ), array( 'status' => 400 ) );
@@ -301,5 +338,84 @@ class YouTubeController extends ApiController {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Disconnect the YouTube account.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error The REST response or error.
+	 */
+	public function disconnect( $request ) {
+		tubebay_log( 'Disconnect request received', 'info' );
+
+		$channel_id = \TubeBay\Helper\Settings::get_channel_id();
+
+		// List of settings to clear.
+		$settings_to_clear = array(
+			'api_key',
+			'channel_id',
+			'channel_name',
+			'thumbnails_default',
+			'thumbnails_medium',
+			'connection_status',
+			'connection_method',
+			'last_sync_time',
+			'access_token',
+			'refresh_token',
+			'token_expires',
+		);
+
+		foreach ( $settings_to_clear as $setting ) {
+			if ( 'connection_status' === $setting ) {
+				\TubeBay\Helper\Settings::set( $setting, 'inactive' );
+			} elseif ( 'connection_method' === $setting ) {
+				\TubeBay\Helper\Settings::set( $setting, 'oauth' );
+			} elseif ( 'last_sync_time' === $setting || 'token_expires' === $setting ) {
+				\TubeBay\Helper\Settings::set( $setting, 0 );
+			} else {
+				\TubeBay\Helper\Settings::set( $setting, '' );
+			}
+		}
+
+		// Clear transient cache for this channel.
+		if ( ! empty( $channel_id ) ) {
+			delete_transient( 'tubebay_videos_cache_' . $channel_id );
+		}
+
+		tubebay_log( 'YouTube account disconnected and credentials cleared.', 'info' );
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Account disconnected successfully.', 'tubebay' ),
+			),
+			200
+		);
+	}
+
+	/**
+	 * Redirect the user to the YouTube OAuth proxy.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return void
+	 */
+	public function oauth_connect( $request ) {
+		tubebay_log( '+++++++++++++++++++++++++++++++++++++++++' );
+		$domain    = home_url();
+		$proxy_url = 'https://wpanchorbay.com/oauth/index.php';
+
+		$redirect_url = add_query_arg(
+			array(
+				'action' => 'connect',
+				'domain' => $domain,
+			),
+			$proxy_url
+		);
+
+		tubebay_log( 'Redirecting user to OAuth proxy: ' . $redirect_url );
+		tubebay_log( '_______________', $redirect_url );
+		wp_safe_redirect( $redirect_url );
+		exit;
 	}
 }

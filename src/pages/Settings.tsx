@@ -12,6 +12,8 @@ import ConnectAccountCard, {
 import SyncCard from "../components/settings/SyncCard";
 import PlacementSettingsCard from "../components/settings/PlacementSettingsCard";
 import AdvancedSettingsCard from "../components/settings/AdvancedSettingsCard";
+import { ConfirmationModal } from "../components/common/ConfirmationModal";
+import Loader from "../components/common/Loader";
 import { PageSkeleton } from "../components/loading/PageSkeleton";
 
 type SettingsData = Partial<PluginSettings>;
@@ -26,6 +28,8 @@ export default function Settings() {
   const [editingConnection, setEditingConnection] = useState(false);
   const [connectionFeedback, setConnectionFeedback] =
     useState<ConnectionFeedback | null>(null);
+  const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const { plugin_settings: settings } = useWpabStore();
   const { updateStore } = useWpabStoreActions();
@@ -42,7 +46,12 @@ export default function Settings() {
   const [tmpCredentials, setTmpCredentials] = useState({
     api_key: settings.api_key || "",
     channel_id: settings.channel_id || "",
+    refresh_token: settings.refresh_token || "",
+    connection_method: settings.connection_status === "connected" 
+      ? (settings.connection_method as "oauth" | "api") || "oauth"
+      : "oauth",
   });
+  console.log(tmpCredentials);
 
   // Separate temp state for other settings
   const [tmpOtherSettings, setTmpOtherSettings] = useState({
@@ -69,6 +78,10 @@ export default function Settings() {
       const creds = {
         api_key: response.api_key || "",
         channel_id: response.channel_id || "",
+        refresh_token: response.refresh_token || "",
+        connection_method: response.connection_status === "connected"
+          ? (response.connection_method as "oauth" | "api") || "oauth"
+          : "oauth",
       };
       const other = {
         auto_sync: response.auto_sync !== undefined ? response.auto_sync : true,
@@ -95,17 +108,27 @@ export default function Settings() {
     setSaving(true);
     setConnectionFeedback(null);
     try {
+      const isOAuth = tmpCredentials.connection_method === "oauth";
+
+      const data = isOAuth
+        ? {
+            refresh_token: tmpCredentials.refresh_token,
+            connection_method: "oauth",
+          }
+        : {
+            api_key: tmpCredentials.api_key,
+            channel_id: tmpCredentials.channel_id,
+            connection_method: "api",
+          };
+
       const response = await apiFetch<{
         success: boolean;
         message: string;
         data: SettingsData;
       }>({
-        path: "/tubebay/v1/settings",
+        path: "/tubebay/v1/auth/connect",
         method: "POST",
-        data: {
-          api_key: tmpCredentials.api_key,
-          channel_id: tmpCredentials.channel_id,
-        },
+        data,
       });
 
       if (response.success) {
@@ -113,6 +136,8 @@ export default function Settings() {
         setTmpCredentials({
           api_key: response.data.api_key || "",
           channel_id: response.data.channel_id || "",
+          refresh_token: response.data.refresh_token || "",
+          connection_method: (response.data.connection_method as "oauth" | "api") || "oauth",
         });
 
         // Check if connection actually succeeded
@@ -123,7 +148,7 @@ export default function Settings() {
           setConnectionFeedback({
             type: "error",
             message:
-              "Could not verify the API key or Channel ID. Please double-check your credentials.",
+              "Could not verify the connection. Please double-check your credentials.",
           });
         } else {
           setConnectionFeedback({
@@ -206,6 +231,8 @@ export default function Settings() {
         data: {
           api_key: tmpCredentials.api_key,
           channel_id: tmpCredentials.channel_id,
+          refresh_token: tmpCredentials.refresh_token,
+          connection_method: tmpCredentials.connection_method,
         },
       });
 
@@ -255,14 +282,43 @@ export default function Settings() {
     } catch (error) {
       addToast(`Sync Failed: ${(error as any).message}`, "error");
     } finally {
-      setSyncing(false);
+      setSaving(false);
+    }
+  };
+
+  const onConfirmDisconnect = async () => {
+    setIsDisconnectModalOpen(false);
+    await handleDisconnect();
+  };
+
+  const handleDisconnect = async () => {
+    setIsDisconnecting(true);
+    try {
+      const response = await apiFetch<{
+        success: boolean;
+        message: string;
+      }>({
+        path: "/tubebay/v1/youtube/disconnect",
+        method: "DELETE",
+      });
+
+      if (response.success) {
+        addToast(response.message, "success");
+        window.location.reload();
+      }
+    } catch (error) {
+      addToast(`Error disconnecting: ${(error as Error).message}`, "error");
+    } finally {
+      setIsDisconnecting(false);
     }
   };
 
   const credentialsChanged = () => {
     return (
       tmpCredentials.api_key !== (settings.api_key || "") ||
-      tmpCredentials.channel_id !== (settings.channel_id || "")
+      tmpCredentials.channel_id !== (settings.channel_id || "") ||
+      tmpCredentials.refresh_token !== (settings.refresh_token || "") ||
+      tmpCredentials.connection_method !== (settings.connection_method || "oauth")
     );
   };
 
@@ -313,6 +369,7 @@ export default function Settings() {
         connectYouTube={connectYouTube}
         feedback={connectionFeedback}
         setFeedback={setConnectionFeedback}
+        handleDisconnect={() => setIsDisconnectModalOpen(true)}
       />
 
       {/* Placement & Player Settings Card */}
@@ -345,6 +402,32 @@ export default function Settings() {
           {savingSettings ? "Saving..." : "Save Settings"}
         </Button>
       </div>
+
+      {isDisconnecting && (
+        <div className="tubebay-fixed tubebay-inset-0 tubebay-z-[99999] tubebay-flex tubebay-items-center tubebay-justify-center tubebay-bg-black/60 tubebay-backdrop-blur-[2px]">
+          <div className="tubebay-flex tubebay-flex-col tubebay-items-center tubebay-gap-4">
+            <Loader />
+            <span className="tubebay-text-white tubebay-font-bold tubebay-text-[18px]">
+              Disconnecting...
+            </span>
+          </div>
+        </div>
+      )}
+
+      <ConfirmationModal
+        isOpen={isDisconnectModalOpen}
+        title="Disconnect Account?"
+        message="Are you sure you want to disconnect your YouTube account? This will clear all connection credentials."
+        confirmLabel="Disconnect Now"
+        cancelLabel="Keep Connected"
+        onConfirm={onConfirmDisconnect}
+        onCancel={() => setIsDisconnectModalOpen(false)}
+        classNames={{
+          button: {
+            confirmColor: "danger" as any,
+          },
+        }}
+      />
     </Page>
   );
 }
