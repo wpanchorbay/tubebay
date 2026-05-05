@@ -31,7 +31,7 @@ WooCommerce merchants who use YouTube to market products face friction:
 
 ## How TubeBay Solves It
 
-1. **Connect Once** — Enter a YouTube API key and Channel ID in the plugin settings.
+1. **Connect Securely** — Connect via Google OAuth 2.0 (recommended) for one-click setup or use a manual API key.
 2. **Auto-Sync Library** — TubeBay fetches the channel's video library and caches it.
 3. **Assign Videos to Products** — A custom metabox on each WooCommerce product edit screen lets you browse and pick a video from a visual grid.
 4. **Automatic Frontend Display** — The chosen video automatically appears in the product gallery (or other configurable positions) on the live store.
@@ -43,10 +43,10 @@ WooCommerce merchants who use YouTube to market products face friction:
 
 | Phase                 | Description                                                                                                          | Status     |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------- |
-| **Phase 1 (Current)** | Manual API Key connection — build core features, create screencast for Google OAuth approval                         | ✅ Active  |
-| **Phase 2 (Planned)** | One-click OAuth Proxy connection via `wpanchorbay.com/oauth` — replaces manual keys with professional authentication | ⏳ Planned |
+| **Phase 1** | Manual API Key connection — core features and initial development.                         | ✅ Done  |
+| **Phase 2** | One-click OAuth Proxy connection via `wpanchorbay.com/oauth` — professional authentication approved by Google. | ✅ Active |
 
-Phase 2 requires Google to approve the OAuth verification request, which needs a screencast built with Phase 1 functionality.
+OAuth is now the primary and recommended connection method, providing a seamless and secure experience for users without requiring manual API key creation.
 
 ---
 
@@ -62,6 +62,7 @@ Phase 2 requires Google to approve the OAuth verification request, which needs a
 
 ## Key Features at a Glance
 
+- ✅ **Google OAuth 2.0 Connection** (One-click, secure authentication)
 - ✅ Native WooCommerce gallery integration (replace main image or add to gallery)
 - ✅ Performance-first Video Façade (lazy-loading YouTube embeds)
 - ✅ Guided onboarding wizard
@@ -385,6 +386,7 @@ All REST endpoints live under namespace `tubebay/v1/`. Base controller handles a
 | `POST`   | `/settings`                    | SettingsController | Update plugin settings              |
 | `DELETE` | `/settings/delete-all-data`    | SettingsController | Wipe all plugin data and reset      |
 | `POST`   | `/youtube/test-connection`     | YouTubeController  | Test YouTube API connection         |
+| `GET`    | `/youtube/oauth-connect`       | YouTubeController  | Redirect to Google OAuth Proxy      |
 | `GET`    | `/youtube/sync-library`        | YouTubeController  | Sync video library (returns videos) |
 | `GET`    | `/youtube/sync-library-status` | YouTubeController  | Sync library (returns status only)  |
 | `GET`    | `/youtube/videos`              | YouTubeController  | Get videos (search, sort, paginate) |
@@ -422,20 +424,21 @@ All REST endpoints live under namespace `tubebay/v1/`. Base controller handles a
 
 ### Channel.php — YouTube Channel Entity
 
-The most complex entity — handles all YouTube API communication:
+The most complex entity — handles all YouTube API communication for both **OAuth** and **Manual API** connection methods:
 
-**Properties**: `api_key`, `channel_id` (loaded from Settings if not provided)
+**Properties**: `api_key`, `channel_id`, `access_token`, `refresh_token`, `method` (loaded from Settings)
 
 **Key Methods**:
 
 | Method                                              | Description                                                  |
 | --------------------------------------------------- | ------------------------------------------------------------ |
-| `is_configured()`                                   | Checks if both API key and channel ID are set                |
+| `is_configured()`                                   | Checks if connection credentials are set                     |
 | `get_latest_videos($force)`                         | Returns cached videos or fetches fresh from API              |
 | `fetch_videos_from_api()`                           | Two-step API call: get uploads playlist → get playlist items |
 | `search_videos($query, $sort, $page_token, $limit)` | Full YouTube Search API with sorting and pagination          |
 | `get_channel_details()`                             | Fetches channel snippet (title, thumbnails)                  |
-| `test_connection()`                                 | Read-only connection test via `get_channel_details()`        |
+| `test_connection()`                                 | Connection test for both API and OAuth modes                 |
+| `test_oauth_connection()`                           | Validates OAuth refresh token and generates access token     |
 | `reconnect()`                                       | Saves credentials and re-tests                               |
 | `disconnect()`                                      | Clears connection state                                      |
 
@@ -494,9 +497,10 @@ All settings stored as individual `wp_options` with prefix `tubebay_`:
 | `show_controls`                 | `false`                 | bool   | Show player controls                              |
 | `is_onboarding_completed`       | `false`                 | bool   | Onboarding wizard status                          |
 | `last_sync_time`                | `0`                     | int    | Unix timestamp of last sync                       |
-| `access_token`                  | `''`                    | string | OAuth token (Phase 2)                             |
-| `refresh_token`                 | `''`                    | string | OAuth refresh token (Phase 2)                     |
-| `token_expires`                 | `0`                     | int    | Token expiry (Phase 2)                            |
+| `connection_method`             | `'oauth'`               | string | `oauth` or `api`                                  |
+| `access_token`                  | `''`                    | string | OAuth access token                                |
+| `refresh_token`                 | `''`                    | string | OAuth refresh token                               |
+| `token_expires`                 | `0`                     | int    | Token expiry timestamp                            |
 | `advanced_deleteAllOnUninstall` | `false`                 | bool   | Delete data on uninstall                          |
 | `debug_enableMode`              | `false`                 | bool   | Enable debug logging                              |
 
@@ -647,13 +651,13 @@ A **3-step guided wizard** for first-time setup:
 
 | Step | Title              | What Happens                                                       |
 | ---- | ------------------ | ------------------------------------------------------------------ |
-| 1    | Connect YouTube    | User enters API Key + Channel ID → Test Connection                 |
+| 1    | Connect YouTube    | User chooses connection method (OAuth or API Key) → Connect account |
 | 2    | Configure Settings | Set video placement, autoplay, controls, cache duration, auto-sync |
 | 3    | Done               | Success screen with link to Channel Library                        |
 
 **Key Functions**:
 
-- `handleConnect()` — Saves API key + channel ID, updates connection status
+- `handleConnect()` — Handles OAuth redirect or API key validation
 - `handleTestConnection()` — Calls `POST /youtube/test-connection` endpoint
 - `handleSyncLibrary()` — Calls `GET /youtube/sync-library-status` to sync videos
 - `handleSaveSettings()` — Saves all settings, triggers library sync
@@ -701,7 +705,7 @@ Full plugin configuration split into cards:
 
 | Card Component          | Contents                                                                                                              |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `ConnectAccountCard`    | API Key, Channel ID, Test Connection, connection status, channel info display                                         |
+| `ConnectAccountCard`    | Toggle between OAuth (recommended) and API Key, test connection, view channel info display                            |
 | `SyncCard`              | Auto-sync toggle, cache duration slider, manual sync button, last sync time                                           |
 | `PlacementSettingsCard` | Video placement selector (radio cards with visual previews), muted autoplay, show controls, video placeholder preview |
 | `AdvancedSettingsCard`  | Debug mode toggle, delete all data on uninstall toggle, "Delete All Data Now" button with confirmation modal          |
@@ -1230,7 +1234,6 @@ Utility script to rebrand the plugin:
 
 | Item                   | Type          | Detail                                                                                             |
 | ---------------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| OAuth Proxy            | Phase 2       | Replace manual API keys with one-click Google OAuth via proxy server                               |
 | Max 50 Videos          | Current       | Playlist API fetches up to 50 videos per request (YouTube limit)                                   |
 | Shop Page Videos       | Commented Out | Code exists for shop/loop page video replacement but is disabled                                   |
 | Custom Database Tables | Stub          | `DbManager::create_tables()` is prepared but no tables are created yet                             |

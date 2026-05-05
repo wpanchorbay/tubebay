@@ -113,6 +113,7 @@ All REST endpoints live under namespace `tubebay/v1/`. Base controller handles a
 | `POST`   | `/settings`                    | SettingsController | Update plugin settings              |
 | `DELETE` | `/settings/delete-all-data`    | SettingsController | Wipe all plugin data and reset      |
 | `POST`   | `/youtube/test-connection`     | YouTubeController  | Test YouTube API connection         |
+| `GET`    | `/youtube/oauth-connect`       | YouTubeController  | Redirect to Google OAuth Proxy      |
 | `GET`    | `/youtube/sync-library`        | YouTubeController  | Sync video library (returns videos) |
 | `GET`    | `/youtube/sync-library-status` | YouTubeController  | Sync library (returns status only)  |
 | `GET`    | `/youtube/videos`              | YouTubeController  | Get videos (search, sort, paginate) |
@@ -150,20 +151,21 @@ All REST endpoints live under namespace `tubebay/v1/`. Base controller handles a
 
 ### Channel.php — YouTube Channel Entity
 
-The most complex entity — handles all YouTube API communication:
+The most complex entity — handles all YouTube API communication for both **OAuth** and **Manual API** connection methods:
 
-**Properties**: `api_key`, `channel_id` (loaded from Settings if not provided)
+**Properties**: `api_key`, `channel_id`, `access_token`, `refresh_token`, `method` (loaded from Settings)
 
 **Key Methods**:
 
 | Method                                              | Description                                                  |
 | --------------------------------------------------- | ------------------------------------------------------------ |
-| `is_configured()`                                   | Checks if both API key and channel ID are set                |
+| `is_configured()`                                   | Checks if connection credentials are set                     |
 | `get_latest_videos($force)`                         | Returns cached videos or fetches fresh from API              |
 | `fetch_videos_from_api()`                           | Two-step API call: get uploads playlist → get playlist items |
 | `search_videos($query, $sort, $page_token, $limit)` | Full YouTube Search API with sorting and pagination          |
 | `get_channel_details()`                             | Fetches channel snippet (title, thumbnails)                  |
-| `test_connection()`                                 | Read-only connection test via `get_channel_details()`        |
+| `test_connection()`                                 | Connection test for both API and OAuth modes                 |
+| `test_oauth_connection()`                           | Validates OAuth refresh token and generates access token     |
 | `reconnect()`                                       | Saves credentials and re-tests                               |
 | `disconnect()`                                      | Clears connection state                                      |
 
@@ -222,9 +224,10 @@ All settings stored as individual `wp_options` with prefix `tubebay_`:
 | `show_controls`                 | `false`                 | bool   | Show player controls                              |
 | `is_onboarding_completed`       | `false`                 | bool   | Onboarding wizard status                          |
 | `last_sync_time`                | `0`                     | int    | Unix timestamp of last sync                       |
-| `access_token`                  | `''`                    | string | OAuth token (Phase 2)                             |
-| `refresh_token`                 | `''`                    | string | OAuth refresh token (Phase 2)                     |
-| `token_expires`                 | `0`                     | int    | Token expiry (Phase 2)                            |
+| `connection_method`             | `'oauth'`               | string | `oauth` or `api`                                  |
+| `access_token`                  | `''`                    | string | OAuth access token                                |
+| `refresh_token`                 | `''`                    | string | OAuth refresh token                               |
+| `token_expires`                 | `0`                     | int    | Token expiry timestamp                            |
 | `advanced_deleteAllOnUninstall` | `false`                 | bool   | Delete data on uninstall                          |
 | `debug_enableMode`              | `false`                 | bool   | Enable debug logging                              |
 

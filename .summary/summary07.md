@@ -43,7 +43,7 @@ Where do the videos show up? The store owner gets to decide:
 
 A beautiful 3-step setup guide for first-time users:
 
-1. **Connect Account**: Paste an API key and click "Test Connection". It verifies the channel name to ensure you didn't make a typo.
+1. **Connect Account**: Choose between one-click **Google OAuth** (recommended) or manual API Key. It verifies the connection to ensure everything is working perfectly.
 2. **Configure Defaults**: Pick where videos should go globally by default.
 3. **Finish**: Automatically syncs your library in the background.
 

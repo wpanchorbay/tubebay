@@ -31,7 +31,7 @@ WooCommerce merchants who use YouTube to market products face friction:
 
 ## How TubeBay Solves It
 
-1. **Connect Once** — Enter a YouTube API key and Channel ID in the plugin settings.
+1. **Connect Securely** — Connect via Google OAuth 2.0 (recommended) for one-click setup or use a manual API key.
 2. **Auto-Sync Library** — TubeBay fetches the channel's video library and caches it.
 3. **Assign Videos to Products** — A custom metabox on each WooCommerce product edit screen lets you browse and pick a video from a visual grid.
 4. **Automatic Frontend Display** — The chosen video automatically appears in the product gallery (or other configurable positions) on the live store.
@@ -43,10 +43,10 @@ WooCommerce merchants who use YouTube to market products face friction:
 
 | Phase                 | Description                                                                                                          | Status     |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------- |
-| **Phase 1 (Current)** | Manual API Key connection — build core features, create screencast for Google OAuth approval                         | ✅ Active  |
-| **Phase 2 (Planned)** | One-click OAuth Proxy connection via `wpanchorbay.com/oauth` — replaces manual keys with professional authentication | ⏳ Planned |
+| **Phase 1** | Manual API Key connection — core features and initial development.                         | ✅ Done  |
+| **Phase 2** | One-click OAuth Proxy connection via `wpanchorbay.com/oauth` — professional authentication approved by Google. | ✅ Active |
 
-Phase 2 requires Google to approve the OAuth verification request, which needs a screencast built with Phase 1 functionality.
+OAuth is now the primary and recommended connection method, providing a seamless and secure experience for users without requiring manual API key creation.
 
 ---
 
@@ -62,6 +62,7 @@ Phase 2 requires Google to approve the OAuth verification request, which needs a
 
 ## Key Features at a Glance
 
+- ✅ **Google OAuth 2.0 Connection** (One-click, secure authentication)
 - ✅ Native WooCommerce gallery integration (replace main image or add to gallery)
 - ✅ Performance-first Video Façade (lazy-loading YouTube embeds)
 - ✅ Guided onboarding wizard
