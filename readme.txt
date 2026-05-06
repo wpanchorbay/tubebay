@@ -1,4 +1,4 @@
-=== TubeBay - YouTube Videos as Product Thumbnails for WooCommerce ===
+=== TubeBay - YouTube Product Videos for WooCommerce ===
 Contributors: sankarsan, wpanchorbay, forhadkhan, arifac
 Tags: woocommerce video, youtube, lazy loading, performance, product video, video gallery, youtube embed
 Requires at least: 5.8
@@ -13,9 +13,9 @@ Connect your YouTube channel to WooCommerce and show fast, click-to-play product
 
 == Description ==
 
-Turn your YouTube videos into product page proof with TubeBay.
+Add YouTube videos to WooCommerce product pages with TubeBay.
 
-TubeBay is a WooCommerce YouTube video plugin that helps store owners connect a YouTube channel, sync video content, and display relevant videos on product pages without manual embed work.
+TubeBay helps WooCommerce store owners assign YouTube videos to products and display those videos on product pages without manual embeds.
 
 Product pages need more than static images. Shoppers want context before they buy. TubeBay helps you bring video closer to the buying decision while keeping your store fast and clean.
 
@@ -30,15 +30,16 @@ With its guided setup wizard, synced channel library, flexible placement control
 - Control Placement - Choose where videos appear on WooCommerce product pages.
 - Stay Organized - Manage connection status, settings, diagnostics, and support from one admin area.
 
-[**Product Page**](https://wpanchorbay.com/plugins/tubebay-youtube-video-as-product-thumbnails-for-woocommerce/) | [**Official Documentation**](https://docs.wpanchorbay.com/tubebay) | [**Support**](https://wpanchorbay.com/support/) | [**Live Demo**](https://wpanchorbay.com/plugins/tubebay-youtube-video-as-product-thumbnails-for-woocommerce//#demo-section)
+[**Product Page**](https://wpanchorbay.com/plugins/ubebay-youtube-product-videos-for-woocommerce/) | [**Official Documentation**](https://docs.wpanchorbay.com/tubebay) | [**Support**](https://wpanchorbay.com/support/) | [**Live Demo**](https://wpanchorbay.com/plugins/ubebay-youtube-product-videos-for-woocommerce/#demo-section)
 
 **Key Features:**
 
-- YouTube Channel Connection - Connect your YouTube channel through Google OAuth or manual API setup.
-- Channel Library - Browse synced YouTube videos inside the WordPress admin.
 - WooCommerce Product Video Display - Show video content directly on product pages.
-- Video Facade Technology - Display a lightweight preview before loading the full YouTube player.
+- Video Assignment - Easily assign synced YouTube videos to specific WooCommerce products.
 - Flexible Placement Controls - Choose how videos appear in the WooCommerce product experience.
+- Channel Library - Browse synced YouTube videos inside the WordPress admin.
+- Google OAuth Connection - Connect your YouTube channel through a guided Google OAuth flow.
+- Video Facade Technology - Display a lightweight preview before loading the full YouTube player.
 - Player Settings - Configure muted autoplay and player controls.
 - Automatic Daily Sync - Refresh your video library without manual work.
 - Force Sync Option - Manually refresh videos after adding new YouTube content.
@@ -164,16 +165,16 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 
 == Screenshots ==
 
-1.  **TubeBay Channel Library** - Manage and preview synced YouTube videos from the TubeBay channel library.
-2.  **TubeBay Settings: Connected Account** - Connect a YouTube account once and manage the active TubeBay connection.
+1.  **Frontend Product Video Preview** - Show product videos directly in the WooCommerce product gallery.
+2.  **TubeBay Channel Library** - Manage and preview synced YouTube videos from the TubeBay channel library.
 3.  **Placement and Player Settings** - Control video placement, autoplay, player controls, and library sync settings.
-4.  **Advanced Settings and Data Controls** - Manage debug mode, uninstall cleanup, and TubeBay data removal controls.
-5.  **Help and Diagnostics: Debug Logs** - Review diagnostic logs and confirm YouTube API connection status.
-6.  **Frontend Product Video Preview** - Show product videos directly in the WooCommerce product gallery.
+4.  **TubeBay Settings: Connected Account** - Connect a YouTube account once and manage the active TubeBay connection.
+5.  **Setup Wizard: Google OAuth** - Authorize TubeBay with Google OAuth for a guided connection flow.
+6.  **Setup Wizard: Manual API Setup** - Connect TubeBay manually with a YouTube channel ID and Google Cloud API key.
 7.  **Welcome to TubeBay** - Start the TubeBay setup wizard from a clean onboarding screen.
 8.  **Getting Started Resources** - Review setup benefits, system requirements, documentation, and support links.
-9.  **Setup Wizard: Google OAuth** - Authorize TubeBay with Google OAuth for a guided connection flow.
-10. **Setup Wizard: Manual API Setup** - Connect TubeBay manually with a YouTube channel ID and Google Cloud API key.
+9.  **Advanced Settings and Data Controls** - Manage debug mode, uninstall cleanup, and TubeBay data removal controls.
+10. **Help and Diagnostics: Debug Logs** - Review diagnostic logs and confirm YouTube API connection status.
 
 == Changelog ==
 

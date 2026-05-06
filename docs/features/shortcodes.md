@@ -8,26 +8,19 @@ TubeBay includes a powerful shortcode system that allows you to embed your YouTu
 
 ## Basic Usage
 
-To embed a video, use the following shortcode structure:
+To embed a video, use the following shortcode:
 
-`[tubebay_video id="YOUTUBE_VIDEO_ID"]`
+```text
+[tubebay_video id="YOUTUBE_VIDEO_ID"]
+```
 
-### How to get the Video ID?
+### Advanced Usage
 
-You can find the ID for any of your synced videos in the **TubeBay > Library** tab.
+You can customize the player behavior using additional parameters:
 
-<!-- ![Getting Video ID from Library](/public/img/feature-shortcode-id.png) -->
-
-## Customizing the Player
-
-You can pass various parameters to the shortcode to customize the look and feel of the player:
-
-- **width**: Set the width of the player (e.g., `800px` or `100%`).
-- **autoplay**: Set to `true` to start the video immediately (Note: Browser policies may apply).
-- **controls**: Set to `false` to hide YouTube player controls.
-
-**Example with parameters:**
-`[tubebay_video id="your_id" width="100%" autoplay="false"]`
+```text
+[tubebay_video id="YOUTUBE_VIDEO_ID" autoplay="1" controls="1"]
+```
 
 ## Front-end Preview
 

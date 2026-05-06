@@ -36,10 +36,10 @@ Each WooCommerce product can be mapped to one YouTube video. If you want to chan
 
 ## Technical Details
 
-- **Storage:** Mappings are stored in a custom WordPress database table (`wp_tubebay_mappings`).
+- **Storage:** TubeBay stores the selected video on the WooCommerce product as product metadata. One product can have one selected TubeBay video. The same YouTube video can be assigned to multiple products.
 - **Performance:** TubeBay uses optimized queries to fetch mapped videos, ensuring your product pages remain fast.
-- **Auto-Sync:** If you delete a product in WooCommerce, the mapping will automatically be cleaned up during the next sync.
-- **Persistent Links:** Once a video is mapped, the link remains until you manually unmap it or delete the product.
+- **Auto-Sync:** If you delete a product in WooCommerce, the mapping metadata will be removed automatically.
+- **Persistent Links:** Once a video is assigned, the link remains until you manually unassign it or delete the product.
 
 ## Product Search
 

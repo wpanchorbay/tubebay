@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: TubeBay
-  text: Bridge YouTube & WooCommerce with Ease
-  tagline: Automatically sync your YouTube library to WooCommerce and embed product videos where they matter most.
+  text: Connect YouTube Videos to WooCommerce Product Pages
+  tagline: Automatically sync your YouTube channel to WooCommerce and assign videos to product pages without manual embeds.
   image:
     src: /icon.svg
     alt: TubeBay Icon
@@ -22,10 +22,10 @@ features:
     details: Connect securely using Google OAuth 2.0 (recommended) or manually via API Key for complete control over your YouTube integration.
   - icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>'
     title: Automatic Syncing
-    details: Keep your video library fresh. TubeBay automatically syncs your latest YouTube uploads to your WordPress site every 12 hours.
+    details: Keep your video library fresh. TubeBay caches synced video data for performance and runs an automatic daily sync when enabled.
   - icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11"/><path d="M6.1 11.6c.3 1.1 1.4 1.8 2.5 1.4l5.6-2c1.1-.3 1.8-1.4 1.4-2.5L14.4 3"/><path d="M22 22l-6-6"/><path d="M18 16h3.5l.5.5V20l-.5.5H18l-.5-.5V16.5l.5-.5Z"/></svg>'
     title: Smart Mapping
-    details: Effortlessly map YouTube videos to WooCommerce products. Use our intuitive search and select interface to link content in seconds.
+    details: TubeBay stores the selected video on the WooCommerce product as product metadata. One product can have one selected video.
   - icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"/><path d="M18 10h4"/><path d="M3 10h4"/><path d="m9 10 3 3 3-3"/></svg>'
     title: Flexible Placement
     details: Display videos where they convert best. Embed players below the product gallery, after the summary, or use shortcodes for custom locations.
@@ -34,7 +34,7 @@ features:
     details: Fine-tune the viewing experience. Toggle autoplay, suggested videos, player controls, and mute status to match your store's vibe.
   - icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 15 6 6"/><path d="m15 9 6-6"/><path d="m9 15-6 6"/><path d="m9 9-6-6"/></svg>'
     title: Lightweight & Fast
-    details: Optimized for performance. TubeBay uses smart transient caching and lightweight embeds to ensure your page speed remains lightning fast.
+    details: Optimized for performance. TubeBay uses Video Facade loading and smart caching to ensure your product pages remain lightning fast.
 ---
 
 <div class="features-grid">

@@ -11,8 +11,8 @@ In the Library tab, you'll see a responsive grid of your YouTube videos. Each it
 ## Searching Your Library
 Use the search bar at the top of the Library to find specific videos by title. This search is performed against the local WordPress cache, making it instantaneous.
 
-## Manual Sync
-If you've recently uploaded a video to YouTube and it hasn't appeared yet, click the **Sync Library** button at the top right of the Library page to trigger an immediate update.
+## Sync Timing & Cache
+TubeBay caches synced video data for performance. The default cache duration is 12 hours. Automatic daily sync runs when enabled. Store owners can also run a manual sync anytime.
 
 ## Sorting & Filtering
 
