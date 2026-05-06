@@ -30,7 +30,7 @@ With its guided setup wizard, synced channel library, flexible placement control
 - Control Placement - Choose where videos appear on WooCommerce product pages.
 - Stay Organized - Manage connection status, settings, diagnostics, and support from one admin area.
 
-[**Product Page**](https://wpanchorbay.com/plugins/ubebay-youtube-product-videos-for-woocommerce/) | [**Official Documentation**](https://docs.wpanchorbay.com/tubebay) | [**Support**](https://wpanchorbay.com/support/) | [**Live Demo**](https://wpanchorbay.com/plugins/ubebay-youtube-product-videos-for-woocommerce/#demo-section)
+[**Product Page**](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/) | [**Official Documentation**](https://docs.wpanchorbay.com/tubebay) | [**Support**](https://wpanchorbay.com/support/) | [**Live Demo**](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#demo-section)
 
 **Key Features:**
 
