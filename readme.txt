@@ -1,7 +1,7 @@
 === TubeBay - YouTube Product Videos for WooCommerce ===
 Contributors: sankarsan, wpanchorbay, forhadkhan, arifac
 Tags: woocommerce video, youtube, lazy loading, performance, product video, video gallery, youtube embed
-Requires at least: 5.8
+Requires at least: 6.8
 Tested up to: 6.9
 Requires PHP: 7.4
 Requires Plugins: woocommerce
@@ -165,16 +165,17 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 
 == Screenshots ==
 
-1.  **Frontend Product Video Preview** - Show product videos directly in the WooCommerce product gallery.
-2.  **TubeBay Channel Library** - Manage and preview synced YouTube videos from the TubeBay channel library.
-3.  **Placement and Player Settings** - Control video placement, autoplay, player controls, and library sync settings.
+1.  **Welcome to TubeBay** - Start the TubeBay setup wizard from a clean onboarding screen.
+2.  **Setup Wizard: Google OAuth** - Authorize TubeBay with Google OAuth for a guided connection flow.
+3.  **Setup Wizard: Manual API Setup** - Connect TubeBay manually with a YouTube channel ID and Google Cloud API key.
 4.  **TubeBay Settings: Connected Account** - Connect a YouTube account once and manage the active TubeBay connection.
-5.  **Setup Wizard: Google OAuth** - Authorize TubeBay with Google OAuth for a guided connection flow.
-6.  **Setup Wizard: Manual API Setup** - Connect TubeBay manually with a YouTube channel ID and Google Cloud API key.
-7.  **Welcome to TubeBay** - Start the TubeBay setup wizard from a clean onboarding screen.
-8.  **Getting Started Resources** - Review setup benefits, system requirements, documentation, and support links.
-9.  **Advanced Settings and Data Controls** - Manage debug mode, uninstall cleanup, and TubeBay data removal controls.
-10. **Help and Diagnostics: Debug Logs** - Review diagnostic logs and confirm YouTube API connection status.
+5.  **TubeBay Channel Library** - Manage and preview synced YouTube videos from the TubeBay channel library.
+6.  **Placement and Player Settings** - Control video placement, autoplay, player controls, and library sync settings.
+7.  **Product Editor: Assign a TubeBay Video** - Assign a TubeBay video from the WooCommerce product editor after choosing the placement settings.
+8.  **Frontend Product Video Preview** - Show product videos directly in the WooCommerce product gallery.
+9.  **Getting Started Resources** - Review setup benefits, system requirements, documentation, and support links.
+10. **Advanced Settings and Data Controls** - Manage debug mode, uninstall cleanup, and TubeBay data removal controls.
+11. **Help and Diagnostics: Debug Logs** - Review diagnostic logs and confirm YouTube API connection status.
 
 == Changelog ==
 

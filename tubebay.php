@@ -12,10 +12,10 @@
  * @package           TubeBay
  *
  * @wordpress-plugin
- * Plugin Name:       TubeBay - YouTube Videos as Product Thumbnails for WooCommerce
+ * Plugin Name:       TubeBay - YouTube Product Videos for WooCommerce
  * Plugin URI:        https://wpanchorbay.com/products/tubebay
- * Source URI:        https://github.com/dipta-sdd/tubebay
- * Description:       Boost your WooCommerce conversions by replacing static product images with high-performance YouTube videos.
+ * Source URI:        https://github.com/wpanchorbay/tubebay
+ * Description:       Connect your YouTube channel to WooCommerce and show fast, click-to-play product videos on product pages.
  * Version:           1.0.0
  * Author:            WPAnchorBay
  * Author URI:        https://wpanchorbay.com
