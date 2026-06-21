@@ -39,9 +39,9 @@ export const Toggler: React.FC<TogglerProps> = ({
 
   // Size configuration
   const sizeClasses = {
-    small: "tubebay-px-[8px] tubebay-py-[2px] tubebay-text-[11px]",
-    medium: "tubebay-px-[18px] tubebay-py-[5px] tubebay-text-default",
-    large: "tubebay-px-[20px] tubebay-py-[12px] tubebay-text-[15px]",
+    small: "wpab-px-[8px] wpab-py-[2px] wpab-text-[11px]",
+    medium: "wpab-px-[18px] wpab-py-[5px] wpab-text-default",
+    large: "wpab-px-[20px] wpab-py-[12px] wpab-text-[15px]",
   };
 
   useEffect(() => {
@@ -61,13 +61,13 @@ export const Toggler: React.FC<TogglerProps> = ({
   return (
     <div
       className={`
-        tubebay-relative tubebay-inline-flex tubebay-items-center
-        tubebay-bg-white tubebay-border ${borderClasses} tubebay-rounded-[8px]
-        tubebay-p-[4px] tubebay-select-none
-        ${fullWidth ? "tubebay-flex tubebay-w-full" : ""}
+        wpab-relative wpab-inline-flex wpab-items-center
+        wpab-bg-white wpab-border ${borderClasses} wpab-rounded-[8px]
+        wpab-p-[4px] wpab-select-none
+        ${fullWidth ? "wpab-flex wpab-w-full" : ""}
         ${
           disabled
-            ? "tubebay-opacity-50 tubebay-cursor-not-allowed tubebay-pointer-events-none"
+            ? "wpab-opacity-50 wpab-cursor-not-allowed wpab-pointer-events-none"
             : ""
         }
         ${className}
@@ -79,10 +79,10 @@ export const Toggler: React.FC<TogglerProps> = ({
       {/* Sliding Background Pill */}
       <div
         className={`
-            tubebay-absolute tubebay-top-[4px] tubebay-bottom-[4px]
-            tubebay-bg-primary tubebay-rounded-[6px] tubebay-shadow-sm
-            tubebay-transition-all tubebay-duration-300 tubebay-ease-[cubic-bezier(0.4,0,0.2,1)]
-            tubebay-pointer-events-none
+            wpab-absolute wpab-top-[4px] wpab-bottom-[4px]
+            wpab-bg-primary wpab-rounded-[6px] wpab-shadow-sm
+            wpab-transition-all wpab-duration-300 wpab-ease-[cubic-bezier(0.4,0,0.2,1)]
+            wpab-pointer-events-none
             ${classNames.pill || ""}
         `}
         style={{
@@ -104,15 +104,15 @@ export const Toggler: React.FC<TogglerProps> = ({
             disabled={disabled}
             onClick={() => !disabled && onChange(option.value)}
             className={`
-              tubebay-relative tubebay-z-10 tubebay-flex-1
-              tubebay-font-medium tubebay-text-nowrap tubebay-rounded-[6px]
-              tubebay-transition-colors tubebay-duration-300
-              focus:tubebay-outline-none focus-visible:tubebay-ring-2 focus-visible:tubebay-ring-primary/20
+              wpab-relative wpab-z-10 wpab-flex-1
+              wpab-font-medium wpab-text-nowrap wpab-rounded-[6px]
+              wpab-transition-colors wpab-duration-300
+              focus:wpab-outline-none focus-visible:wpab-ring-2 focus-visible:wpab-ring-primary/20
               ${sizeClasses[size]}
               ${
                 isSelected
-                  ? "tubebay-text-white"
-                  : "tubebay-text-secondary hover:tubebay-text-gray-700"
+                  ? "wpab-text-white"
+                  : "wpab-text-secondary hover:wpab-text-gray-700"
               }
               ${classNames.button || ""}
             `}

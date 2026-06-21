@@ -67,7 +67,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   return (
     <div>
       <div
-        className={`tubebay-flex tubebay-items-center tubebay-gap-2 ${className} ${
+        className={`wpab-flex wpab-items-center wpab-gap-2 ${className} ${
           classNames?.root || ""
         }`}
       >
@@ -82,21 +82,21 @@ export const EditableText: React.FC<EditableTextProps> = ({
           readOnly={disabled}
           placeholder={placeholder}
           className={`
-          !tubebay-bg-transparent !tubebay-shadow-none
-          tubebay-text-[#1e1e1e] tubebay-font-[700] tubebay-text-[20px] tubebay-leading-[32px]
-          tubebay-px-1 tubebay-py-0.5
-          tubebay-w-auto 
-          !tubebay-border-t-0 !tubebay-border-l-0 !tubebay-border-r-0 !tubebay-border-b-2
-           !tubebay-rounded-[0px]
-          focus:tubebay-outline-none
-          tubebay-transition-colors tubebay-duration-200 placeholder:tubebay-italic
+          !wpab-bg-transparent !wpab-shadow-none
+          wpab-text-[#1e1e1e] wpab-font-[700] wpab-text-[20px] wpab-leading-[32px]
+          wpab-px-1 wpab-py-0.5
+          wpab-w-auto 
+          !wpab-border-t-0 !wpab-border-l-0 !wpab-border-r-0 !wpab-border-b-2
+           !wpab-rounded-[0px]
+          focus:wpab-outline-none
+          wpab-transition-colors wpab-duration-200 placeholder:wpab-italic
           ${
             error
-              ? "!tubebay-border-red-500"
-              : "!tubebay-border-transparent focus:!tubebay-border-[#3858e9]"
+              ? "!wpab-border-red-500"
+              : "!wpab-border-transparent focus:!wpab-border-[#3858e9]"
           }
-          ${isEditing ? "" : "tubebay-cursor-pointer"}
-          ${disabled ? "tubebay-cursor-not-allowed tubebay-opacity-60" : ""}
+          ${isEditing ? "" : "wpab-cursor-pointer"}
+          ${disabled ? "wpab-cursor-not-allowed wpab-opacity-60" : ""}
           ${isEditing ? classNames?.input || "" : classNames?.text || ""}
         `}
         />
@@ -115,11 +115,11 @@ export const EditableText: React.FC<EditableTextProps> = ({
               }
             }}
             className={`
-            tubebay-p-1 tubebay-rounded-full tubebay-transition-colors
+            wpab-p-1 wpab-rounded-full wpab-transition-colors
             ${
               isEditing
-                ? "tubebay-text-primary hover:tubebay-bg-blue-50"
-                : "tubebay-text-gray-400 hover:tubebay-text-primary hover:tubebay-bg-gray-100"
+                ? "wpab-text-primary hover:wpab-bg-blue-50"
+                : "wpab-text-gray-400 hover:wpab-text-primary hover:wpab-bg-gray-100"
             }
             ${classNames?.iconButton || ""}
           `}
@@ -134,7 +134,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         )}
       </div>
       {error && (
-        <span className="tubebay-text-red-500 tubebay-text-sm tubebay-mt-1">
+        <span className="wpab-text-red-500 wpab-text-sm wpab-mt-1">
           {error}
         </span>
       )}

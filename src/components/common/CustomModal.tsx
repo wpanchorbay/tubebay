@@ -25,7 +25,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   title,
   children,
   footer,
-  maxWidth = "tubebay-max-w-2xl",
+  maxWidth = "wpab-max-w-2xl",
   closeOnOutsideClick = true,
   className = "",
   showHeader = true,
@@ -56,20 +56,20 @@ const CustomModal: React.FC<CustomModalProps> = ({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="tubebay-fixed tubebay-inset-0 tubebay-z-[9998] tubebay-flex tubebay-items-center tubebay-justify-center tubebay-p-4 tubebay-bg-black/75 tubebay-transition-opacity tubebay-duration-300">
+    <div className="wpab-fixed wpab-inset-0 wpab-z-[9998] wpab-flex wpab-items-center wpab-justify-center wpab-p-4 wpab-bg-black/75 wpab-transition-opacity wpab-duration-300">
       {/* Backdrop click handler */}
       <div
-        className="tubebay-absolute tubebay-inset-0"
+        className="wpab-absolute wpab-inset-0"
         onClick={closeOnOutsideClick ? onClose : undefined}
       />
 
       {/* Modal Content */}
       <div
         className={`
-          tubebay-relative tubebay-w-full ${maxWidth} 
-          tubebay-bg-white tubebay-shadow-2xl tubebay-rounded-xl 
-          tubebay-flex tubebay-flex-col tubebay-max-h-[90vh]
-          tubebay-animate-in tubebay-fade-in tubebay-zoom-in-95 tubebay-duration-200
+          wpab-relative wpab-w-full ${maxWidth} 
+          wpab-bg-white wpab-shadow-2xl wpab-rounded-xl 
+          wpab-flex wpab-flex-col wpab-max-h-[90vh]
+          wpab-animate-in wpab-fade-in wpab-zoom-in-95 wpab-duration-200
           ${className}
         `}
         role="dialog"
@@ -78,24 +78,24 @@ const CustomModal: React.FC<CustomModalProps> = ({
         {/* Header */}
         {showHeader && (
           <div
-            className={`tubebay-flex tubebay-items-center tubebay-justify-between tubebay-px-6 tubebay-py-4 tubebay-border-b tubebay-border-gray-100 ${classNames.header}`}
+            className={`wpab-flex wpab-items-center wpab-justify-between wpab-px-6 wpab-py-4 wpab-border-b wpab-border-gray-100 ${classNames.header}`}
           >
-            <h3 className="tubebay-text-lg tubebay-font-semibold tubebay-text-gray-900">
+            <h3 className="wpab-text-lg wpab-font-semibold wpab-text-gray-900">
               {title}
             </h3>
             <button
               onClick={onClose}
-              className="tubebay-p-1.5 tubebay-text-gray-400 hover:tubebay-text-gray-600 tubebay-transition-colors hover:tubebay-bg-gray-100 tubebay-rounded-full"
+              className="wpab-p-1.5 wpab-text-gray-400 hover:wpab-text-gray-600 wpab-transition-colors hover:wpab-bg-gray-100 wpab-rounded-full"
               aria-label="Close modal"
             >
-              <X className="tubebay-w-5 tubebay-h-5" />
+              <X className="wpab-w-5 wpab-h-5" />
             </button>
           </div>
         )}
 
         {/* Body */}
         <div
-          className={`tubebay-p-6 tubebay-overflow-y-auto tubebay-flex-1 ${classNames.body}`}
+          className={`wpab-p-6 wpab-overflow-y-auto wpab-flex-1 ${classNames.body}`}
         >
           {children}
         </div>
@@ -103,7 +103,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         {/* Footer */}
         {footer && (
           <div
-            className={`tubebay-flex tubebay-items-center tubebay-justify-end tubebay-gap-3 tubebay-px-6 tubebay-py-4 tubebay-bg-gray-50 tubebay-border-t tubebay-border-gray-100 tubebay-rounded-b-xl ${classNames.footer}`}
+            className={`wpab-flex wpab-items-center wpab-justify-end wpab-gap-3 wpab-px-6 wpab-py-4 wpab-bg-gray-50 wpab-border-t wpab-border-gray-100 wpab-rounded-b-xl ${classNames.footer}`}
           >
             {footer}
           </div>

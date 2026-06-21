@@ -1,12 +1,7 @@
 import { FC } from "react";
-import { Spinner } from "@wordpress/components";
 
 const Loader: FC = () => {
-  return (
-    <div className="tubebay-loader-container">
-      <Spinner />
-    </div>
-  );
+  return <div className="wpab-loader-container"></div>;
 };
 
 export default Loader;

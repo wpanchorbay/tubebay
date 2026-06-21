@@ -72,7 +72,6 @@ export function timeDiff(dateTimeString: string | number | null | undefined): st
     !dateTimeString ||
     new Date(dateTimeString).toString() === "Invalid Date"
   ) {
-    console.log("Invalid Date", dateTimeString);
     return "—";
   }
 

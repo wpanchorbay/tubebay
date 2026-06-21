@@ -22,18 +22,18 @@ export const Radio: React.FC<RadioProps> = ({
 }) => {
   return (
     <label
-      className={`tubebay-flex tubebay-items-center tubebay-gap-3 tubebay-cursor-pointer ${
-        disabled ? "tubebay-opacity-50 tubebay-cursor-not-allowed" : ""
+      className={`wpab-flex wpab-items-center wpab-gap-3 wpab-cursor-pointer ${
+        disabled ? "wpab-opacity-50 wpab-cursor-not-allowed" : ""
       } ${classNames?.root || ""}`}
     >
       <div
         className={`
-        tubebay-relative tubebay-flex tubebay-items-center tubebay-justify-center
-        tubebay-w-5 tubebay-h-5 tubebay-rounded-full tubebay-border-2 tubebay-transition-all tubebay-duration-200
+        wpab-relative wpab-flex wpab-items-center wpab-justify-center
+        wpab-w-5 wpab-h-5 wpab-rounded-full wpab-border-2 wpab-transition-all wpab-duration-200
         ${
           checked
-            ? "tubebay-border-primary tubebay-bg-primary"
-            : "tubebay-border-gray-300 tubebay-bg-white hover:tubebay-border-primary"
+            ? "wpab-border-primary wpab-bg-primary"
+            : "wpab-border-gray-300 wpab-bg-white hover:wpab-border-primary"
         }
         ${classNames?.circle || ""}
       `}
@@ -41,22 +41,22 @@ export const Radio: React.FC<RadioProps> = ({
         {/* Inner white dot for selected state */}
         <div
           className={`
-                tubebay-w-2 tubebay-h-2 tubebay-bg-white tubebay-rounded-full tubebay-transform tubebay-transition-transform tubebay-duration-200
-                ${checked ? "tubebay-scale-100" : "tubebay-scale-0"}
+                wpab-w-2 wpab-h-2 wpab-bg-white wpab-rounded-full wpab-transform wpab-transition-transform wpab-duration-200
+                ${checked ? "wpab-scale-100" : "wpab-scale-0"}
                 ${classNames?.dot || ""}
             `}
         />
         <input
           type="radio"
-          className="tubebay-hidden"
+          className="wpab-hidden"
           checked={checked}
           onChange={onChange}
           disabled={disabled}
         />
       </div>
       <span
-        className={`tubebay-text-[15px] tubebay-font-semibold ${
-          checked ? "tubebay-text-gray-900" : "tubebay-text-gray-700"
+        className={`wpab-text-[15px] wpab-font-semibold ${
+          checked ? "wpab-text-gray-900" : "wpab-text-gray-700"
         } ${classNames?.label || ""}`}
       >
         {label}

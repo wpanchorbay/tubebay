@@ -1,433 +1,304 @@
-import { useState, useEffect } from "react";
-import apiFetch from "@wordpress/api-fetch";
+import React, { useState, useEffect } from "react";
+import {
+  ClassicSettingsTable,
+  ClassicInput,
+  ClassicSelect,
+  ClassicCheckbox,
+} from "../components/classics";
 import { useToast } from "../store/toast/use-toast";
-import Button from "../components/common/Button";
-import Page from "../components/common/Page";
-import { useWpabStore, useWpabStoreActions } from "../store/wpabStore";
-import { PluginSettings } from "../utils/types";
-import { useYouTubeActions } from "../hooks/useYouTubeActions";
-import ConnectAccountCard, {
-  ConnectionFeedback,
-} from "../components/settings/ConnectAccountCard";
-import SyncCard from "../components/settings/SyncCard";
-import PlacementSettingsCard from "../components/settings/PlacementSettingsCard";
-import AdvancedSettingsCard from "../components/settings/AdvancedSettingsCard";
-import { ConfirmationModal } from "../components/common/ConfirmationModal";
-import Loader from "../components/common/Loader";
-import { PageSkeleton } from "../components/loading/PageSkeleton";
+import { __ } from "@wordpress/i18n";
+import { SkeletonSettings } from "../components/loading/SkeletonSettings";
+import { TopProgressBar } from "../components/loading/TopProgressBar";
+import apiFetch from "../utils/apiFetch";
 
-type SettingsData = Partial<PluginSettings>;
+interface SettingsData {
+  general_isEnabled: boolean;
+  general_apiToken: string;
+  appearance_primaryColor: string;
+  appearance_customCss: string;
+  advanced_deleteAllOnUninstall: boolean;
+  debug_enableMode: boolean;
+}
 
-export default function Settings() {
+const Settings: React.FC = () => {
+  const [settings, setSettings] = useState<SettingsData | null>(null);
+  const [originalSettings, setOriginalSettings] = useState<SettingsData | null>(
+    null,
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [testing, setTesting] = useState(false);
-  const [syncing, setSyncing] = useState(false);
-  const [editingConnection, setEditingConnection] = useState(false);
-  const [connectionFeedback, setConnectionFeedback] =
-    useState<ConnectionFeedback | null>(null);
-  const [isDisconnectModalOpen, setIsDisconnectModalOpen] = useState(false);
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
-
-  const { plugin_settings: settings } = useWpabStore();
-  const { updateStore } = useWpabStoreActions();
-  const { connectYouTube } = useYouTubeActions();
-
-  const setSettings = (data: SettingsData) => {
-    updateStore("plugin_settings", {
-      ...settings,
-      ...data,
-    });
-  };
-
-  // Separate temp state for credentials
-  const [tmpCredentials, setTmpCredentials] = useState({
-    api_key: settings.api_key || "",
-    channel_id: settings.channel_id || "",
-    refresh_token: settings.refresh_token || "",
-    connection_method: settings.connection_status === "connected" 
-      ? (settings.connection_method as "oauth" | "api") || "oauth"
-      : "oauth",
-  });
-  console.log(tmpCredentials);
-
-  // Separate temp state for other settings
-  const [tmpOtherSettings, setTmpOtherSettings] = useState({
-    auto_sync: settings.auto_sync ?? true,
-    video_placement: settings.video_placement || "below_gallery",
-    cache_duration: settings.cache_duration || 12,
-    debug_enableMode: settings.debug_enableMode ?? false,
-    muted_autoplay: settings.muted_autoplay ?? true,
-    show_controls: settings.show_controls ?? true,
-    advanced_deleteAllOnUninstall:
-      settings.advanced_deleteAllOnUninstall ?? false,
-  });
 
   useEffect(() => {
     fetchSettings();
   }, []);
 
+  // Hijack the native WooCommerce save button
+  useEffect(() => {
+    const form = document.getElementById("mainform") as HTMLFormElement;
+    if (!form) return;
+
+    const onFormSubmit = (e: Event) => {
+      e.preventDefault();
+      // Only trigger if we have changes or if we want to allow "force save"
+      handleSave();
+    };
+
+    form.addEventListener("submit", onFormSubmit);
+    return () => form.removeEventListener("submit", onFormSubmit);
+  }, [settings, originalSettings]); // Re-attach when state changes to capture fresh values in closure
+
   const fetchSettings = async () => {
     try {
-      const response = await apiFetch<SettingsData>({
-        path: "/tubebay/v1/settings",
+      const response: any = await apiFetch({
+        path: "settings",
       });
-
-      const creds = {
-        api_key: response.api_key || "",
-        channel_id: response.channel_id || "",
-        refresh_token: response.refresh_token || "",
-        connection_method: response.connection_status === "connected"
-          ? (response.connection_method as "oauth" | "api") || "oauth"
-          : "oauth",
-      };
-      const other = {
-        auto_sync: response.auto_sync !== undefined ? response.auto_sync : true,
-        video_placement: response.video_placement || "below_gallery",
-        cache_duration: response.cache_duration || 12,
-        debug_enableMode: response.debug_enableMode ?? false,
-        muted_autoplay: response.muted_autoplay ?? true,
-        show_controls: response.show_controls ?? true,
-        advanced_deleteAllOnUninstall:
-          response.advanced_deleteAllOnUninstall ?? false,
-      };
-
-      setTmpCredentials(creds);
-      setTmpOtherSettings(other);
-      setSettings(response);
+      if (response.success) {
+        setSettings(response.data);
+        setOriginalSettings(response.data);
+      }
     } catch (error) {
-      addToast(`Error fetching settings: ${(error as Error).message}`, "error");
+      console.error("Error fetching settings:", error);
+      addToast(__("Failed to load settings.", "wpab-boilerplate"), "error");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleConnect = async () => {
-    setSaving(true);
-    setConnectionFeedback(null);
+  const handleSave = async () => {
+    if (!settings) return;
+    setIsSaving(true);
     try {
-      const isOAuth = tmpCredentials.connection_method === "oauth";
-
-      const data = isOAuth
-        ? {
-            refresh_token: tmpCredentials.refresh_token,
-            connection_method: "oauth",
-          }
-        : {
-            api_key: tmpCredentials.api_key,
-            channel_id: tmpCredentials.channel_id,
-            connection_method: "api",
-          };
-
-      const response = await apiFetch<{
-        success: boolean;
-        message: string;
-        data: SettingsData;
-      }>({
-        path: "/tubebay/v1/auth/connect",
+      const response: any = await apiFetch({
+        path: "settings",
         method: "POST",
-        data,
+        data: settings,
       });
-
       if (response.success) {
         setSettings(response.data);
-        setTmpCredentials({
-          api_key: response.data.api_key || "",
-          channel_id: response.data.channel_id || "",
-          refresh_token: response.data.refresh_token || "",
-          connection_method: (response.data.connection_method as "oauth" | "api") || "oauth",
-        });
+        setOriginalSettings(response.data);
+        addToast(
+          __("Settings saved successfully.", "wpab-boilerplate"),
+          "success",
+        );
 
-        // Check if connection actually succeeded
-        if (
-          response.data.connection_status === "failed" ||
-          response.data.connection_status === "disconnected"
-        ) {
-          setConnectionFeedback({
-            type: "error",
-            message:
-              "Could not verify the connection. Please double-check your credentials.",
-          });
-        } else {
-          setConnectionFeedback({
-            type: "success",
-            message:
-              "Successfully connected! Your YouTube channel is now linked.",
-          });
-          addToast(response.message, "success");
-          setEditingConnection(false);
+        // Prevent WooCommerce "Unsaved Changes" dialog
+        const nativeSaveButton = document.querySelector('button[name="save"]');
+        if (nativeSaveButton) {
+          (nativeSaveButton as HTMLButtonElement).disabled = true;
         }
+        window.onbeforeunload = null;
       }
     } catch (error) {
-      const msg = (error as Error).message || "An unknown error occurred.";
-      setConnectionFeedback({
-        type: "error",
-        message: `Connection failed: ${msg}`,
-      });
-      addToast(`Error connecting: ${msg}`, "error");
+      console.error("Error saving settings:", error);
+      addToast(__("Failed to save settings.", "wpab-boilerplate"), "error");
     } finally {
-      setSaving(false);
+      setIsSaving(false);
+      // Remove "is-busy" class from native WooCommerce button
+      const nativeSaveButton = document.querySelector('button[name="save"]');
+      if (nativeSaveButton) {
+        nativeSaveButton.classList.remove("is-busy");
+      }
     }
   };
 
-  const handleSaveSettings = async () => {
-    setSavingSettings(true);
-    try {
-      const response = await apiFetch<{
-        success: boolean;
-        message: string;
-        data: SettingsData;
-      }>({
-        path: "/tubebay/v1/settings",
-        method: "POST",
-        data: {
-          auto_sync: tmpOtherSettings.auto_sync,
-          video_placement: tmpOtherSettings.video_placement,
-          cache_duration: tmpOtherSettings.cache_duration,
-          debug_enableMode: tmpOtherSettings.debug_enableMode,
-          muted_autoplay: tmpOtherSettings.muted_autoplay,
-          show_controls: tmpOtherSettings.show_controls,
-          advanced_deleteAllOnUninstall:
-            tmpOtherSettings.advanced_deleteAllOnUninstall,
-        },
-      });
+  const hasChanges =
+    JSON.stringify(settings) !== JSON.stringify(originalSettings);
 
-      if (response.success) {
-        addToast(response.message, "success");
-        setSettings(response.data);
-        setTmpOtherSettings({
-          auto_sync: response.data.auto_sync ?? true,
-          video_placement: response.data.video_placement || "below_gallery",
-          cache_duration: response.data.cache_duration || 12,
-          debug_enableMode: response.data.debug_enableMode ?? false,
-          muted_autoplay: response.data.muted_autoplay ?? true,
-          show_controls: response.data.show_controls ?? true,
-          advanced_deleteAllOnUninstall:
-            response.data.advanced_deleteAllOnUninstall ?? false,
-        });
-      }
-    } catch (error) {
-      addToast(`Error saving settings: ${(error as Error).message}`, "error");
-    } finally {
-      setSavingSettings(false);
+  // Synchronize the native WooCommerce save button state
+  useEffect(() => {
+    const nativeSaveButton = document.querySelector('button[name="save"]');
+    if (nativeSaveButton) {
+      (nativeSaveButton as HTMLButtonElement).disabled = !hasChanges;
     }
-  };
+  }, [hasChanges]);
 
-  const handleTestConnection = async () => {
-    setTesting(true);
-    setConnectionFeedback(null);
-
-    try {
-      const response = await apiFetch<{
-        success: boolean;
-        message: string;
-        channel_name?: string;
-        channel_description?: string;
-      }>({
-        path: "/tubebay/v1/youtube/test-connection",
-        method: "POST",
-        data: {
-          api_key: tmpCredentials.api_key,
-          channel_id: tmpCredentials.channel_id,
-          refresh_token: tmpCredentials.refresh_token,
-          connection_method: tmpCredentials.connection_method,
-        },
-      });
-
-      if (response.success) {
-        setConnectionFeedback({
-          type: "success",
-          message: `Connection test passed! Channel: ${
-            response.channel_name || "Unknown"
-          }. Click "Connect" to save your credentials.`,
-        });
-        addToast(
-          `${response.message} Channel: ${
-            response.channel_name || "Unknown"
-          }. Click "Connect" to save this connection.`,
-          "success",
-        );
-      }
-    } catch (error) {
-      const msg = (error as any).message || "Could not verify credentials.";
-      setConnectionFeedback({
-        type: "error",
-        message: `Test failed: ${msg}`,
-      });
-      addToast(`Connection Failed: ${msg}`, "error");
-    } finally {
-      setTesting(false);
-    }
-  };
-
-  const handleSyncLibrary = async () => {
-    setSyncing(true);
-    try {
-      const response = await apiFetch<{
-        success: boolean;
-        message: string;
-        videos: any[];
-      }>({
-        path: "/tubebay/v1/youtube/sync-library",
-      });
-
-      if (response.success) {
-        addToast(
-          `Successfully fetched and cached ${response.videos.length} videos.`,
-          "success",
-        );
-      }
-    } catch (error) {
-      addToast(`Sync Failed: ${(error as any).message}`, "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const onConfirmDisconnect = async () => {
-    setIsDisconnectModalOpen(false);
-    await handleDisconnect();
-  };
-
-  const handleDisconnect = async () => {
-    setIsDisconnecting(true);
-    try {
-      const response = await apiFetch<{
-        success: boolean;
-        message: string;
-      }>({
-        path: "/tubebay/v1/youtube/disconnect",
-        method: "DELETE",
-      });
-
-      if (response.success) {
-        addToast(response.message, "success");
-        window.location.reload();
-      }
-    } catch (error) {
-      addToast(`Error disconnecting: ${(error as Error).message}`, "error");
-    } finally {
-      setIsDisconnecting(false);
-    }
-  };
-
-  const credentialsChanged = () => {
+  if (isLoading) {
     return (
-      tmpCredentials.api_key !== (settings.api_key || "") ||
-      tmpCredentials.channel_id !== (settings.channel_id || "") ||
-      tmpCredentials.refresh_token !== (settings.refresh_token || "") ||
-      tmpCredentials.connection_method !== (settings.connection_method || "oauth")
+      <div className="wpab-p-page-default">
+        <SkeletonSettings />
+      </div>
     );
-  };
+  }
 
-  const otherSettingsChanged = () => {
+  if (!settings) {
     return (
-      tmpOtherSettings.auto_sync !== (settings.auto_sync ?? true) ||
-      tmpOtherSettings.video_placement !==
-        (settings.video_placement || "below_gallery") ||
-      tmpOtherSettings.cache_duration !== (settings.cache_duration || 12) ||
-      tmpOtherSettings.debug_enableMode !==
-        (settings.debug_enableMode ?? false) ||
-      tmpOtherSettings.muted_autoplay !== (settings.muted_autoplay ?? true) ||
-      tmpOtherSettings.show_controls !== (settings.show_controls ?? true) ||
-      tmpOtherSettings.advanced_deleteAllOnUninstall !==
-        (settings.advanced_deleteAllOnUninstall ?? false)
-    );
-  };
-
-  if (loading) {
-    return (
-      <Page>
-        <PageSkeleton type="settings" />
-      </Page>
+      <div className="wpab-p-page-default">
+        <p>{__("Failed to load settings.", "wpab-boilerplate")}</p>
+      </div>
     );
   }
 
   return (
-    <Page>
-      <div className="">
-        <h1 className="tubebay-t-1">TubeBay Settings</h1>
-        <p className="tubebay-t-4 tubebay-text-secondary">
-          Connect your YouTube channel once, sync everywhere.
-        </p>
-      </div>
-
-      {/* Connect Account Card */}
-      <ConnectAccountCard
-        settings={settings}
-        tmpCredentials={tmpCredentials}
-        setTmpCredentials={setTmpCredentials}
-        editingConnection={editingConnection}
-        setEditingConnection={setEditingConnection}
-        saving={saving}
-        testing={testing}
-        handleConnect={handleConnect}
-        handleTestConnection={handleTestConnection}
-        credentialsChanged={credentialsChanged}
-        connectYouTube={connectYouTube}
-        feedback={connectionFeedback}
-        setFeedback={setConnectionFeedback}
-        handleDisconnect={() => setIsDisconnectModalOpen(true)}
+    <div className="wpab-p-page-default wpab-ignore-preflight">
+      <input
+        type="hidden"
+        name="wpab-boilerplate_has_changes"
+        value={hasChanges ? "1" : "0"}
       />
+      <TopProgressBar isSaving={isSaving} />
 
-      {/* Placement & Player Settings Card */}
-      <PlacementSettingsCard
-        tmpOtherSettings={tmpOtherSettings}
-        setTmpOtherSettings={setTmpOtherSettings}
-      />
-      {/* Sync Settings Card */}
-      <SyncCard
-        settings={settings}
-        tmpOtherSettings={tmpOtherSettings}
-        setTmpOtherSettings={setTmpOtherSettings}
-        syncing={syncing}
-        handleSyncLibrary={handleSyncLibrary}
-      />
-
-      {/* Advanced Settings Card */}
-      <AdvancedSettingsCard
-        tmpOtherSettings={tmpOtherSettings}
-        setTmpOtherSettings={setTmpOtherSettings}
-      />
-
-      {/* Save Settings Button */}
-      <div className="tubebay-flex tubebay-justify-end tubebay-mt-[16px]">
-        <Button
-          onClick={handleSaveSettings}
-          disabled={savingSettings || !otherSettingsChanged()}
-          color="primary"
-        >
-          {savingSettings ? "Saving..." : "Save Settings"}
-        </Button>
-      </div>
-
-      {isDisconnecting && (
-        <div className="tubebay-fixed tubebay-inset-0 tubebay-z-[99999] tubebay-flex tubebay-items-center tubebay-justify-center tubebay-bg-black/60 tubebay-backdrop-blur-[2px]">
-          <div className="tubebay-flex tubebay-flex-col tubebay-items-center tubebay-gap-4">
-            <Loader />
-            <span className="tubebay-text-white tubebay-font-bold tubebay-text-[18px]">
-              Disconnecting...
-            </span>
-          </div>
-        </div>
-      )}
-
-      <ConfirmationModal
-        isOpen={isDisconnectModalOpen}
-        title="Disconnect Account?"
-        message="Are you sure you want to disconnect your YouTube account? This will clear all connection credentials."
-        confirmLabel="Disconnect Now"
-        cancelLabel="Keep Connected"
-        onConfirm={onConfirmDisconnect}
-        onCancel={() => setIsDisconnectModalOpen(false)}
-        classNames={{
-          button: {
-            confirmColor: "danger" as any,
+      <ClassicSettingsTable
+        title={__("General Settings", "wpab-boilerplate")}
+        description={__(
+          "Core settings and global configuration for your plugin.",
+          "wpab-boilerplate",
+        )}
+        fields={[
+          {
+            id: "general_isEnabled",
+            label: __("Enable Plugin", "wpab-boilerplate"),
+            render: () => (
+              <ClassicCheckbox
+                checked={settings.general_isEnabled}
+                onChange={(val) =>
+                  setSettings({ ...settings, general_isEnabled: val })
+                }
+                label={__("Enable main plugin features", "wpab-boilerplate")}
+                description={__(
+                  "Toggle the core functionality of the plugin on or off globally.",
+                  "wpab-boilerplate",
+                )}
+              />
+            ),
           },
-        }}
+          {
+            id: "general_apiToken",
+            label: __("API Token", "wpab-boilerplate"),
+            tooltip: __("Your integration token.", "wpab-boilerplate"),
+            render: () => (
+              <div className="wpab-max-w-[400px]">
+                <ClassicInput
+                  value={settings.general_apiToken}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      general_apiToken: e.target.value,
+                    })
+                  }
+                  description={__(
+                    "Enter your API key or token if this plugin integrates with a third-party service.",
+                    "wpab-boilerplate",
+                  )}
+                  size="regular"
+                />
+              </div>
+            ),
+          },
+        ]}
       />
-    </Page>
+
+      <ClassicSettingsTable
+        title={__("Appearance Settings", "wpab-boilerplate")}
+        description={__(
+          "Customize the visual output of the plugin.",
+          "wpab-boilerplate",
+        )}
+        fields={[
+          {
+            id: "appearance_primaryColor",
+            label: __("Primary Color", "wpab-boilerplate"),
+            tooltip: __("Used for buttons and highlights.", "wpab-boilerplate"),
+            render: () => (
+              <ClassicInput
+                type="color"
+                value={settings.appearance_primaryColor}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    appearance_primaryColor: e.target.value,
+                  })
+                }
+                description={__(
+                  "Select a primary color to match your brand.",
+                  "wpab-boilerplate",
+                )}
+                size="regular"
+              />
+            ),
+          },
+          {
+            id: "appearance_customCss",
+            label: __("Custom CSS", "wpab-boilerplate"),
+            tooltip: __("Add custom CSS rules.", "wpab-boilerplate"),
+            render: () => (
+              <div>
+                <textarea
+                  className="wpab-w-full wpab-max-w-[600px] wpab-p-2 wpab-border wpab-border-gray-400 wpab-rounded focus:wpab-border-blue-500 focus:wpab-ring-1 focus:wpab-ring-blue-500"
+                  value={settings.appearance_customCss}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      appearance_customCss: e.target.value,
+                    })
+                  }
+                  rows={5}
+                  placeholder=".my-custom-class { color: red; }"
+                />
+                <p className="wpab-text-[13px] wpab-text-gray-500 wpab-mt-1">
+                  {__(
+                    "Add your own CSS overrides here. Do not include <style> tags.",
+                    "wpab-boilerplate",
+                  )}
+                </p>
+              </div>
+            ),
+          },
+        ]}
+      />
+
+      <ClassicSettingsTable
+        title={__("System & Maintenance", "wpab-boilerplate")}
+        description={__(
+          "Advanced configurations for data persistence and troubleshooting.",
+          "wpab-boilerplate",
+        )}
+        fields={[
+          {
+            id: "debug_enableMode",
+            label: __("Debug Mode", "wpab-boilerplate"),
+            render: () => (
+              <ClassicCheckbox
+                checked={settings.debug_enableMode}
+                onChange={(val) =>
+                  setSettings({ ...settings, debug_enableMode: val })
+                }
+                label={__("Enable developer logging", "wpab-boilerplate")}
+                description={__(
+                  "Detailed logs will be written to the database for troubleshooting.",
+                  "wpab-boilerplate",
+                )}
+              />
+            ),
+          },
+          {
+            id: "advanced_deleteAllOnUninstall",
+            label: __("Delete Data on Uninstall", "wpab-boilerplate"),
+            render: () => (
+              <ClassicCheckbox
+                checked={settings.advanced_deleteAllOnUninstall}
+                onChange={(val) =>
+                  setSettings({
+                    ...settings,
+                    advanced_deleteAllOnUninstall: val,
+                  })
+                }
+                label={__("Purge data on plugin deletion", "wpab-boilerplate")}
+                description={__(
+                  "CAUTION: If enabled, all plugin data and settings will be permanently deleted when the plugin is uninstalled.",
+                  "wpab-boilerplate",
+                )}
+              />
+            ),
+          },
+        ]}
+      />
+
+      <div className="wpab-mt-8">
+        {/* Native WooCommerce save button is used instead */}
+      </div>
+    </div>
   );
-}
+};
+
+export default Settings;

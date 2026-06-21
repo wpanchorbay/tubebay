@@ -1,5 +1,5 @@
 /**
- * Type definitions for the TubeBay plugin.
+ * Type definitions for the WPAB Boilerplate plugin.
  *
  * Customize these types for your own plugin's data structures.
  */
@@ -27,35 +27,12 @@ export interface WpSettings {
  * Must match the PHP default settings in Common.php.
  */
 export interface PluginSettings {
-    global_enableFeature: boolean;
-    global_exampleText: string;
+    general_isEnabled: boolean;
+    general_apiToken: string;
+    appearance_primaryColor: string;
+    appearance_customCss: string;
     advanced_deleteAllOnUninstall: boolean;
     debug_enableMode: boolean;
-    api_key: string;
-    channel_id: string;
-    channel_name: string;
-    thumbnails_default: string;
-    thumbnails_medium: string;
-    connection_status: string;
-    auto_sync: boolean;
-    last_sync_time: number;
-    video_placement: string;
-    cache_duration: number;
-    muted_autoplay: boolean;
-    show_controls: boolean;
-    is_onboarding_completed: boolean;
-    connection_method: "oauth" | "api";
-    refresh_token: string;
-}
-
-export interface SyncPlacementSettings {
-    auto_sync: boolean;
-    video_placement: string;
-    cache_duration: number;
-    debug_enableMode: boolean;
-    muted_autoplay: boolean;
-    show_controls: boolean;
-    advanced_deleteAllOnUninstall: boolean;
 }
 
 /**
@@ -70,5 +47,4 @@ export interface BoilerplateStore {
     pluginData: PluginData;
     wpSettings: WpSettings;
     plugin_settings: PluginSettings;
-    products_url: string;
 }

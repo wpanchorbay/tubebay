@@ -1,11 +1,13 @@
 const Page = ({
   children,
-  className = "tubebay-flex tubebay-flex-col tubebay-gap-[32px]",
+  className,
 }: {
   children: React.ReactNode;
   className?: string;
 }) => {
-  return <div className={`${className}`}>{children}</div>;
+  return (
+    <div className={`wpab-p-x-page-default ${className}`}>{children}</div>
+  );
 };
 
 export default Page;

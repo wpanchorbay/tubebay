@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Button from "./Button";
 
 interface ConfirmationModalProps {
@@ -9,6 +9,7 @@ interface ConfirmationModalProps {
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
+  autoFocus?: "confirm" | "cancel";
   classNames?: {
     overlay?: string;
     content?: string;
@@ -33,41 +34,56 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onCancel,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  autoFocus = "confirm",
   classNames = {},
 }) => {
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (autoFocus === "cancel") {
+        cancelRef.current?.focus();
+      } else {
+        confirmRef.current?.focus();
+      }
+    }
+  }, [isOpen, autoFocus]);
+
   if (!isOpen) return null;
 
   return (
     <div
-      className={`tubebay-fixed tubebay-inset-0 tubebay-z-[60000] tubebay-flex tubebay-items-center tubebay-justify-center tubebay-bg-black/50 tubebay-backdrop-blur-sm tubebay-transition-opacity ${
+      className={`wpab-fixed wpab-inset-0 wpab-z-[60000] wpab-flex wpab-items-center wpab-justify-center wpab-bg-black/50 wpab-backdrop-blur-sm wpab-transition-opacity ${
         classNames.overlay || ""
       }`}
     >
       <div
-        className={`tubebay-bg-white tubebay-rounded-lg tubebay-shadow-xl tubebay-pt-6 tubebay-pb-3 tubebay-px-8 tubebay-max-w-sm tubebay-w-full tubebay-mx-4 tubebay-transform tubebay-transition-all tubebay-scale-100 ${
+        className={`wpab-bg-white wpab-rounded-lg wpab-shadow-xl wpab-pt-6 wpab-pb-3 wpab-px-8 wpab-max-w-sm wpab-w-full wpab-mx-4 wpab-transform wpab-transition-all wpab-scale-100 ${
           classNames.content || ""
         }`}
       >
         <h3
-          className={`tubebay-text-lg tubebay-font-bold tubebay-text-gray-900 tubebay-mb-2 tubebay-text-nowrap ${
+          className={`wpab-text-lg wpab-font-bold wpab-text-gray-900 wpab-mb-2 wpab-text-nowrap ${
             classNames.title || ""
           }`}
         >
           {title}
         </h3>
         <p
-          className={`tubebay-text-gray-600 tubebay-mb-6 tubebay-text-sm tubebay-leading-relaxed ${
+          className={`wpab-text-gray-600 wpab-mb-6 wpab-text-sm wpab-leading-relaxed ${
             classNames.message || ""
           }`}
         >
           {message}
         </p>
         <div
-          className={`tubebay-flex tubebay-justify-end tubebay-gap-3 ${
+          className={`wpab-flex wpab-justify-end wpab-gap-3 ${
             classNames.footer || ""
           }`}
         >
           <Button
+            ref={cancelRef}
             className={classNames.button?.cancelClassName || ""}
             variant={classNames.button?.cancelVariant || "ghost"}
             color={classNames.button?.cancelColor || "secondary"}
@@ -76,6 +92,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             {cancelLabel}
           </Button>
           <Button
+            ref={confirmRef}
             className={classNames.button?.confirmClassName || ""}
             variant={classNames.button?.confirmVariant || "solid"}
             color={classNames.button?.confirmColor || "primary"}
