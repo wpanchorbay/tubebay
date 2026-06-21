@@ -6,7 +6,7 @@ const HeaderContainer = ({
   className?: string;
 }) => {
   return (
-    <div className={`wpab-flex wpab-justify-between ${className}`}>
+    <div className={`tubebay-flex tubebay-justify-between ${className}`}>
       {children}
     </div>
   );

@@ -21,35 +21,35 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const sizeClasses = {
-      small: "wpab-px-[8px] wpab-py-[5px]",
-      medium: "wpab-px-[12px] wpab-py-[6px]",
-      large: "wpab-px-[16px] wpab-py-[10px]",
+      small: "tubebay-px-[8px] tubebay-py-[5px]",
+      medium: "tubebay-px-[12px] tubebay-py-[6px]",
+      large: "tubebay-px-[16px] tubebay-py-[10px]",
     };
 
     const colorClasses = {
       primary: {
         solid:
-          "wpab-bg-primary wpab-text-white wpab-border wpab-border-primary hover:wpab-bg-primary-hovered hover:wpab-border-primary-hovered",
+          "tubebay-bg-primary tubebay-text-white tubebay-border tubebay-border-primary hover:tubebay-bg-primary-hovered hover:tubebay-border-primary-hovered",
         outline:
-          "wpab-bg-transparent wpab-border wpab-border-primary wpab-text-primary hover:wpab-bg-primary hover:wpab-text-white",
+          "tubebay-bg-transparent tubebay-border tubebay-border-primary tubebay-text-primary hover:tubebay-bg-primary hover:tubebay-text-white",
         ghost:
-          "wpab-bg-transparent wpab-text-primary hover:wpab-text-primary-hovered hover:wpab-bg-primary/10",
+          "tubebay-bg-transparent tubebay-text-primary hover:tubebay-text-primary-hovered hover:tubebay-bg-primary/10",
       },
       secondary: {
         solid:
-          "wpab-bg-secondary wpab-text-white wpab-border wpab-border-secondary hover:wpab-bg-secondary-hovered",
+          "tubebay-bg-secondary tubebay-text-white tubebay-border tubebay-border-secondary hover:tubebay-bg-secondary-hovered",
         outline:
-          "wpab-bg-transparent wpab-border wpab-border-secondary wpab-text-secondary hover:wpab-bg-secondary hover:wpab-text-white",
+          "tubebay-bg-transparent tubebay-border tubebay-border-secondary tubebay-text-secondary hover:tubebay-bg-secondary hover:tubebay-text-white",
         ghost:
-          "wpab-bg-transparent wpab-text-[#1e1e1e] hover:!wpab-text-primary",
+          "tubebay-bg-transparent tubebay-text-[#1e1e1e] hover:!tubebay-text-primary",
       },
       danger: {
         solid:
-          "wpab-bg-red-500 wpab-text-white wpab-border wpab-border-red-500 hover:wpab-bg-red-600 hover:wpab-border-red-600",
+          "tubebay-bg-red-500 tubebay-text-white tubebay-border tubebay-border-red-500 hover:tubebay-bg-red-600 hover:tubebay-border-red-600",
         outline:
-          "wpab-bg-transparent wpab-border wpab-border-red-500 wpab-text-red-500 hover:wpab-bg-red-500 hover:wpab-text-white",
+          "tubebay-bg-transparent tubebay-border tubebay-border-red-500 tubebay-text-red-500 hover:tubebay-bg-red-500 hover:tubebay-text-white",
         ghost:
-          "wpab-bg-transparent wpab-text-red-500 hover:wpab-bg-red-500/10",
+          "tubebay-bg-transparent tubebay-text-red-500 hover:tubebay-bg-red-500/10",
       },
     };
 
@@ -62,9 +62,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={`
-                wpab-flex wpab-items-center wpab-justify-center wpab-gap-[6px]
-                wpab-text-default wpab-rounded-[8px] wpab-transition-all wpab-duration-200
-                disabled:wpab-opacity-50 disabled:wpab-cursor-not-allowed
+                tubebay-flex tubebay-items-center tubebay-justify-center tubebay-gap-[6px]
+                tubebay-text-default tubebay-rounded-[8px] tubebay-transition-all tubebay-duration-200
+                disabled:tubebay-opacity-50 disabled:tubebay-cursor-not-allowed
                 ${finalSizeClass} 
                 ${variantClasses} 
                 ${className}

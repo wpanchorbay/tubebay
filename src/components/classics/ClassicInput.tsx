@@ -43,7 +43,7 @@ export const ClassicInput: React.FC<ClassicInputProps> = ({
         {...props}
       />
       {description && (
-        <p className="description wpab-block wpab-mt-1">
+        <p className="description tubebay-block tubebay-mt-1">
           {description}
         </p>
       )}

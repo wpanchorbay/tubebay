@@ -27,24 +27,24 @@ export const ClassicSettingsTable: React.FC<ClassicSettingsTableProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`wpab-settings-section ${className}`}>
-      {title && <h2 className="wpab-ignore-preflight">{title}</h2>}
+    <div className={`tubebay-settings-section ${className}`}>
+      {title && <h2 className="tubebay-ignore-preflight">{title}</h2>}
       {description && <p className="description ">{description}</p>}
 
       <table className="form-table">
         <tbody>
-          {fields.map((field, index) => (
+          {fields?.map((field, index) => (
             <tr key={field.id || index}>
               <th scope="row">
                 <label
                   htmlFor={field.id}
-                  className="!wpab-flex wpab-items-center"
+                  className="!tubebay-flex tubebay-items-center"
                 >
-                  <span className="wpab-w-full">{field.label}</span>
+                  <span className="tubebay-w-full">{field.label}</span>
                   {field.tooltip && (
                     <ClassicTooltip
                       tip={field.tooltip}
-                      className="wpab-ml-1"
+                      className="tubebay-ml-1"
                     />
                   )}
                 </label>

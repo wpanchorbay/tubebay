@@ -51,7 +51,7 @@ export function ClassicRepeater<T extends ClassicRepeaterItem>({
               className={`wc-metabox ${isOpen ? "" : "closed"}`}
             >
               <h3
-                className="wpab-ignore-preflight wpab-cursor-pointer"
+                className="tubebay-ignore-preflight tubebay-cursor-pointer"
                 onClick={() => toggle(item.id)}
               >
                 <div className="handlediv" title="Click to toggle" />

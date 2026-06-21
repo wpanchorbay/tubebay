@@ -133,12 +133,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
   }, []);
 
   const arrowClasses = {
-    top: "wpab-top-full wpab-left-1/2 wpab--translate-x-1/2 wpab-border-t-gray-900",
+    top: "tubebay-top-full tubebay-left-1/2 tubebay--translate-x-1/2 tubebay-border-t-gray-900",
     bottom:
-      "wpab-bottom-full wpab-left-1/2 wpab--translate-x-1/2 wpab-border-b-gray-900",
-    left: "wpab-left-full wpab-top-1/2 wpab--translate-y-1/2 wpab-border-l-gray-900",
+      "tubebay-bottom-full tubebay-left-1/2 tubebay--translate-x-1/2 tubebay-border-b-gray-900",
+    left: "tubebay-left-full tubebay-top-1/2 tubebay--translate-y-1/2 tubebay-border-l-gray-900",
     right:
-      "wpab-right-full wpab-top-1/2 wpab--translate-y-1/2 wpab-border-r-gray-900",
+      "tubebay-right-full tubebay-top-1/2 tubebay--translate-y-1/2 tubebay-border-r-gray-900",
   }[position];
 
   return (
@@ -149,7 +149,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         onMouseLeave={handleMouseLeave}
         onFocus={handleMouseEnter}
         onBlur={handleMouseLeave}
-        className={`wpab-inline-block ${classNames?.trigger || ""}`}
+        className={`tubebay-inline-block ${classNames?.trigger || ""}`}
       >
         {children}
       </div>
@@ -160,7 +160,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             className={`
-            wpab-fixed wpab-z-[60] wpab-max-w-[300px]
+            tubebay-fixed tubebay-z-[60] tubebay-max-w-[300px]
             ${className}
             ${classNames?.root || ""}
           `}
@@ -170,7 +170,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             }}
           >
             <div
-              className={`wpab-animate-tooltip wpab-relative wpab-px-2.5 wpab-py-1.5 wpab-bg-gray-900 wpab-text-white wpab-text-xs wpab-rounded wpab-shadow-lg ${
+              className={`tubebay-animate-tooltip tubebay-relative tubebay-px-2.5 tubebay-py-1.5 tubebay-bg-gray-900 tubebay-text-white tubebay-text-xs tubebay-rounded tubebay-shadow-lg ${
                 classNames?.content || ""
               }`}
             >
@@ -182,7 +182,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                     href={docLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="wpab-text-blue-400 hover:wpab-text-blue-300 wpab-underline"
+                    className="tubebay-text-blue-400 hover:tubebay-text-blue-300 tubebay-underline"
                   >
                     Read More
                   </a>
@@ -190,7 +190,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
               )}
               <div
                 className={`
-                wpab-absolute wpab-border-[5px] wpab-border-transparent
+                tubebay-absolute tubebay-border-[5px] tubebay-border-transparent
                 ${arrowClasses}
                 ${classNames?.arrow || ""}
               `}

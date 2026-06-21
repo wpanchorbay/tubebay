@@ -29,30 +29,30 @@ export const Toast: FC<ToastProps> = ({ toast, onDismiss }) => {
   const getToastTypeClasses = () => {
     switch (toast.type) {
       case "success":
-        return "wpab-bg-[#f0fff4] wpab-border-l-[#228b22] wpab-text-[#1a472a]";
+        return "tubebay-bg-[#f0fff4] tubebay-border-l-[#228b22] tubebay-text-[#1a472a]";
       case "error":
-        return "wpab-bg-[#fff5f5] wpab-border-l-[#cc0000] wpab-text-[#5c2121]";
+        return "tubebay-bg-[#fff5f5] tubebay-border-l-[#cc0000] tubebay-text-[#5c2121]";
       case "info":
       default:
-        return "wpab-bg-white wpab-border-l-[#2271b1] wpab-text-[#1d2327]";
+        return "tubebay-bg-white tubebay-border-l-[#2271b1] tubebay-text-[#1d2327]";
     }
   };
 
   const toastClasses = `
-    wpab-relative wpab-p-5 wpab-rounded-[4px] wpab-shadow-[0_4px_12px_rgba(0,0,0,0.15)] 
-    wpab-flex wpab-items-center wpab-justify-between wpab-gap-[15px] 
-    wpab-border-l-[5px] wpab-backdrop-blur-[3px]
-    ${isClosing ? "wpab-animate-slide-out" : "wpab-animate-slide-in"}
+    tubebay-relative tubebay-p-5 tubebay-rounded-[4px] tubebay-shadow-[0_4px_12px_rgba(0,0,0,0.15)] 
+    tubebay-flex tubebay-items-center tubebay-justify-between tubebay-gap-[15px] 
+    tubebay-border-l-[5px] tubebay-backdrop-blur-[3px]
+    ${isClosing ? "tubebay-animate-slide-out" : "tubebay-animate-slide-in"}
     ${getToastTypeClasses()}
   `;
 
   return (
     <div className={toastClasses}>
-      <p className="wpab-m-0 wpab-text-[14px] wpab-leading-[1.5] wpab-flex-1 ">
+      <p className="tubebay-m-0 tubebay-text-[14px] tubebay-leading-[1.5] tubebay-flex-1 ">
         {toast.message}
       </p>
       <button
-        className="wpab-bg-none wpab-border-none wpab-text-inherit wpab-opacity-60 hover:wpab-opacity-100 wpab-cursor-pointer wpab-text-[20px] wpab-leading-none wpab-px-[5px] wpab-self-start -wpab-mt-[5px] -wpab-mr-[5px] -wpab-mb-[5px] wpab-ml-0"
+        className="tubebay-bg-none tubebay-border-none tubebay-text-inherit tubebay-opacity-60 hover:tubebay-opacity-100 tubebay-cursor-pointer tubebay-text-[20px] tubebay-leading-none tubebay-px-[5px] tubebay-self-start -tubebay-mt-[5px] -tubebay-mr-[5px] -tubebay-mb-[5px] tubebay-ml-0"
         onClick={handleDismiss}
         aria-label="Dismiss"
       >

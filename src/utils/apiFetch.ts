@@ -7,11 +7,11 @@ declare global {
     /**
      * The main data object localized from PHP by wp_localize_script.
      */
-    wpabBoilerplate_Localize?: BoilerplateStore;
+    tubebay_Localize?: BoilerplateStore;
   }
 }
 
-const { nonce, rest_url } = window?.wpabBoilerplate_Localize || {};
+const { nonce, rest_url } = window?.tubebay_Localize || {};
 
 /**
  * Custom wrapper for apiFetch.

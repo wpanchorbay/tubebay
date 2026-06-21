@@ -26,14 +26,14 @@ interface WpabStoreContextType {
 
 const WpabStoreContext = createContext<WpabStoreContextType | null>(null);
 
-declare const wpabBoilerplate_Localize: BoilerplateStore;
+declare const tubebay_Localize: BoilerplateStore;
 
 export const WpabProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const initialValue: BoilerplateStore =
-    typeof wpabBoilerplate_Localize !== "undefined"
-      ? wpabBoilerplate_Localize
+    typeof tubebay_Localize !== "undefined"
+      ? tubebay_Localize
       : ({} as BoilerplateStore);
 
   const [store, setStore] = useState<BoilerplateStore>(initialValue);

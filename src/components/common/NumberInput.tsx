@@ -145,10 +145,10 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   };
 
   return (
-    <div className={`wpab-w-full ${classNames?.wrapper || ""}`}>
+    <div className={`tubebay-w-full ${classNames?.wrapper || ""}`}>
       {label && (
         <label
-          className={`wpab-block wpab-text-sm wpab-font-bold wpab-text-gray-900 wpab-mb-2 ${
+          className={`tubebay-block tubebay-text-sm tubebay-font-bold tubebay-text-gray-900 tubebay-mb-2 ${
             classNames?.label || ""
           }`}
         >
@@ -158,14 +158,14 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
       <div
         className={`
-          wpab-flex wpab-items-center wpab-justify-between wpab-overflow-hidden
-          wpab-rounded-[8px] wpab-bg-white wpab-min-w-min wpab-py-[1px]
+          tubebay-flex tubebay-items-center tubebay-justify-between tubebay-overflow-hidden
+          tubebay-rounded-[8px] tubebay-bg-white tubebay-min-w-min tubebay-py-[1px]
           ${borderClasses}
           ${transitionClasses}
           ${error ? errorWithInClasses : hoverWithInClasses}
           ${
             disabled
-              ? "wpab-opacity-50 wpab-cursor-not-allowed wpab-bg-gray-50"
+              ? "tubebay-opacity-50 tubebay-cursor-not-allowed tubebay-bg-gray-50"
               : ""
           }
           ${className}
@@ -179,23 +179,23 @@ export const NumberInput: React.FC<NumberInputProps> = ({
           onBlur={handleBlur}
           disabled={disabled}
           className={`
-            !wpab-border-none !wpab-outline-none 
-            focus:!wpab-outline-none focus:!wpab-border-none focus:!wpab-shadow-none
-            wpab-px-[12px] wpab-py-[9px] 
-            wpab-text-[13px] wpab-leading-[20px] 
-            wpab-text-[#1e1e1e] wpab-font-[400] 
-            wpab-min-w-[60px] wpab-w-full 
-            wpab-bg-transparent wpab-border-none wpab-outline-none 
-            wpab-placeholder-gray-400
+            !tubebay-border-none !tubebay-outline-none 
+            focus:!tubebay-outline-none focus:!tubebay-border-none focus:!tubebay-shadow-none
+            tubebay-px-[12px] tubebay-py-[9px] 
+            tubebay-text-[13px] tubebay-leading-[20px] 
+            tubebay-text-[#1e1e1e] tubebay-font-[400] 
+            tubebay-min-w-[60px] tubebay-w-full 
+            tubebay-bg-transparent tubebay-border-none tubebay-outline-none 
+            tubebay-placeholder-gray-400
             hide-spin-button
-            ${disabled ? "wpab-cursor-not-allowed" : ""}
+            ${disabled ? "tubebay-cursor-not-allowed" : ""}
             ${classNames?.input || ""}
           `}
           placeholder={placeholder}
         />
 
         <div
-          className={`wpab-flex wpab-items-center wpab-px-2 !wpab-pl-0.5 wpab-space-x-1 wpab-select-none ${
+          className={`tubebay-flex tubebay-items-center tubebay-px-2 !tubebay-pl-0.5 tubebay-space-x-1 tubebay-select-none ${
             classNames?.buttonContainer || ""
           }`}
         >
@@ -207,9 +207,9 @@ export const NumberInput: React.FC<NumberInputProps> = ({
               (value !== null && value !== undefined && value >= max)
             }
             className={`
-              wpab-p-2 !wpab-pr-0.5 wpab-text-gray-500 wpab-transition-colors wpab-duration-150
-              hover:wpab-text-gray-900 focus:wpab-outline-none active:wpab-scale-95
-              disabled:wpab-opacity-30 disabled:hover:wpab-text-gray-500
+              tubebay-p-2 !tubebay-pr-0.5 tubebay-text-gray-500 tubebay-transition-colors tubebay-duration-150
+              hover:tubebay-text-gray-900 focus:tubebay-outline-none active:tubebay-scale-95
+              disabled:tubebay-opacity-30 disabled:hover:tubebay-text-gray-500
               ${classNames?.incrementButton || ""}
             `}
             aria-label="Increase value"
@@ -237,9 +237,9 @@ export const NumberInput: React.FC<NumberInputProps> = ({
               (value !== null && value !== undefined && value <= min)
             }
             className={`
-              wpab-p-2 wpab-text-gray-500 wpab-transition-colors wpab-duration-150
-              hover:wpab-text-gray-900 focus:wpab-outline-none active:wpab-scale-95
-              disabled:wpab-opacity-30 disabled:hover:wpab-text-gray-500
+              tubebay-p-2 tubebay-text-gray-500 tubebay-transition-colors tubebay-duration-150
+              hover:tubebay-text-gray-900 focus:tubebay-outline-none active:tubebay-scale-95
+              disabled:tubebay-opacity-30 disabled:hover:tubebay-text-gray-500
               ${classNames?.decrementButton || ""}
             `}
             aria-label="Decrease value"
@@ -262,7 +262,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
       {error && (
         <span
-          className={`wpab-mt-1 wpab-text-xs wpab-text-red-500 ${
+          className={`tubebay-mt-1 tubebay-text-xs tubebay-text-red-500 ${
             classNames?.error || ""
           }`}
         >

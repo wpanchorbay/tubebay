@@ -49,14 +49,14 @@ export const ClassicTooltip: React.FC<ClassicTooltipProps> = ({
           setVisible(false);
         }}
         tabIndex={0}
-        className={`wpab-cursor-help wpab-inline-flex wpab-items-center wpab-justify-center wpab-w-[16px] wpab-h-[16px] wpab-rounded-full wpab-bg-[#72777c] hover:wpab-bg-[#50575e] wpab-text-white wpab-transition-colors wpab-ml-1 ${className}`}
+        className={`tubebay-cursor-help tubebay-inline-flex tubebay-items-center tubebay-justify-center tubebay-w-[16px] tubebay-h-[16px] tubebay-rounded-full tubebay-bg-[#72777c] hover:tubebay-bg-[#50575e] tubebay-text-white tubebay-transition-colors tubebay-ml-1 ${className}`}
       >
         <CircleQuestionMarkIcon />
       </span>
       {visible &&
         createPortal(
           <div
-            className="wpab-fixed wpab-z-[999999] wpab-bg-[#333] wpab-text-white wpab-px-2 wpab-py-1 wpab-rounded wpab-text-xs wpab-leading-snug wpab-max-w-[200px] wpab-text-center wpab-pointer-events-none wpab-shadow-sm"
+            className="tubebay-fixed tubebay-z-[999999] tubebay-bg-[#333] tubebay-text-white tubebay-px-2 tubebay-py-1 tubebay-rounded tubebay-text-xs tubebay-leading-snug tubebay-max-w-[200px] tubebay-text-center tubebay-pointer-events-none tubebay-shadow-sm"
             style={{
               top: coords.top,
               left: coords.left,
@@ -65,7 +65,7 @@ export const ClassicTooltip: React.FC<ClassicTooltipProps> = ({
           >
             {tip}
             <div
-              className="wpab-absolute wpab-border-[5px] wpab-border-solid wpab-border-t-[#333] wpab-border-x-transparent wpab-border-b-transparent"
+              className="tubebay-absolute tubebay-border-[5px] tubebay-border-solid tubebay-border-t-[#333] tubebay-border-x-transparent tubebay-border-b-transparent"
               style={{
                 top: "100%",
                 left: "50%",

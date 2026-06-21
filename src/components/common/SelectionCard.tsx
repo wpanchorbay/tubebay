@@ -79,18 +79,18 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className={`
-        wpab-relative wpab-p-[20px] wpab-rounded-[8px] wpab-transition-all wpab-duration-200
-        wpab-flex wpab-items-start wpab-gap-[10px]
+        tubebay-relative tubebay-p-[20px] tubebay-rounded-[8px] tubebay-transition-all tubebay-duration-200
+        tubebay-flex tubebay-items-start tubebay-gap-[10px]
         ${
           isDisabled
-            ? "wpab-bg-gray-50 wpab-border wpab-border-gray-200 wpab-cursor-not-allowed"
-            : "wpab-cursor-pointer"
+            ? "tubebay-bg-gray-50 tubebay-border tubebay-border-gray-200 tubebay-cursor-not-allowed"
+            : "tubebay-cursor-pointer"
         }
         ${
           !isDisabled && selected
-            ? "wpab-bg-primary wpab-border wpab-border-primary wpab-shadow-sm wpab-shadow-primary/20"
+            ? "tubebay-bg-primary tubebay-border tubebay-border-primary tubebay-shadow-sm tubebay-shadow-primary/20"
             : !isDisabled
-            ? "wpab-bg-white wpab-border wpab-border-gray-100 hover:wpab-border-gray-300"
+            ? "tubebay-bg-white tubebay-border tubebay-border-gray-100 hover:tubebay-border-gray-300"
             : ""
         }
         ${classNames?.root || ""}
@@ -99,35 +99,35 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
       {/* Badges */}
       {isPro && (
         <div
-          className="wpab-absolute wpab-top-3 wpab-right-3"
+          className="tubebay-absolute tubebay-top-3 tubebay-right-3"
           title="Upgrade to Pro"
         >
-          <LockKeyhole className="wpab-w-5 wpab-h-5 wpab-text-[#f02a74]" />
+          <LockKeyhole className="tubebay-w-5 tubebay-h-5 tubebay-text-[#f02a74]" />
         </div>
       )}
       {isComingSoon && (
-        <div className="wpab-absolute wpab-top-3 wpab-right-3">
-          <span className="wpab-bg-pink-100 wpab-text-pink-600 wpab-px-2 wpab-py-0.5 wpab-rounded-full wpab-text-[10px] wpab-font-bold wpab-uppercase wpab-flex wpab-items-center wpab-gap-1">
-            <Hourglass className="wpab-w-3 wpab-h-3" />
+        <div className="tubebay-absolute tubebay-top-3 tubebay-right-3">
+          <span className="tubebay-bg-pink-100 tubebay-text-pink-600 tubebay-px-2 tubebay-py-0.5 tubebay-rounded-full tubebay-text-[10px] tubebay-font-bold tubebay-uppercase tubebay-flex tubebay-items-center tubebay-gap-1">
+            <Hourglass className="tubebay-w-3 tubebay-h-3" />
             Soon
           </span>
         </div>
       )}
 
-      <div className={`wpab-mt-1 ${classNames?.iconWrapper || ""}`}>
+      <div className={`tubebay-mt-1 ${classNames?.iconWrapper || ""}`}>
         <div
           className={`
-            wpab-w-5 wpab-h-5 wpab-rounded-full wpab-border-2 wpab-flex wpab-items-center wpab-justify-center
+            tubebay-w-5 tubebay-h-5 tubebay-rounded-full tubebay-border-2 tubebay-flex tubebay-items-center tubebay-justify-center
             ${
               isDisabled
-                ? "wpab-border-gray-300 wpab-bg-gray-100"
+                ? "tubebay-border-gray-300 tubebay-bg-gray-100"
                 : ""
             }
             ${
               !isDisabled && selected
-                ? "wpab-border-white"
+                ? "tubebay-border-white"
                 : !isDisabled
-                ? "wpab-border-gray-300"
+                ? "tubebay-border-gray-300"
                 : ""
             }
             ${classNames?.circle || ""}
@@ -135,7 +135,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
         >
           {!isDisabled && selected && (
             <div
-              className={`wpab-w-2.5 wpab-h-2.5 wpab-bg-white wpab-rounded-full ${
+              className={`tubebay-w-2.5 tubebay-h-2.5 tubebay-bg-white tubebay-rounded-full ${
                 classNames?.dot || ""
               }`}
             />
@@ -144,22 +144,22 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
       </div>
       <div className={classNames?.textWrapper || ""}>
         <h3
-          className={`wpab-text-[15px] wpab-leading-[24px] wpab-font-[700] wpab-mb-1 ${
+          className={`tubebay-text-[15px] tubebay-leading-[24px] tubebay-font-[700] tubebay-mb-1 ${
             !isDisabled && selected
-              ? "wpab-text-white"
-              : "wpab-text-gray-900"
-          } ${isDisabled ? "!wpab-text-gray-400" : ""} ${
+              ? "tubebay-text-white"
+              : "tubebay-text-gray-900"
+          } ${isDisabled ? "!tubebay-text-gray-400" : ""} ${
             classNames?.title || ""
           }`}
         >
           {title}
         </h3>
         <p
-          className={`wpab-text-[13px] wpab-leading-[20px] ${
+          className={`tubebay-text-[13px] tubebay-leading-[20px] ${
             !isDisabled && selected
-              ? "wpab-text-blue-100"
-              : "wpab-text-gray-500"
-          } ${isDisabled ? "!wpab-text-gray-400" : ""} ${
+              ? "tubebay-text-blue-100"
+              : "tubebay-text-gray-500"
+          } ${isDisabled ? "!tubebay-text-gray-400" : ""} ${
             classNames?.description || ""
           }`}
         >

@@ -24,28 +24,28 @@ export const ClassicCheckbox: React.FC<ClassicCheckboxProps> = ({
 
   return (
     <div
-      className={`wpab-flex wpab-flex-col wpab-gap-1 ${className}`}
+      className={`tubebay-flex tubebay-flex-col tubebay-gap-1 ${className}`}
     >
       <label
         htmlFor={checkboxId}
-        className={`wpab-flex wpab-items-center wpab-gap-2 wpab-cursor-pointer ${
-          disabled ? "wpab-opacity-50 wpab-cursor-not-allowed" : ""
+        className={`tubebay-flex tubebay-items-center tubebay-gap-2 tubebay-cursor-pointer ${
+          disabled ? "tubebay-opacity-50 tubebay-cursor-not-allowed" : ""
         }`}
       >
         <div
           className={`
-          wpab-flex wpab-items-center wpab-justify-center
-          wpab-w-4 wpab-h-4 wpab-rounded wpab-border-2 wpab-transition-all wpab-duration-200
+          tubebay-flex tubebay-items-center tubebay-justify-center
+          tubebay-w-4 tubebay-h-4 tubebay-rounded tubebay-border-2 tubebay-transition-all tubebay-duration-200
           ${
             checked
-              ? "wpab-border-[#2271b1] wpab-bg-[#2271b1]"
-              : "wpab-border-[#8c8f94] wpab-bg-white hover:wpab-border-[#2271b1]"
+              ? "tubebay-border-[#2271b1] tubebay-bg-[#2271b1]"
+              : "tubebay-border-[#8c8f94] tubebay-bg-white hover:tubebay-border-[#2271b1]"
           }
         `}
         >
           <svg
-            className={`wpab-w-3.5 wpab-h-3.5 wpab-text-white wpab-transform wpab-transition-transform wpab-duration-200 ${
-              checked ? "wpab-scale-100" : "wpab-scale-0"
+            className={`tubebay-w-3.5 tubebay-h-3.5 tubebay-text-white tubebay-transform tubebay-transition-transform tubebay-duration-200 ${
+              checked ? "tubebay-scale-100" : "tubebay-scale-0"
             }`}
             viewBox="0 0 24 24"
             fill="none"
@@ -59,7 +59,7 @@ export const ClassicCheckbox: React.FC<ClassicCheckboxProps> = ({
           <input
             id={checkboxId}
             type="checkbox"
-            className="!wpab-hidden"
+            className="!tubebay-hidden"
             checked={checked}
             onChange={(e) => onChange(e.target.checked)}
             disabled={disabled}
@@ -69,7 +69,7 @@ export const ClassicCheckbox: React.FC<ClassicCheckboxProps> = ({
       </label>
       {description && (
         <p
-          className="description wpab-block wpab-mt-0 wpab-pl-6"
+          className="description tubebay-block tubebay-mt-0 tubebay-pl-6"
         >
           {description}
         </p>

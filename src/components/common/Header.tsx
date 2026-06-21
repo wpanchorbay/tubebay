@@ -7,7 +7,7 @@ const Header = ({
 }) => {
   return (
     <div
-      className={`wpab-text-[20px] wpab-font-[700] wpab-leading-[30px] wpab-text-[#000000]  ${className}`}
+      className={`tubebay-text-[20px] tubebay-font-[700] tubebay-leading-[30px] tubebay-text-[#000000]  ${className}`}
     >
       {children}
     </div>

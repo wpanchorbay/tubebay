@@ -12,13 +12,13 @@ export const ClassicTextarea: React.FC<ClassicTextareaProps> = ({
   ...props
 }) => {
   return (
-    <div className="wpab-w-full">
+    <div className="tubebay-w-full">
       <textarea
-        className={`wpab-w-full wpab-p-3 wpab-border wpab-border-gray-300 wpab-rounded-md wpab-text-[14px] ${className}`}
+        className={`tubebay-w-full tubebay-p-3 tubebay-border tubebay-border-gray-300 tubebay-rounded-md tubebay-text-[14px] ${className}`}
         {...props}
       />
       {description && (
-        <p className="description wpab-mt-1 wpab-text-gray-500">
+        <p className="description tubebay-mt-1 tubebay-text-gray-500">
           {description}
         </p>
       )}

@@ -188,7 +188,7 @@ const Select: React.FC<SelectProps> = ({
   enableSearch = false,
   border = borderClasses,
   hoverBorder = hoverBorderClasses,
-  color = "wpab-text-[#0a4b78]",
+  color = "tubebay-text-[#0a4b78]",
   isError = false,
   errorClassName = errorClasses,
   differentDropdownWidth = false,
@@ -456,14 +456,14 @@ const Select: React.FC<SelectProps> = ({
   };
   return (
     <div
-      className={`wpab-relative wpab-w-full ${className} ${
+      className={`tubebay-relative tubebay-w-full ${className} ${
         classNames.wrapper || ""
       }`}
       ref={containerRef}
     >
       {label && (
         <label
-          className={`wpab-block wpab-text-sm wpab-font-medium wpab-text-gray-700 wpab-mb-1 ${
+          className={`tubebay-block tubebay-text-sm tubebay-font-medium tubebay-text-gray-700 tubebay-mb-1 ${
             classNames.label || ""
           }`}
         >
@@ -484,29 +484,29 @@ const Select: React.FC<SelectProps> = ({
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         onKeyDown={handleTriggerKeyDown}
         className={`
-          wpab-ring-1 wpab-ring-transparent
-          wpab-relative wpab-flex wpab-flex-wrap  wpab-items-center wpab-justify-between wpab-w-full wpab-gap-0 wpab-px-4  wpab-text-left !wpab-cursor-pointer 
-          wpab-transition-all wpab-duration-200 wpab-ease-in-out wpab-border wpab-rounded-[8px] wpab-bg-white ${border} 
-          ${isCompact ? "wpab-py-[5px]" : "wpab-py-[9px]"}
+          tubebay-ring-1 tubebay-ring-transparent
+          tubebay-relative tubebay-flex tubebay-flex-wrap  tubebay-items-center tubebay-justify-between tubebay-w-full tubebay-gap-0 tubebay-px-4  tubebay-text-left !tubebay-cursor-pointer 
+          tubebay-transition-all tubebay-duration-200 tubebay-ease-in-out tubebay-border tubebay-rounded-[8px] tubebay-bg-white ${border} 
+          ${isCompact ? "tubebay-py-[5px]" : "tubebay-py-[9px]"}
           ${!disabled && !isOpen ? ` ${color} ` : ""}
           ${
             disabled
-              ? "wpab-bg-gray-100 wpab-cursor-not-allowed wpab-text-gray-400 wpab-border-gray-200"
+              ? "tubebay-bg-gray-100 tubebay-cursor-not-allowed tubebay-text-gray-400 tubebay-border-gray-200"
               : isError
               ? ""
-              : "hover:!wpab-border-[#3858e9]"
+              : "hover:!tubebay-border-[#3858e9]"
           }
           ${isOpen ? (isError ? errorClassesManual : hoverClassesManual) : ""}
           ${isError ? `${errorClassName} ${classNames.error || ""}` : ""}
           ${classNames.select || ""} ${classNames.container || ""}
         `}
       >
-        <div className="wpab-flex-1 wpab-min-w-0">
+        <div className="tubebay-flex-1 tubebay-min-w-0">
           {enableSearch && isOpen ? (
             <input
               ref={searchInputRef}
               type="text"
-              className={`wpab-w-full !wpab-bg-transparent !wpab-border-none !wpab-shadow-none !wpab-outline-none !wpab-p-0 !wpab-font-[${fontWeight}] !wpab-text-[${fontSize}px] !wpab-leading-[20px] !wpab-min-h-[unset] ${
+              className={`tubebay-w-full !tubebay-bg-transparent !tubebay-border-none !tubebay-shadow-none !tubebay-outline-none !tubebay-p-0 !tubebay-font-[${fontWeight}] !tubebay-text-[${fontSize}px] !tubebay-leading-[20px] !tubebay-min-h-[unset] ${
                 classNames.search || ""
               }`}
               value={searchQuery}
@@ -520,11 +520,11 @@ const Select: React.FC<SelectProps> = ({
             />
           ) : (
             <span
-              className={`wpab-block wpab-truncate ${color} hover:!wpab-text-[#3858e9] wpab-text-[${fontSize}px] wpab-font-[${fontWeight}]`}
+              className={`tubebay-block tubebay-truncate ${color} hover:!tubebay-text-[#3858e9] tubebay-text-[${fontSize}px] tubebay-font-[${fontWeight}]`}
             >
               {value ? (
                 <span
-                  className={`wpab-flex wpab-items-center wpab-gap-2 `}
+                  className={`tubebay-flex tubebay-items-center tubebay-gap-2 `}
                 >
                   {renderOption && selectedOption
                     ? renderOption(selectedOption)
@@ -539,10 +539,10 @@ const Select: React.FC<SelectProps> = ({
 
         {/* Chevron Icon */}
         {!hideIcon ? (
-          <span className="wpab-flex-shrink-0 wpab-ml-2 wpab-flex wpab-items-center">
+          <span className="tubebay-flex-shrink-0 tubebay-ml-2 tubebay-flex tubebay-items-center">
             <ChevronDown
-              className={`wpab-h-4 wpab-w-4 wpab-text-gray-700 wpab-transition-transform wpab-duration-200 ${
-                isOpen ? "wpab-transform wpab-rotate-180" : ""
+              className={`tubebay-h-4 tubebay-w-4 tubebay-text-gray-700 tubebay-transition-transform tubebay-duration-200 ${
+                isOpen ? "tubebay-transform tubebay-rotate-180" : ""
               }`}
             />
           </span>
@@ -552,8 +552,8 @@ const Select: React.FC<SelectProps> = ({
       {/* Dropdown Panel */}
       {isOpen && (
         <div
-          className={`wpab-absolute wpab-z-[50000] wpab-bg-white wpab-border wpab-border-gray-200 wpab-rounded-[12px] wpab-shadow-[0_2px_2px_rgba(0,0,0,0.3)] -wpab-mt-[1px] wpab-p-1 ${
-            differentDropdownWidth ? "" : "wpab-w-full"
+          className={`tubebay-absolute tubebay-z-[50000] tubebay-bg-white tubebay-border tubebay-border-gray-200 tubebay-rounded-[12px] tubebay-shadow-[0_2px_2px_rgba(0,0,0,0.3)] -tubebay-mt-[1px] tubebay-p-1 ${
+            differentDropdownWidth ? "" : "tubebay-w-full"
           } ${classNames.dropdown || ""}`}
         >
           {/* Options List */}
@@ -563,11 +563,11 @@ const Select: React.FC<SelectProps> = ({
             role="listbox"
             tabIndex={-1}
             onScroll={() => setTooltipState(null)} // Hide tooltip on scroll to prevent detachment
-            className={`wpab-max-h-60 wpab-overflow-auto focus:wpab-outline-none wpab-scrollbar-hide wpab-relative ${color} wpab-font-[${fontWeight}] wpab-text-[${fontSize}px]`}
+            className={`tubebay-max-h-60 tubebay-overflow-auto focus:tubebay-outline-none tubebay-scrollbar-hide tubebay-relative ${color} tubebay-font-[${fontWeight}] tubebay-text-[${fontSize}px]`}
             style={{ scrollbarWidth: "none" }}
           >
             {filteredOptions.length === 0 ? (
-              <li className="wpab-relative wpab-cursor-default wpab-select-none wpab-p-1  wpab-italic wpab-text-center wpab-rounded-[8px]">
+              <li className="tubebay-relative tubebay-cursor-default tubebay-select-none tubebay-p-1  tubebay-italic tubebay-text-center tubebay-rounded-[8px]">
                 {searchQuery ? "No results found" : "No options available"}
               </li>
             ) : (
@@ -596,22 +596,22 @@ const Select: React.FC<SelectProps> = ({
                       handleSelect(option);
                     }}
                     className={`
-                      wpab-group wpab-relative wpab-cursor-pointer wpab-select-none wpab-px-3  wpab-flex wpab-flex-nowrap wpab-justify-between wpab-min-h-[36px]wpab-font-medium wpab-transition-colors wpab-duration-150 !wpab-mb-0 wpab-border-b-[1px] wpab-border-gray-100  wpab-rounded-[8px] 
+                      tubebay-group tubebay-relative tubebay-cursor-pointer tubebay-select-none tubebay-px-3  tubebay-flex tubebay-flex-nowrap tubebay-justify-between tubebay-min-h-[36px]tubebay-font-medium tubebay-transition-colors tubebay-duration-150 !tubebay-mb-0 tubebay-border-b-[1px] tubebay-border-gray-100  tubebay-rounded-[8px] 
                       ${
                         isDisabled
-                          ? "wpab-opacity-100 !wpab-cursor-not-allowed wpab-text-gray-500 wpab-bg-gray-200"
+                          ? "tubebay-opacity-100 !tubebay-cursor-not-allowed tubebay-text-gray-500 tubebay-bg-gray-200"
                           : ""
                       }
                       ${
                         isComingSoon
-                          ? "wpab-opacity-100 !wpab-cursor-not-allowed !wpab-text-pink-500 hover:!wpab-text-pink-600 wpab-bg-gray-200"
+                          ? "tubebay-opacity-100 !tubebay-cursor-not-allowed !tubebay-text-pink-500 hover:!tubebay-text-pink-600 tubebay-bg-gray-200"
                           : ""
                       }
                       ${
                         isHighlighted && !isDisabled
-                          ? "wpab-bg-blue-600 wpab-text-white"
+                          ? "tubebay-bg-blue-600 tubebay-text-white"
                           : isDisabled
-                          ? "wpab-text-gray-400"
+                          ? "tubebay-text-gray-400"
                           : ""
                       }
                       ${
@@ -622,12 +622,12 @@ const Select: React.FC<SelectProps> = ({
                       ${classNames.option || ""}
                     `}
                   >
-                    <div className="wpab-flex wpab-items-center wpab-justify-between wpab-min-h-[36px] wpab-w-full wpab-gap-4">
+                    <div className="tubebay-flex tubebay-items-center tubebay-justify-between tubebay-min-h-[36px] tubebay-w-full tubebay-gap-4">
                       <span
-                        className={`wpab-block wpab-truncate ${
+                        className={`tubebay-block tubebay-truncate ${
                           isSelected
-                            ? "wpab-font-semibold"
-                            : "wpab-font-normal"
+                            ? "tubebay-font-semibold"
+                            : "tubebay-font-normal"
                         }`}
                       >
                         {renderOption ? renderOption(option) : option.label}
@@ -635,12 +635,12 @@ const Select: React.FC<SelectProps> = ({
 
                       {/* Lock Icon for Buy Pro */}
                       {isPro && (
-                        <LockKeyhole className="wpab-w-3.5 wpab-h-3.5 wpab-text-[#f02a74]" />
+                        <LockKeyhole className="tubebay-w-3.5 tubebay-h-3.5 tubebay-text-[#f02a74]" />
                       )}
                       {isComingSoon && (
-                        <span className="wpab-bg-pink-600 wpab-text-white wpab-p-1 wpab-px-2 wpab-rounded-full wpab-text-xs wpab-flex wpab-items-center wpab-gap-1 wpab-flex-nowrap">
-                          <Hourglass className="wpab-w-3.5 wpab-h-3.5 wpab-text-white" />
-                          <span className="wpab-whitespace-nowrap">
+                        <span className="tubebay-bg-pink-600 tubebay-text-white tubebay-p-1 tubebay-px-2 tubebay-rounded-full tubebay-text-xs tubebay-flex tubebay-items-center tubebay-gap-1 tubebay-flex-nowrap">
+                          <Hourglass className="tubebay-w-3.5 tubebay-h-3.5 tubebay-text-white" />
+                          <span className="tubebay-whitespace-nowrap">
                             Coming Soon
                           </span>
                         </span>
@@ -650,14 +650,14 @@ const Select: React.FC<SelectProps> = ({
                     {/* Checkmark for selected item */}
                     {isSelected && !isPro && !isComingSoon && (
                       <span
-                        className={`wpab-px-3 wpab-pr-0 wpab-flex-nowrap wpab-flex wpab-items-center wpab-pr-4 ${
+                        className={`tubebay-px-3 tubebay-pr-0 tubebay-flex-nowrap tubebay-flex tubebay-items-center tubebay-pr-4 ${
                           isHighlighted && !isDisabled
-                            ? "wpab-text-white"
-                            : "wpab-text-blue-600"
+                            ? "tubebay-text-white"
+                            : "tubebay-text-blue-600"
                         }`}
                       >
                         <svg
-                          className="wpab-h-5 wpab-w-5"
+                          className="tubebay-h-5 tubebay-w-5"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 20 20"
                           fill="currentColor"
@@ -685,7 +685,7 @@ const Select: React.FC<SelectProps> = ({
         createPortal(
           <div
             ref={tooltipRef}
-            className="wpab-fixed wpab-z-[50001] wpab-flex wpab-flex-col wpab-items-center wpab-gap-1.5 wpab-bg-gray-900 wpab-text-white wpab-text-xs wpab-p-2 wpab-min-w-[140px] wpab-rounded-md wpab-shadow-lg"
+            className="tubebay-fixed tubebay-z-[50001] tubebay-flex tubebay-flex-col tubebay-items-center tubebay-gap-1.5 tubebay-bg-gray-900 tubebay-text-white tubebay-text-xs tubebay-p-2 tubebay-min-w-[140px] tubebay-rounded-md tubebay-shadow-lg"
             style={{
               top: tooltipState.top + 5, // Adjusted to user preference
               left: tooltipState.left,
@@ -694,19 +694,19 @@ const Select: React.FC<SelectProps> = ({
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
           >
-            <span className="wpab-font-medium wpab-whitespace-nowrap">
+            <span className="tubebay-font-medium tubebay-whitespace-nowrap">
               Upgrade to unlock
             </span>
             <a
               href="#"
               target="_blank"
               onClick={(e) => e.preventDefault()}
-              className="wpab-w-full wpab-bg-[#f02a74] hover:!wpab-bg-[#e71161] wpab-text-white hover:!wpab-text-white wpab-font-bold wpab-py-1.5 wpab-px-3 wpab-transition-colors focus:wpab-outline-none focus:wpab-ring-0 wpab-cursor-pointer wpab-text-center wpab-rounded"
+              className="tubebay-w-full tubebay-bg-[#f02a74] hover:!tubebay-bg-[#e71161] tubebay-text-white hover:!tubebay-text-white tubebay-font-bold tubebay-py-1.5 tubebay-px-3 tubebay-transition-colors focus:tubebay-outline-none focus:tubebay-ring-0 tubebay-cursor-pointer tubebay-text-center tubebay-rounded"
             >
               Buy Pro
             </a>
             {/* Tooltip Arrow */}
-            <div className="wpab-absolute wpab-top-full wpab-left-1/2 -wpab-translate-x-1/2 wpab-border-4 wpab-border-transparent wpab-border-t-gray-900"></div>
+            <div className="tubebay-absolute tubebay-top-full tubebay-left-1/2 -tubebay-translate-x-1/2 tubebay-border-4 tubebay-border-transparent tubebay-border-t-gray-900"></div>
           </div>,
           document.body,
         )}

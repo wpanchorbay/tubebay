@@ -18,15 +18,15 @@ const ClassicNavbar: FC = () => {
 
   const menus: MenuLink[] = [
     {
-      label: __("Dashboard", "wpab-boilerplate"),
+      label: __("Dashboard", "tubebay-boilerplate"),
       path: "/",
     },
     {
-      label: __("Items", "wpab-boilerplate"),
+      label: __("Items", "tubebay-boilerplate"),
       path: "/items",
     },
     {
-      label: __("Logs", "wpab-boilerplate"),
+      label: __("Logs", "tubebay-boilerplate"),
       path: "/logs",
     },
   ];
@@ -38,18 +38,18 @@ const ClassicNavbar: FC = () => {
   };
 
   return (
-    <nav className="wpab-flex wpab-items-center wpab-gap-6 wpab-border-b wpab-border-gray-200 wpab-mb-8 wpab-ignore-preflight wpab-p-x-page-default wpab-bg-white wpab-overflow-x-auto wpab-whitespace-nowrap wpab-scrollbar-hide">
+    <nav className="tubebay-flex tubebay-items-center tubebay-gap-6 tubebay-border-b tubebay-border-gray-200 tubebay-mb-8 tubebay-ignore-preflight tubebay-p-x-page-default tubebay-bg-white tubebay-overflow-x-auto tubebay-whitespace-nowrap tubebay-scrollbar-hide">
       {menus.map((menu) => (
         <a
           key={menu.path}
           href={`#${menu.path}`}
           className={`
-            wpab-pb-3 wpab-text-[14px] wpab-transition-all wpab-no-underline wpab-relative focus:wpab-outline-none
-            focus:wpab-border-t-0 focus:wpab-border-l-0 focus:wpab-border-r-0 focus:wpab-shadow-none
+            tubebay-pb-3 tubebay-text-[14px] tubebay-transition-all tubebay-no-underline tubebay-relative focus:tubebay-outline-none
+            focus:tubebay-border-t-0 focus:tubebay-border-l-0 focus:tubebay-border-r-0 focus:tubebay-shadow-none
             ${
               isActive(menu.path)
-                ? "wpab-text-gray-900 wpab-font-bold"
-                : "wpab-text-gray-600 wpab-font-normal hover:wpab-text-[#2271b1]"
+                ? "tubebay-text-gray-900 tubebay-font-bold"
+                : "tubebay-text-gray-600 tubebay-font-normal hover:tubebay-text-[#2271b1]"
             }
           `}
           onClick={(e) => {
@@ -59,7 +59,7 @@ const ClassicNavbar: FC = () => {
         >
           {menu.label}
           {isActive(menu.path) && (
-            <div className="wpab-absolute wpab-bottom-[-1px] wpab-left-0 wpab-w-full wpab-h-[3px] wpab-bg-[#2271b1]" />
+            <div className="tubebay-absolute tubebay-bottom-[-1px] tubebay-left-0 tubebay-w-full tubebay-h-[3px] tubebay-bg-[#2271b1]" />
           )}
         </a>
       ))}

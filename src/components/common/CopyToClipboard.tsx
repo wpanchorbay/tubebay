@@ -26,7 +26,7 @@ export const CopyToClipboard: FC<CopyToClipboardProps> = ({ text }) => {
   return (
     <button
       onClick={handleCopy}
-      className="wpab-inline-flex wpab-items-center wpab-justify-center wpab-cursor-pointer"
+      className="tubebay-inline-flex tubebay-items-center tubebay-justify-center tubebay-cursor-pointer"
       aria-label={`Copy "${text}" to clipboard`}
     >
       {copied ? (

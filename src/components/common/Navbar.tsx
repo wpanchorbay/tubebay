@@ -15,24 +15,24 @@ const Navbar: FC = () => {
 
   const menus: MenuLink[] = [
     {
-      label: __("Dashboard", "wpab-boilerplate"),
+      label: __("Dashboard", "tubebay-boilerplate"),
       path: "/",
     },
     // Add your menu items here
     {
-      label: __("Logs", "wpab-boilerplate"),
+      label: __("Logs", "tubebay-boilerplate"),
       path: "/logs",
     },
     {
-      label: __("Components", "wpab-boilerplate"),
+      label: __("Components", "tubebay-boilerplate"),
       path: "/components",
     },
     {
-      label: __("Components (Classic)", "wpab-boilerplate"),
+      label: __("Components (Classic)", "tubebay-boilerplate"),
       path: "/components-classic",
     },
     // {
-    //   label: __("Settings", "wpab-boilerplate"),
+    //   label: __("Settings", "tubebay-boilerplate"),
     //   path: "/settings",
     // },
   ];
@@ -48,29 +48,29 @@ const Navbar: FC = () => {
 
   return (
     <>
-      <div className="wpab-bg-white wpab-p-0 !wpab-border-0 !wpab-border-b !wpab-border-gray-300 wpab-z-50 wpab-relative">
-        <div className="wpab-flex wpab-px-[12px] wpab-justify-between wpab-items-center wpab-flex-wrap md:wpab-flex-nowrap wpab-gap-[4px] wpab-relative">
-          <div className="wpab-flex wpab-items-center wpab-gap-[4px] wpab-py-[12px]">
-            <span className="wpab-font-[700] wpab-text-[16px] wpab-text-gray-900">
+      <div className="tubebay-bg-white tubebay-p-0 !tubebay-border-0 !tubebay-border-b !tubebay-border-gray-300 tubebay-z-50 tubebay-relative">
+        <div className="tubebay-flex tubebay-px-[12px] tubebay-justify-between tubebay-items-center tubebay-flex-wrap md:tubebay-flex-nowrap tubebay-gap-[4px] tubebay-relative">
+          <div className="tubebay-flex tubebay-items-center tubebay-gap-[4px] tubebay-py-[12px]">
+            <span className="tubebay-font-[700] tubebay-text-[16px] tubebay-text-gray-900">
               {store.pluginData?.plugin_name || "WPAB Boilerplate"}
             </span>
           </div>
           <div
-            className={`wpab-flex-1 md:wpab-flex-none wpab-flex-col md:wpab-flex-row wpab-justify-stretch md:wpab-items-center wpab-absolute md:wpab-relative wpab-top-[102%] md:wpab-top-auto wpab-left-0 wpab-w-full md:wpab-w-auto wpab-gap-0 md:wpab-gap-[6px] wpab-bg-white !wpab-border-0 ${
+            className={`tubebay-flex-1 md:tubebay-flex-none tubebay-flex-col md:tubebay-flex-row tubebay-justify-stretch md:tubebay-items-center tubebay-absolute md:tubebay-relative tubebay-top-[102%] md:tubebay-top-auto tubebay-left-0 tubebay-w-full md:tubebay-w-auto tubebay-gap-0 md:tubebay-gap-[6px] tubebay-bg-white !tubebay-border-0 ${
               isMobileMenuOpen
-                ? "wpab-flex"
-                : "wpab-hidden md:wpab-flex"
+                ? "tubebay-flex"
+                : "tubebay-hidden md:tubebay-flex"
             }`}
           >
-            <nav className="wpab-items-stretch md:wpab-items-center wpab-gap-0 wpab-flex wpab-flex-col md:wpab-flex-row wpab-w-full">
+            <nav className="tubebay-items-stretch md:tubebay-items-center tubebay-gap-0 tubebay-flex tubebay-flex-col md:tubebay-flex-row tubebay-w-full">
               {menus.map((menu) => (
                 <span
                   key={menu.path}
-                  className={`wpab-text-default wpab-font-[700]
-                    wpab-cursor-pointer wpab-py-[8px] wpab-px-[16px] wpab-border-b md:wpab-border-b-0 wpab-border-gray-300 last:wpab-border-gray-300 ${
+                  className={`tubebay-text-default tubebay-font-[700]
+                    tubebay-cursor-pointer tubebay-py-[8px] tubebay-px-[16px] tubebay-border-b md:tubebay-border-b-0 tubebay-border-gray-300 last:tubebay-border-gray-300 ${
                       activeTab === menu.path
-                        ? "wpab-text-blue-800 wpab-bg-gray-100 wpab-rounded-[0] md:wpab-rounded-[8px]"
-                        : "wpab-text-gray-800 hover:wpab-text-blue-800"
+                        ? "tubebay-text-blue-800 tubebay-bg-gray-100 tubebay-rounded-[0] md:tubebay-rounded-[8px]"
+                        : "tubebay-text-gray-800 hover:tubebay-text-blue-800"
                     }`}
                   onClick={() => {
                     navigate(menu.path);
@@ -83,7 +83,7 @@ const Navbar: FC = () => {
             </nav>
           </div>
           <button
-            className="wpab-flex md:wpab-hidden wpab-items-center wpab-gap-[2px] wpab-text-gray-800 hover:wpab-text-blue-800"
+            className="tubebay-flex md:tubebay-hidden tubebay-items-center tubebay-gap-[2px] tubebay-text-gray-800 hover:tubebay-text-blue-800"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMobileMenuOpen}
@@ -94,7 +94,7 @@ const Navbar: FC = () => {
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="wpab-transition-all wpab-duration-300 wpab-ease-in-out"
+              className="tubebay-transition-all tubebay-duration-300 tubebay-ease-in-out"
               aria-hidden="true"
             >
               {isMobileMenuOpen ? (
@@ -145,7 +145,7 @@ const Navbar: FC = () => {
       </div>
       {isMobileMenuOpen && (
         <div
-          className="wpab-fixed wpab-top-0 wpab-left-0 wpab-w-full wpab-h-full wpab-bg-black wpab-opacity-60 wpab-z-40 md:wpab-hidden"
+          className="tubebay-fixed tubebay-top-0 tubebay-left-0 tubebay-w-full tubebay-h-full tubebay-bg-black tubebay-opacity-60 tubebay-z-40 md:tubebay-hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

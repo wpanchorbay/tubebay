@@ -18,27 +18,27 @@ export const ClassicToggle: React.FC<ClassicToggleProps> = ({
   const toggleId = id || `classic-toggle-${Math.random().toString(36).slice(2, 9)}`;
 
   return (
-    <div className={`wpab-relative wpab-inline-block wpab-w-10 wpab-align-middle wpab-select-none wpab-transition wpab-duration-200 wpab-ease-in ${className}`}>
+    <div className={`tubebay-relative tubebay-inline-block tubebay-w-10 tubebay-align-middle tubebay-select-none tubebay-transition tubebay-duration-200 tubebay-ease-in ${className}`}>
       <input
         type="checkbox"
         id={toggleId}
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         disabled={disabled}
-        className="wpab-toggle-checkbox wpab-absolute wpab-block wpab-w-5 wpab-h-5 wpab-rounded-full wpab-bg-white wpab-border-4 wpab-appearance-none wpab-cursor-pointer checked:wpab-right-0 checked:wpab-border-[#2271b1] wpab-right-5 wpab-border-[#8c8f94] wpab-transition-all wpab-duration-200"
+        className="tubebay-toggle-checkbox tubebay-absolute tubebay-block tubebay-w-5 tubebay-h-5 tubebay-rounded-full tubebay-bg-white tubebay-border-4 tubebay-appearance-none tubebay-cursor-pointer checked:tubebay-right-0 checked:tubebay-border-[#2271b1] tubebay-right-5 tubebay-border-[#8c8f94] tubebay-transition-all tubebay-duration-200"
       />
       <label
         htmlFor={toggleId}
-        className={`wpab-toggle-label wpab-block wpab-overflow-hidden wpab-h-5 wpab-rounded-full wpab-cursor-pointer transition-colors duration-200 ${
-          checked ? "wpab-bg-[#2271b1]" : "wpab-bg-[#8c8f94]"
-        } ${disabled ? "wpab-opacity-50 wpab-cursor-not-allowed" : ""}`}
+        className={`tubebay-toggle-label tubebay-block tubebay-overflow-hidden tubebay-h-5 tubebay-rounded-full tubebay-cursor-pointer transition-colors duration-200 ${
+          checked ? "tubebay-bg-[#2271b1]" : "tubebay-bg-[#8c8f94]"
+        } ${disabled ? "tubebay-opacity-50 tubebay-cursor-not-allowed" : ""}`}
       ></label>
       <style>{`
-        .wpab-toggle-checkbox:checked {
+        .tubebay-toggle-checkbox:checked {
           right: 0;
           border-color: #2271b1;
         }
-        .wpab-toggle-checkbox:focus {
+        .tubebay-toggle-checkbox:focus {
             outline: none;
         }
       `}</style>

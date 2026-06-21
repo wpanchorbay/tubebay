@@ -92,70 +92,19 @@ class Admin {
 		tubebay_log( 'Admin: Registering TubeBay admin menu', 'info' );
 		$plugin_data = $this->get_plugin_data();
 
-		// Define menu items.
-		$menu_items = array(
-			array(
-				'page_title' => $plugin_data['plugin_name'],
-				'menu_title' => $plugin_data['menu_label'],
-				'menu_slug'  => TUBEBAY_PLUGIN_NAME,
-				'icon_url'   => $plugin_data['custom_icon'],
-				'position'   => $plugin_data['position'],
-				'callback'   => array( $this, 'add_setting_root_div' ),
-				'submenu'    => array(
-					array(
-						'menu_title' => esc_html__( 'Channel Library', 'tubebay' ),
-						'menu_slug'  => TUBEBAY_PLUGIN_NAME,
-						'callback'   => array( $this, 'add_setting_root_div' ),
-					),
-					array(
-						'menu_title' => esc_html__( 'Settings', 'tubebay' ),
-						'menu_slug'  => TUBEBAY_PLUGIN_NAME . '#/settings',
-						'callback'   => array( $this, 'add_setting_root_div' ),
-					),
-				),
-			),
-		);
-
-		foreach ( $menu_items as $item ) {
-			tubebay_log( 'Admin: Adding menu page: ' . $item['menu_title'], 'debug' );
-			add_menu_page(
-				$item['page_title'],
-				$item['menu_title'],
-				'manage_tubebay',
-				$item['menu_slug'],
-				$item['callback'],
-				$item['icon_url'],
-				$item['position']
-			);
-
-			if ( ! empty( $item['submenu'] ) ) {
-				foreach ( $item['submenu'] as $sub ) {
-					// The first submenu item should use the same slug as add_menu_page to override the default parent name.
-					add_submenu_page(
-						$item['menu_slug'], // Parent slug.
-						$item['page_title'] . ' - ' . $sub['menu_title'], // Page title.
-						$sub['menu_title'],
-						'manage_tubebay',
-						$sub['menu_slug'],
-						$sub['callback']
-					);
-				}
-			}
-		}
-
-		// Store menu info for other methods.
-		$this->menu_info = array(
-			'menu_slug' => TUBEBAY_PLUGIN_NAME,
-		);
-
 		// Add Videos submenu under Products.
 		add_submenu_page(
 			'edit.php?post_type=product',
 			esc_html__( 'Videos', 'tubebay' ),
 			esc_html__( 'Videos', 'tubebay' ),
 			'manage_tubebay',
-			'tubebay-videos-redirect',
-			array( $this, 'redirect_to_tubebay' )
+			'tubebay-videos',
+			array( $this, 'add_setting_root_div' )
+		);
+		
+		// Store menu info for other methods.
+		$this->menu_info = array(
+			'menu_slug' => 'tubebay-videos',
 		);
 	}
 
@@ -165,7 +114,7 @@ class Admin {
 	 * @return void
 	 */
 	public function redirect_to_tubebay() {
-		$redirect_url = admin_url( 'admin.php?page=' . TUBEBAY_PLUGIN_NAME );
+		$redirect_url = admin_url( 'edit.php?post_type=product&page=tubebay-videos' );
 		wp_safe_redirect( $redirect_url );
 		exit;
 	}
@@ -179,14 +128,24 @@ class Admin {
 	 */
 	public function is_menu_page() {
 		$screen              = get_current_screen();
-		$admin_scripts_bases = array(
-			'toplevel_page_' . TUBEBAY_PLUGIN_NAME,
-			'product_page_' . TUBEBAY_PLUGIN_NAME,
-		);
-		if ( ! ( isset( $screen->base ) && in_array( $screen->base, $admin_scripts_bases, true ) ) ) {
+		
+		if ( ! $screen ) {
 			return false;
 		}
-		return true;
+		
+		$base = $screen->base;
+		
+		if ( 'product_page_tubebay-videos' === $base ) {
+			return true;
+		}
+
+		// Check for WooCommerce Settings tab
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'woocommerce_page_wc-settings' === $base && isset( $_GET['tab'] ) && TUBEBAY_PLUGIN_NAME === $_GET['tab'] ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -232,9 +191,13 @@ class Admin {
 			return;
 		}
 
-		tubebay_log( 'Admin: Enqueueing admin resources for TubeBay menu page', 'debug' );
+		$screen = get_current_screen();
+		$context = ( isset( $screen->base ) && 'woocommerce_page_wc-settings' === $screen->base ) ? 'settings' : 'admin';
+		$handle  = TUBEBAY_PLUGIN_NAME . '-' . $context;
 
-		$deps_file  = TUBEBAY_PATH . 'build/admin.asset.php';
+		tubebay_log( "Admin: Enqueueing admin resources for TubeBay menu page (context: {$context})", 'debug' );
+
+		$deps_file  = TUBEBAY_PATH . "build/{$context}.asset.php";
 		$dependency = array( 'wp-i18n' );
 		$version    = TUBEBAY_VERSION;
 		if ( file_exists( $deps_file ) ) {
@@ -250,22 +213,24 @@ class Admin {
 		 * Filters the URL of the main admin JavaScript file.
 		 *
 		 * @since 1.0.0
-		 * @hook tubebay_admin_script
-		 * @param string $script_url The URL to the admin.js file.
+		 * @hook tubebay_admin_script_{$context}
+		 * @param string $script_url The URL to the js file.
 		 */
-		$admin_script = apply_filters( 'tubebay_admin_script', TUBEBAY_URL . 'build/admin.js' );
-		wp_enqueue_script( TUBEBAY_PLUGIN_NAME, $admin_script, $dependency, $version, true );
+		$admin_script = apply_filters( "tubebay_admin_script_{$context}", TUBEBAY_URL . "build/{$context}.js" );
+		wp_enqueue_script( $handle, $admin_script, $dependency, $version, true );
+		wp_enqueue_editor();
+		wp_enqueue_media();
 
 		/**
 		 * Filters the URL of the main admin CSS file.
 		 *
 		 * @since 1.0.0
-		 * @hook tubebay_admin_css
-		 * @param string $style_url The URL to the admin.css file.
+		 * @hook tubebay_admin_css_{$context}
+		 * @param string $style_url The URL to the css file.
 		 */
-		$admin_css = apply_filters( 'tubebay_admin_css', TUBEBAY_URL . 'build/admin.css' );
-		wp_enqueue_style( TUBEBAY_PLUGIN_NAME, $admin_css, array(), $version );
-		wp_style_add_data( TUBEBAY_PLUGIN_NAME, 'rtl', 'replace' );
+		$admin_css = apply_filters( "tubebay_admin_css_{$context}", TUBEBAY_URL . "build/{$context}.css" );
+		wp_enqueue_style( $handle, $admin_css, array(), $version );
+		wp_style_add_data( $handle, 'rtl', 'replace' );
 
 		/**
 		 * Filters the data passed from PHP to the main admin JavaScript application.
@@ -290,14 +255,16 @@ class Admin {
 				),
 				'plugin_settings' => Settings::get_all(),
 				'products_url'    => admin_url( 'edit.php?post_type=product' ),
+				'settings_url'    => admin_url( 'admin.php?page=wc-settings&tab=' . TUBEBAY_PLUGIN_NAME ),
+				'context'         => $context,
 			)
 		);
 
-		wp_localize_script( TUBEBAY_PLUGIN_NAME, 'tubebay_Localize', $localize );
+		wp_localize_script( $handle, 'tubebay_Localize', $localize );
 
 		$path_to_check = TUBEBAY_PATH . 'languages';
 		wp_set_script_translations(
-			TUBEBAY_PLUGIN_NAME,
+			$handle,
 			'tubebay',
 			$path_to_check
 		);
@@ -315,8 +282,20 @@ class Admin {
 	 * @return array
 	 */
 	public function add_plugin_action_links( $actions, $plugin_file, $plugin_data, $context ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$actions[] = '<a href="' . esc_url( menu_page_url( $this->menu_info['menu_slug'], false ) ) . '">' . esc_html__( 'Settings', 'tubebay' ) . '</a>';
+		$actions[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=' . TUBEBAY_PLUGIN_NAME ) ) . '">' . esc_html__( 'Settings', 'tubebay' ) . '</a>';
 		return $actions;
+	}
+	
+	/**
+	 * Add to WooCommerce settings pages.
+	 *
+	 * @since 1.0.0
+	 * @param array $settings The settings pages.
+	 * @return array
+	 */
+	public function add_wc_settings_tab( $settings ) {
+		$settings[] = new WCSettingsTab();
+		return $settings;
 	}
 	/**
 	 * Register the hooks for the admin area.
@@ -329,6 +308,7 @@ class Admin {
 		$loader = $plugin->get_loader();
 		$loader->add_filter( 'all_plugins', $plugin, 'change_plugin_display_name' );
 		$loader->add_action( 'admin_menu', $this, 'add_admin_menu' );
+		$loader->add_filter( 'woocommerce_get_settings_pages', $this, 'add_wc_settings_tab' );
 		$loader->add_filter( 'admin_body_class', $this, 'add_has_sticky_header' );
 		$loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_resources' );
 

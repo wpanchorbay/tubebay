@@ -22,19 +22,19 @@ export const Switch: React.FC<SwitchProps> = ({
 }) => {
   const sizeConfig = {
     small: {
-      switch: "wpab-h-4 wpab-w-7",
-      thumb: "wpab-h-3 wpab-w-3",
-      translate: "wpab-translate-x-3",
+      switch: "tubebay-h-4 tubebay-w-7",
+      thumb: "tubebay-h-3 tubebay-w-3",
+      translate: "tubebay-translate-x-3",
     },
     medium: {
-      switch: "wpab-h-6 wpab-w-11",
-      thumb: "wpab-h-5 wpab-w-5",
-      translate: "wpab-translate-x-5",
+      switch: "tubebay-h-6 tubebay-w-11",
+      thumb: "tubebay-h-5 tubebay-w-5",
+      translate: "tubebay-translate-x-5",
     },
     large: {
-      switch: "wpab-h-7 wpab-w-14",
-      thumb: "wpab-h-6 wpab-w-6",
-      translate: "wpab-translate-x-7",
+      switch: "tubebay-h-7 tubebay-w-14",
+      thumb: "tubebay-h-6 tubebay-w-6",
+      translate: "tubebay-translate-x-7",
     },
   };
 
@@ -49,21 +49,21 @@ export const Switch: React.FC<SwitchProps> = ({
       onClick={() => !disabled && onChange(!checked)}
       disabled={disabled}
       className={`
-        wpab-group wpab-relative wpab-inline-flex wpab-shrink-0 wpab-cursor-pointer wpab-items-center wpab-rounded-full wpab-border-2 wpab-border-transparent wpab-transition-colors wpab-duration-200 wpab-ease-in-out focus:wpab-outline-none focus:wpab-ring-2 focus:wpab-ring-primary focus:wpab-ring-offset-2
+        tubebay-group tubebay-relative tubebay-inline-flex tubebay-shrink-0 tubebay-cursor-pointer tubebay-items-center tubebay-rounded-full tubebay-border-2 tubebay-border-transparent tubebay-transition-colors tubebay-duration-200 tubebay-ease-in-out focus:tubebay-outline-none focus:tubebay-ring-2 focus:tubebay-ring-primary focus:tubebay-ring-offset-2
         ${currentSize.switch}
-        ${checked ? "wpab-bg-green-500" : "wpab-bg-black"}
-        ${disabled ? "wpab-opacity-50 wpab-cursor-not-allowed" : ""}
+        ${checked ? "tubebay-bg-green-500" : "tubebay-bg-black"}
+        ${disabled ? "tubebay-opacity-50 tubebay-cursor-not-allowed" : ""}
         ${className}
         ${classNames?.root || ""}
       `}
     >
-      <span className="wpab-sr-only">Toggle setting</span>
+      <span className="tubebay-sr-only">Toggle setting</span>
       <span
         aria-hidden="true"
         className={`
-          wpab-pointer-events-none wpab-inline-block wpab-transform wpab-rounded-full wpab-bg-white wpab-shadow wpab-ring-0 wpab-transition wpab-duration-200 wpab-ease-in-out
+          tubebay-pointer-events-none tubebay-inline-block tubebay-transform tubebay-rounded-full tubebay-bg-white tubebay-shadow tubebay-ring-0 tubebay-transition tubebay-duration-200 tubebay-ease-in-out
           ${currentSize.thumb}
-          ${checked ? currentSize.translate : "wpab-translate-x-0"}
+          ${checked ? currentSize.translate : "tubebay-translate-x-0"}
           ${classNames?.thumb || ""}
         `}
       />

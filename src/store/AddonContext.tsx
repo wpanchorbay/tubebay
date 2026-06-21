@@ -256,7 +256,7 @@ function addonReducer(
       const newField = {
         ...JSON.parse(JSON.stringify(originalField)), // Deep clone
         id: generateFieldId(),
-        label: (originalField.label || "") + " " + __("(Copy)", "wpab-boilerplate"),
+        label: (originalField.label || "") + " " + __("(Copy)", "tubebay-boilerplate"),
       };
 
       const newSchema = [...state.schema];

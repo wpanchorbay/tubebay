@@ -6,7 +6,7 @@ const Page = ({
   className?: string;
 }) => {
   return (
-    <div className={`wpab-p-x-page-default ${className}`}>{children}</div>
+    <div className={`tubebay-p-x-page-default ${className}`}>{children}</div>
   );
 };
 

@@ -16,18 +16,18 @@ const Skeleton: FC<SkeletonProps> = ({
   className,
 }) => {
   // Helpers to handle arbitrary values safely
-  const hClass = height ? (height.includes("[") ? `wpab-h-${height}` : `wpab-h-[${height}]`) : "";
-  const wClass = width ? (width.includes("[") ? `wpab-w-${width}` : `wpab-w-[${width}]`) : "";
-  const rClass = borderRadius ? (borderRadius.includes("[") ? `wpab-rounded-${borderRadius}` : `wpab-rounded-[${borderRadius}]`) : "wpab-rounded-[6px]";
+  const hClass = height ? (height.includes("[") ? `tubebay-h-${height}` : `tubebay-h-[${height}]`) : "";
+  const wClass = width ? (width.includes("[") ? `tubebay-w-${width}` : `tubebay-w-[${width}]`) : "";
+  const rClass = borderRadius ? (borderRadius.includes("[") ? `tubebay-rounded-${borderRadius}` : `tubebay-rounded-[${borderRadius}]`) : "tubebay-rounded-[6px]";
 
   return (
     <div
       className={`
-        wpab-block wpab-bg-[#e9e9e9] wpab-relative wpab-overflow-hidden
-        wpab-animate-shimmer
+        tubebay-block tubebay-bg-[#e9e9e9] tubebay-relative tubebay-overflow-hidden
+        tubebay-animate-shimmer
         ${hClass} ${wClass} ${rClass}
         ${className || ""}
-        [&>*]:wpab-opacity-0
+        [&>*]:tubebay-opacity-0
       `}
     >
       {children}

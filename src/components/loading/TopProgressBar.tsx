@@ -38,9 +38,9 @@ export const TopProgressBar: React.FC<TopProgressBarProps> = ({ isSaving }) => {
   if (!isSaving && progress === 0) return null;
 
   return (
-    <div className="wpab-fixed wpab-top-0 wpab-left-0 wpab-w-full wpab-h-[3px] wpab-z-[99999] wpab-pointer-events-none">
+    <div className="tubebay-fixed tubebay-top-0 tubebay-left-0 tubebay-w-full tubebay-h-[3px] tubebay-z-[99999] tubebay-pointer-events-none">
       <div
-        className="wpab-h-full wpab-bg-[#2271b1] wpab-transition-all wpab-duration-300 wpab-ease-out"
+        className="tubebay-h-full tubebay-bg-[#2271b1] tubebay-transition-all tubebay-duration-300 tubebay-ease-out"
         style={{ width: `${progress}%`, opacity: progress === 100 ? 0 : 1 }}
       />
     </div>

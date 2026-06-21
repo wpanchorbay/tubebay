@@ -10,14 +10,14 @@ const ClassicLayout: FC = () => {
   // Determine page title based on route
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path === "/logs") return __("Logs", "wpab-boilerplate");
+    if (path === "/logs") return __("Logs", "tubebay-boilerplate");
     if (path === "/option-groups/new")
-      return __("New Option Group", "wpab-boilerplate");
+      return __("New Option Group", "tubebay-boilerplate");
     if (path.startsWith("/option-groups/"))
-      return __("Edit Option Group", "wpab-boilerplate");
-    if (path === "/") return __("Option Groups", "wpab-boilerplate");
-    if (path === "/settings") return __("Settings", "wpab-boilerplate");
-    return store.pluginData?.plugin_name || __("WPAB Boilerplate", "wpab-boilerplate");
+      return __("Edit Option Group", "tubebay-boilerplate");
+    if (path === "/") return __("Option Groups", "tubebay-boilerplate");
+    if (path === "/settings") return __("Settings", "tubebay-boilerplate");
+    return store.pluginData?.plugin_name || __("WPAB Boilerplate", "tubebay-boilerplate");
   };
 
   const context = (window as any).wpabBoilerplate_Localize?.context || "admin";
@@ -25,11 +25,11 @@ const ClassicLayout: FC = () => {
   return (
     <div className="">
       {context !== "settings" && (
-        <h1 className="wpab-ignore-preflight wpab-font-[600] wpab-text-[16px] wpab-p-x-page-default wpab-bg-white wpab-m-0 wpab-py-[18px]">
+        <h1 className="tubebay-ignore-preflight tubebay-font-[600] tubebay-text-[16px] tubebay-p-x-page-default tubebay-bg-white tubebay-m-0 tubebay-py-[18px]">
           {getPageTitle()}
         </h1>
       )}
-      <div className="wpab-mt-2 wpab-p-x-page-default">
+      <div className="tubebay-mt-2 tubebay-p-x-page-default">
         <Outlet />
       </div>
     </div>

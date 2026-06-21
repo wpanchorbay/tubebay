@@ -113,8 +113,8 @@
 */
 
 *,
-*:not(.wpab-ignore-preflight)::before,
-*:not(.wpab-ignore-preflight)::after {
+*:not(.tubebay-ignore-preflight)::before,
+*:not(.tubebay-ignore-preflight)::after {
   box-sizing: border-box; /* 1 */
   border-width: 0; /* 2 */
   border-style: solid; /* 2 */
@@ -184,12 +184,12 @@ abbr:where([title]) {
 Remove the default font size and weight for headings.
 */
 
-h1:not(.wpab-ignore-preflight),
-h2:not(.wpab-ignore-preflight),
-h3:not(.wpab-ignore-preflight),
-h4:not(.wpab-ignore-preflight),
-h5:not(.wpab-ignore-preflight),
-h6:not(.wpab-ignore-preflight) {
+h1:not(.tubebay-ignore-preflight),
+h2:not(.tubebay-ignore-preflight),
+h3:not(.tubebay-ignore-preflight),
+h4:not(.tubebay-ignore-preflight),
+h5:not(.tubebay-ignore-preflight),
+h6:not(.tubebay-ignore-preflight) {
   font-size: inherit;
   font-weight: inherit;
 }
@@ -198,7 +198,7 @@ h6:not(.wpab-ignore-preflight) {
 Reset links to optimize for opt-in styling instead of opt-out.
 */
 
-a:not(.wpab-ignore-preflight) {
+a:not(.tubebay-ignore-preflight) {
   color: inherit;
   text-decoration: inherit;
 }
@@ -207,8 +207,8 @@ a:not(.wpab-ignore-preflight) {
 Add the correct font weight in Edge and Safari.
 */
 
-b:not(.wpab-ignore-preflight),
-strong:not(.wpab-ignore-preflight) {
+b:not(.tubebay-ignore-preflight),
+strong:not(.tubebay-ignore-preflight) {
   font-weight: bolder;
 }
 
@@ -233,7 +233,7 @@ pre {
 Add the correct font size in all browsers.
 */
 
-small:not(.wpab-ignore-preflight) {
+small:not(.tubebay-ignore-preflight) {
   font-size: 80%;
 }
 
@@ -241,19 +241,19 @@ small:not(.wpab-ignore-preflight) {
 Prevent `sub` and `sup` elements from affecting the line height in all browsers.
 */
 
-sub:not(.wpab-ignore-preflight),
-sup:not(.wpab-ignore-preflight) {
+sub:not(.tubebay-ignore-preflight),
+sup:not(.tubebay-ignore-preflight) {
   font-size: 75%;
   line-height: 0;
   position: relative;
   vertical-align: baseline;
 }
 
-sub:not(.wpab-ignore-preflight) {
+sub:not(.tubebay-ignore-preflight) {
   bottom: -0.25em;
 }
 
-sup:not(.wpab-ignore-preflight) {
+sup:not(.tubebay-ignore-preflight) {
   top: -0.5em;
 }
 
@@ -263,7 +263,7 @@ sup:not(.wpab-ignore-preflight) {
 3. Remove gaps between table borders by default.
 */
 
-table:not(.wpab-ignore-preflight) {
+table:not(.tubebay-ignore-preflight) {
   text-indent: 0; /* 1 */
   border-color: inherit; /* 2 */
   border-collapse: collapse; /* 3 */
@@ -388,19 +388,19 @@ summary {
 Removes the default spacing and border for appropriate elements.
 */
 
-blockquote:not(.wpab-ignore-preflight),
-dl:not(.wpab-ignore-preflight),
-dd:not(.wpab-ignore-preflight),
-h1:not(.wpab-ignore-preflight), // use only on classic mode
-h2:not(.wpab-ignore-preflight), // use only on classic mode
-h3:not(.wpab-ignore-preflight), // use only on classic mode
-h4:not(.wpab-ignore-preflight), // use only on classic mode
-h5:not(.wpab-ignore-preflight), // use only on classic mode
-h6:not(.wpab-ignore-preflight), // use only on classic mode
-hr:not(.wpab-ignore-preflight),
-figure:not(.wpab-ignore-preflight),
-p:not(.wpab-ignore-preflight),
-pre:not(.wpab-ignore-preflight) {
+blockquote:not(.tubebay-ignore-preflight),
+dl:not(.tubebay-ignore-preflight),
+dd:not(.tubebay-ignore-preflight),
+h1:not(.tubebay-ignore-preflight), // use only on classic mode
+h2:not(.tubebay-ignore-preflight), // use only on classic mode
+h3:not(.tubebay-ignore-preflight), // use only on classic mode
+h4:not(.tubebay-ignore-preflight), // use only on classic mode
+h5:not(.tubebay-ignore-preflight), // use only on classic mode
+h6:not(.tubebay-ignore-preflight), // use only on classic mode
+hr:not(.tubebay-ignore-preflight),
+figure:not(.tubebay-ignore-preflight),
+p:not(.tubebay-ignore-preflight),
+pre:not(.tubebay-ignore-preflight) {
   margin: 0;
 }
 
@@ -506,72 +506,62 @@ video {
 
 
 @layer components {
-  .wpab-p-x-page-default {
-    @apply wpab-px-[12px] md:wpab-px-[24px];
+  .tubebay-p-x-page-default {
+    @apply tubebay-px-[12px] md:tubebay-px-[24px];
   }
-  .wpab-bg-secondary{
-    @apply wpab-bg-[#f1f5f9];
+  .tubebay-bg-secondary{
+    @apply tubebay-bg-[#f1f5f9];
   }
-  .wpab-bg-primary{
-    @apply wpab-bg-[#3858e9];
+  .tubebay-bg-primary{
+    @apply tubebay-bg-[#3858e9];
   }
-  .wpab-bg-primary-hovered{
-    @apply wpab-bg-[#3858ff];
+  .tubebay-bg-primary-hovered{
+    @apply tubebay-bg-[#3858ff];
   }
-  .wpab-text-primary{
-    @apply wpab-text-[#3858e9];
+  .tubebay-text-primary{
+    @apply tubebay-text-[#3858e9];
   }
-  .wpab-text-primary-hovered{
-    @apply wpab-text-[#3858e9];
+  .tubebay-text-primary-hovered{
+    @apply tubebay-text-[#3858e9];
   }
-  .wpab-gap-default {
-    @apply wpab-gap-[12px];
+  .tubebay-gap-default {
+    @apply tubebay-gap-[12px];
   }
-  .wpab-gap-default-big {
-    @apply wpab-gap-[12px] xl:wpab-gap-[36px];
+  .tubebay-gap-default-big {
+    @apply tubebay-gap-[12px] xl:tubebay-gap-[36px];
   }
-  .wpab-text-default {
-    @apply wpab-text-[13px] wpab-leading-[20px];
+  .tubebay-text-default {
+    @apply tubebay-text-[13px] tubebay-leading-[20px];
   }
-  .wpab-text-secondary {
-    @apply wpab-text-[#949494];
+  .tubebay-text-secondary {
+    @apply tubebay-text-[#949494];
   }
-  .wpab-text-small {
-    @apply wpab-text-[12px] wpab-leading-[16px];
+  .tubebay-text-small {
+    @apply tubebay-text-[12px] tubebay-leading-[16px];
   }
-  .wpab-border-default {
-    @apply wpab-border-[#e0e0e0];
+  .tubebay-border-default {
+    @apply tubebay-border-[#e0e0e0];
   }
-  .wpab-border-primary {
-    @apply wpab-border-[#3858e9];
+  .tubebay-border-primary {
+    @apply tubebay-border-[#3858e9];
   }
-  .wpab-border-secondary{
-    @apply wpab-border-[#f1f5f9];
+  .tubebay-border-secondary{
+    @apply tubebay-border-[#f1f5f9];
   }
-  .wpab-outline-primary{
-    @apply wpab-outline-[#3858e9];
+  .tubebay-outline-primary{
+    @apply tubebay-outline-[#3858e9];
   }
 }
 
 
-.toplevel_page_wpab-boilerplate #wpcontent {
-  padding-left: 0;
-  background: #f0f0f1;
-}
-.toplevel_page_wpab-boilerplate #wpwrap {
-  background: #f0f0f1;
-}
-.toplevel_page_wpab-boilerplate #wpbody-content .notice,
-.toplevel_page_wpab-boilerplate #wpfooter {
-  display: none;
-}
-#wpab-boilerplate {
+
+#tubebay {
   font-family: 'SF Pro', 'Segoe UI', Tahoma, Verdana, sans-serif;
   color: #000;
 }
-#wpab-boilerplate *,
-#wpab-boilerplate *::before,
-#wpab-boilerplate *::after {
+#tubebay *,
+#tubebay *::before,
+#tubebay *::after {
   box-sizing: border-box;
 }
 
@@ -592,7 +582,7 @@ video {
   }
 
   // --- Base Skeleton Class ---
-  .wpab-skeleton {
+  .tubebay-skeleton {
     display: block;
     background-color: #e9e9e9;
     position: relative;
@@ -602,8 +592,8 @@ video {
       opacity: 0;
     }
   }
-  .wpab-skeleton-animation,
-  .wpab-skeleton{
+  .tubebay-skeleton-animation,
+  .tubebay-skeleton{
     position: relative;
     overflow: hidden;
 // The shimmer pseudo-element
@@ -646,24 +636,24 @@ video {
 
 
 
-.wpab-add-items-modal{
+.tubebay-add-items-modal{
   min-height: 90vh;
 }
-.wpab-add-items-modal-example{
+.tubebay-add-items-modal-example{
   width: 50%;
   display: none; // Hide on small devices
 }
 
-.wpab-add-items-modal-grid-cols{
+.tubebay-add-items-modal-grid-cols{
   overflow-y: auto;
   // scrollbar-width: none;
 }
 
-.wpab-add-items-modal-overlay {
+.tubebay-add-items-modal-overlay {
   display: block; // Show overlay on small devices
 }
 
-.wpab-add-items-modal-grid-item{
+.tubebay-add-items-modal-grid-item{
     min-height: 170px;
     width: 250px;
     padding-top: 40px;
@@ -675,43 +665,43 @@ video {
 
 
 @media (min-width: 600px) {
-  .wpab-add-items-modal{
+  .tubebay-add-items-modal{
     min-width: 560px;
     min-height: 400px;
   }
   
-  .wpab-add-items-modal-grid-cols {
+  .tubebay-add-items-modal-grid-cols {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (min-width: 850px) {
-  .wpab-add-items-modal{
+  .tubebay-add-items-modal{
     min-width: 835px;
   }
   
-  .wpab-add-items-modal-example{
+  .tubebay-add-items-modal-example{
     display: block; // Show example panel on larger devices
     width: 270px;
   }
   
-  .wpab-add-items-modal-overlay {
+  .tubebay-add-items-modal-overlay {
     display: none !important; // Hide overlay on larger devices
   }
   
-  .wpab-add-items-modal-grid-cols {
+  .tubebay-add-items-modal-grid-cols {
     grid-template-columns: repeat(2, 1fr);
   }
-  .wpab-add-items-modal-grid-item{
+  .tubebay-add-items-modal-grid-item{
     min-height: 136px;
     padding-top: 28px;
   }
 }
 @media (min-width: 1100px) {
-  .wpab-add-items-modal{
+  .tubebay-add-items-modal{
     min-width: 1080px;
   }
   
-  .wpab-add-items-modal-grid-cols {
+  .tubebay-add-items-modal-grid-cols {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -786,4 +776,4 @@ video {
 
 
   @keyframes tooltip-fade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-                .wpab-animate-tooltip { animation: tooltip-fade 0.15s ease-out forwards; }
+                .tubebay-animate-tooltip { animation: tooltip-fade 0.15s ease-out forwards; }

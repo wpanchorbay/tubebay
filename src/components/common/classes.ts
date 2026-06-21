@@ -1,15 +1,15 @@
-export const borderClasses = "wpab-border-[#949494] wpab-border-[1px] disabled:wpab-border-[#f8f8f8]";
-export const hoverBorderClasses = "wpab-border-[#3858e9] ";
+export const borderClasses = "tubebay-border-[#949494] tubebay-border-[1px] disabled:tubebay-border-[#f8f8f8]";
+export const hoverBorderClasses = "tubebay-border-[#3858e9] ";
 
-export const hoverClasses = "focus:!wpab-ring-[#3858e9] focus:!wpab-ring-1 hover:!wpab-border-[#3858e9] focus:!wpab-border-[#3858e9]";
-export const hoverWithInClasses = "wpab-ring-1 wpab-ring-transparent focus-within:wpab-border-[#3858e9] focus-within:wpab-ring-1 focus-within:wpab-ring-[#3858e9] hover:wpab-border-[#3858e9]";
-export const hoverClassesManual = "!wpab-border-[#3858e9] !wpab-ring-1 !wpab-ring-[#3858e9]";
+export const hoverClasses = "focus:!tubebay-ring-[#3858e9] focus:!tubebay-ring-1 hover:!tubebay-border-[#3858e9] focus:!tubebay-border-[#3858e9]";
+export const hoverWithInClasses = "tubebay-ring-1 tubebay-ring-transparent focus-within:tubebay-border-[#3858e9] focus-within:tubebay-ring-1 focus-within:tubebay-ring-[#3858e9] hover:tubebay-border-[#3858e9]";
+export const hoverClassesManual = "!tubebay-border-[#3858e9] !tubebay-ring-1 !tubebay-ring-[#3858e9]";
 
-export const errorClasses = "wpab-border-red-500 focus:!wpab-ring-1 focus:!wpab-ring-red-500 focus:!wpab-border-red-500";
-export const errorWithInClasses = "wpab-ring-1 wpab-ring-transparent focus-within:wpab-border-red-500 focus-within:wpab-ring-1 focus-within:wpab-ring-red-500 focus-within:wpab-border-red-500";
-export const errorClassesManual = "!wpab-border-red-500 !wpab-ring-1 !wpab-ring-red-500";
+export const errorClasses = "tubebay-border-red-500 focus:!tubebay-ring-1 focus:!tubebay-ring-red-500 focus:!tubebay-border-red-500";
+export const errorWithInClasses = "tubebay-ring-1 tubebay-ring-transparent focus-within:tubebay-border-red-500 focus-within:tubebay-ring-1 focus-within:tubebay-ring-red-500 focus-within:tubebay-border-red-500";
+export const errorClassesManual = "!tubebay-border-red-500 !tubebay-ring-1 !tubebay-ring-red-500";
 
-export const transitionClasses = "wpab-transition-all wpab-duration-300 wpab-ease-in-out";
+export const transitionClasses = "tubebay-transition-all tubebay-duration-300 tubebay-ease-in-out";
 
 
-export const inputClasses = borderClasses + 'hover:' + hoverBorderClasses + 'focus:' + hoverBorderClasses + 'wpab-outline-none wpab-transition-all wpab-duration-300 wpab-ease-in-out';
+export const inputClasses = borderClasses + 'hover:' + hoverBorderClasses + 'focus:' + hoverBorderClasses + 'tubebay-outline-none tubebay-transition-all tubebay-duration-300 tubebay-ease-in-out';

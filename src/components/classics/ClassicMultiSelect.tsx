@@ -305,16 +305,16 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
 
   return (
     <div
-      className={`${sizeClass} ${className} wpab-align-middle`}
+      className={`${sizeClass} ${className} tubebay-align-middle`}
       ref={containerRef}
     >
       {label && (
-        <label htmlFor={selectId} className="wpab-block wpab-mb-1">
+        <label htmlFor={selectId} className="tubebay-block tubebay-mb-1">
           {label}
         </label>
       )}
 
-      <div className="wpab-relative" style={{ width: explicitWidth }}>
+      <div className="tubebay-relative" style={{ width: explicitWidth }}>
         <div
           id={selectId}
           tabIndex={disabled ? -1 : 0}
@@ -327,25 +327,25 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
             setIsOpen(!isOpen);
           }}
           onKeyDown={handleTriggerKeyDown}
-          className={`wpab-flex wpab-flex-wrap wpab-items-center wpab-gap-1 wpab-bg-white wpab-border wpab-border-[#8c8f94] wpab-rounded-[3px] wpab-p-[3px_24px_3px_6px] wpab-min-h-[30px] wpab-transition-shadow wpab-duration-100 wpab-relative wpab-box-border wpab-w-full ${
+          className={`tubebay-flex tubebay-flex-wrap tubebay-items-center tubebay-gap-1 tubebay-bg-white tubebay-border tubebay-border-[#8c8f94] tubebay-rounded-[3px] tubebay-p-[3px_24px_3px_6px] tubebay-min-h-[30px] tubebay-transition-shadow tubebay-duration-100 tubebay-relative tubebay-box-border tubebay-w-full ${
             disabled
-              ? "wpab-cursor-not-allowed wpab-bg-[#f0f0f1]"
-              : "wpab-cursor-text"
+              ? "tubebay-cursor-not-allowed tubebay-bg-[#f0f0f1]"
+              : "tubebay-cursor-text"
           } ${
             isOpen
-              ? "wpab-border-[#2271b1] wpab-shadow-[0_0_0_1px_#2271b1] wpab-outline-none"
-              : "wpab-shadow-none"
+              ? "tubebay-border-[#2271b1] tubebay-shadow-[0_0_0_1px_#2271b1] tubebay-outline-none"
+              : "tubebay-shadow-none"
           }`}
         >
           {selectedOptions.map((opt) => (
             <span
               key={opt.value}
-              className="wpab-bg-[#f0f0f1] wpab-border wpab-border-[#c3c4c7] wpab-rounded-[3px] wpab-px-1 wpab-flex wpab-items-center wpab-gap-1 wpab-text-xs wpab-text-[#3c434a] wpab-leading-[20px]"
+              className="tubebay-bg-[#f0f0f1] tubebay-border tubebay-border-[#c3c4c7] tubebay-rounded-[3px] tubebay-px-1 tubebay-flex tubebay-items-center tubebay-gap-1 tubebay-text-xs tubebay-text-[#3c434a] tubebay-leading-[20px]"
             >
               {opt.label}
               <button
                 onClick={(e) => handleRemove(e, opt.value)}
-                className="wpab-bg-transparent wpab-border-none wpab-p-0 wpab-cursor-pointer wpab-text-[#8c8f94] wpab-flex wpab-items-center"
+                className="tubebay-bg-transparent tubebay-border-none tubebay-p-0 tubebay-cursor-pointer tubebay-text-[#8c8f94] tubebay-flex tubebay-items-center"
               >
                 <X size={12} />
               </button>
@@ -353,20 +353,20 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
           ))}
 
           {!enableSearch && value.length === 0 && (
-            <span className="wpab-text-[#8c8f94] wpab-text-[13px] wpab-pl-1">
+            <span className="tubebay-text-[#8c8f94] tubebay-text-[13px] tubebay-pl-1">
               {placeholder}
             </span>
           )}
 
           {/* Chevron icon pointing down */}
-          <span className="wpab-absolute wpab-right-1.5 wpab-top-1/2 -wpab-translate-y-1/2 wpab-flex wpab-pointer-events-none">
+          <span className="tubebay-absolute tubebay-right-1.5 tubebay-top-1/2 -tubebay-translate-y-1/2 tubebay-flex tubebay-pointer-events-none">
             <ChevronDown size={14} color="#50575e" />
           </span>
         </div>
 
         {isOpen && (
           <div
-            className="wpab-absolute wpab-z-[99999] wpab-bg-white wpab-border-2 wpab-border-[#2271b1] wpab-border-t-0  wpab-rounded-b-[3px] wpab-shadow-[0_3px_5px_rgba(0,0,0,0.2)] wpab-p-0 wpab-box-border wpab-top-full wpab-left-[-1px] wpab-mt-[-3px]"
+            className="tubebay-absolute tubebay-z-[99999] tubebay-bg-white tubebay-border-2 tubebay-border-[#2271b1] tubebay-border-t-0  tubebay-rounded-b-[3px] tubebay-shadow-[0_3px_5px_rgba(0,0,0,0.2)] tubebay-p-0 tubebay-box-border tubebay-top-full tubebay-left-[-1px] tubebay-mt-[-3px]"
             style={{
               ...(differentDropdownWidth
                 ? { minWidth: "calc(100% + 2px)" }
@@ -388,22 +388,22 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
                 onKeyDown={handleSearchKeyDown}
                 placeholder={value.length === 0 ? placeholder : ""}
                 disabled={disabled}
-                className="wpab-w-[calc(100%-8px)] wpab-px-2 wpab-leading-loose wpab-min-h-[26px] wpab-border wpab-border-[#aaaaaa] wpab-bg-[#fcfcfc] wpab-rounded-[3px] wpab-box-border wpab-text-[13px] focus:wpab-outline-none focus:wpab-shadow-none wpab-m-[4px]"
+                className="tubebay-w-[calc(100%-8px)] tubebay-px-2 tubebay-leading-loose tubebay-min-h-[26px] tubebay-border tubebay-border-[#aaaaaa] tubebay-bg-[#fcfcfc] tubebay-rounded-[3px] tubebay-box-border tubebay-text-[13px] focus:tubebay-outline-none focus:tubebay-shadow-none tubebay-m-[4px]"
               />
             )}
             {isLoading ? (
-              <div className="wpab-py-2 wpab-px-3 wpab-text-[#646970] wpab-text-[13px] wpab-flex wpab-items-center wpab-gap-2">
-                <Hourglass size={14} className="wpab-animate-spin" />{" "}
+              <div className="tubebay-py-2 tubebay-px-3 tubebay-text-[#646970] tubebay-text-[13px] tubebay-flex tubebay-items-center tubebay-gap-2">
+                <Hourglass size={14} className="tubebay-animate-spin" />{" "}
                 Loading...
               </div>
             ) : (
               <ul
                 ref={listRef}
                 role="listbox"
-                className="wpab-max-h-[220px] wpab-overflow-y-auto wpab-m-0 wpab-p-0 wpab-list-none"
+                className="tubebay-max-h-[220px] tubebay-overflow-y-auto tubebay-m-0 tubebay-p-0 tubebay-list-none"
               >
                 {filteredOptions.length === 0 ? (
-                  <li className="wpab-px-3 wpab-py-1.5 wpab-text-[#646970] wpab-italic wpab-text-[13px] wpab-m-0">
+                  <li className="tubebay-px-3 tubebay-py-1.5 tubebay-text-[#646970] tubebay-italic tubebay-text-[13px] tubebay-m-0">
                     {searchQuery ? "No results found" : "No options available"}
                   </li>
                 ) : (
@@ -442,43 +442,43 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
                           e.stopPropagation();
                           handleSelect(opt);
                         }}
-                        className={`wpab-px-3 wpab-py-1.5 wpab-flex wpab-items-center wpab-justify-between wpab-text-[13px] wpab-m-0 ${
+                        className={`tubebay-px-3 tubebay-py-1.5 tubebay-flex tubebay-items-center tubebay-justify-between tubebay-text-[13px] tubebay-m-0 ${
                           isDisabled
-                            ? "wpab-cursor-not-allowed"
-                            : "wpab-cursor-pointer"
+                            ? "tubebay-cursor-not-allowed"
+                            : "tubebay-cursor-pointer"
                         } ${
                           isHighlighted
-                            ? "wpab-bg-[#2271b1] wpab-text-white"
+                            ? "tubebay-bg-[#2271b1] tubebay-text-white"
                             : isDisabled
-                            ? "wpab-bg-transparent wpab-text-[#a7aaad]"
-                            : "wpab-bg-transparent wpab-text-[#2c3338]"
+                            ? "tubebay-bg-transparent tubebay-text-[#a7aaad]"
+                            : "tubebay-bg-transparent tubebay-text-[#2c3338]"
                         }`}
                       >
-                        <div className="wpab-flex wpab-items-center wpab-gap-2">
+                        <div className="tubebay-flex tubebay-items-center tubebay-gap-2">
                           <div
                             className={`
-                            wpab-flex wpab-items-center wpab-justify-center
-                            wpab-w-4 wpab-h-4 wpab-rounded wpab-border-2 wpab-transition-all wpab-duration-200
+                            tubebay-flex tubebay-items-center tubebay-justify-center
+                            tubebay-w-4 tubebay-h-4 tubebay-rounded tubebay-border-2 tubebay-transition-all tubebay-duration-200
                             ${
                               isSelected
                                 ? isHighlighted
-                                  ? "wpab-border-white wpab-bg-white"
-                                  : "wpab-border-[#2271b1] wpab-bg-[#2271b1]"
+                                  ? "tubebay-border-white tubebay-bg-white"
+                                  : "tubebay-border-[#2271b1] tubebay-bg-[#2271b1]"
                                 : isHighlighted
-                                ? "wpab-border-white wpab-bg-transparent"
-                                : "wpab-border-[#8c8f94] wpab-bg-white"
+                                ? "tubebay-border-white tubebay-bg-transparent"
+                                : "tubebay-border-[#8c8f94] tubebay-bg-white"
                             }
                           `}
                           >
                             <svg
-                              className={`wpab-w-3.5 wpab-h-3.5 wpab-transform wpab-transition-transform wpab-duration-200 ${
+                              className={`tubebay-w-3.5 tubebay-h-3.5 tubebay-transform tubebay-transition-transform tubebay-duration-200 ${
                                 isSelected
-                                  ? "wpab-scale-100"
-                                  : "wpab-scale-0"
+                                  ? "tubebay-scale-100"
+                                  : "tubebay-scale-0"
                               } ${
                                 isHighlighted && isSelected
-                                  ? "wpab-text-[#2271b1]"
-                                  : "wpab-text-white"
+                                  ? "tubebay-text-[#2271b1]"
+                                  : "tubebay-text-white"
                               }`}
                               viewBox="0 0 24 24"
                               fill="none"
@@ -498,10 +498,10 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
                         {/* Icons for variants */}
                         {isPro && (
                           <span
-                            className={`wpab-flex ${
+                            className={`tubebay-flex ${
                               isHighlighted
-                                ? "wpab-text-white"
-                                : "wpab-text-[#ffb900]"
+                                ? "tubebay-text-white"
+                                : "tubebay-text-[#ffb900]"
                             }`}
                           >
                             <Lock size={14} />
@@ -509,10 +509,10 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
                         )}
                         {isComingSoon && (
                           <span
-                            className={`wpab-text-[10px] wpab-uppercase wpab-px-1.5 wpab-py-0.5 wpab-rounded-[10px] wpab-font-semibold wpab-flex wpab-items-center wpab-gap-1 ${
+                            className={`tubebay-text-[10px] tubebay-uppercase tubebay-px-1.5 tubebay-py-0.5 tubebay-rounded-[10px] tubebay-font-semibold tubebay-flex tubebay-items-center tubebay-gap-1 ${
                               isHighlighted
-                                ? "wpab-bg-white/20 wpab-text-white"
-                                : "wpab-bg-[#f0f0f1] wpab-text-[#646970]"
+                                ? "tubebay-bg-white/20 tubebay-text-white"
+                                : "tubebay-bg-[#f0f0f1] tubebay-text-[#646970]"
                             }`}
                           >
                             <Hourglass size={10} />
@@ -530,12 +530,12 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
       </div>
 
       {description && (
-        <p className="description wpab-mt-1">{description}</p>
+        <p className="description tubebay-mt-1">{description}</p>
       )}
 
       {tooltipState?.visible && (
         <div
-          className="wpab-fixed wpab-bg-[#1d2327] wpab-text-white wpab-px-2.5 wpab-py-1 wpab-rounded-[3px] wpab-text-[12px] wpab-pointer-events-none wpab-z-[100000] wpab-whitespace-nowrap"
+          className="tubebay-fixed tubebay-bg-[#1d2327] tubebay-text-white tubebay-px-2.5 tubebay-py-1 tubebay-rounded-[3px] tubebay-text-[12px] tubebay-pointer-events-none tubebay-z-[100000] tubebay-whitespace-nowrap"
           style={{
             top: tooltipState.top - 8,
             left: tooltipState.left,
@@ -543,7 +543,7 @@ export const ClassicMultiSelect: React.FC<ClassicMultiSelectProps> = ({
           }}
         >
           {tooltipState.text}
-          <div className="wpab-absolute -wpab-bottom-1 wpab-left-1/2 -wpab-translate-x-1/2 wpab-border-x-4 wpab-border-t-4 wpab-border-x-transparent wpab-border-b-transparent wpab-border-t-[#1d2327]" />
+          <div className="tubebay-absolute -tubebay-bottom-1 tubebay-left-1/2 -tubebay-translate-x-1/2 tubebay-border-x-4 tubebay-border-t-4 tubebay-border-x-transparent tubebay-border-b-transparent tubebay-border-t-[#1d2327]" />
         </div>
       )}
     </div>

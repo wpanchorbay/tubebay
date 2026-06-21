@@ -60,62 +60,62 @@ export const Popover: React.FC<PopoverProps> = ({
   switch (align) {
     case "top":
       positionClasses =
-        "wpab-bottom-full wpab-mb-2 wpab-left-1/2 wpab--translate-x-1/2";
-      originClass = "wpab-origin-bottom";
+        "tubebay-bottom-full tubebay-mb-2 tubebay-left-1/2 tubebay--translate-x-1/2";
+      originClass = "tubebay-origin-bottom";
       break;
     case "top-left":
-      positionClasses = "wpab-bottom-full wpab-mb-2 wpab-left-0";
-      originClass = "wpab-origin-bottom-left";
+      positionClasses = "tubebay-bottom-full tubebay-mb-2 tubebay-left-0";
+      originClass = "tubebay-origin-bottom-left";
       break;
     case "top-right":
       positionClasses =
-        "wpab-bottom-full wpab-mb-2 wpab-right-0";
-      originClass = "wpab-origin-bottom-right";
+        "tubebay-bottom-full tubebay-mb-2 tubebay-right-0";
+      originClass = "tubebay-origin-bottom-right";
       break;
     case "bottom":
       positionClasses =
-        "wpab-top-full wpab-mt-2 wpab-left-1/2 wpab--translate-x-1/2";
-      originClass = "wpab-origin-top";
+        "tubebay-top-full tubebay-mt-2 tubebay-left-1/2 tubebay--translate-x-1/2";
+      originClass = "tubebay-origin-top";
       break;
     case "bottom-left":
-      positionClasses = "wpab-top-full wpab-mt-2 wpab-left-0";
-      originClass = "wpab-origin-top-left";
+      positionClasses = "tubebay-top-full tubebay-mt-2 tubebay-left-0";
+      originClass = "tubebay-origin-top-left";
       break;
     case "bottom-right":
-      positionClasses = "wpab-top-full wpab-mt-2 wpab-right-0";
-      originClass = "wpab-origin-top-right";
+      positionClasses = "tubebay-top-full tubebay-mt-2 tubebay-right-0";
+      originClass = "tubebay-origin-top-right";
       break;
     case "left":
       positionClasses =
-        "wpab-right-full wpab-mr-2 wpab-top-1/2 wpab--translate-y-1/2";
-      originClass = "wpab-origin-right";
+        "tubebay-right-full tubebay-mr-2 tubebay-top-1/2 tubebay--translate-y-1/2";
+      originClass = "tubebay-origin-right";
       break;
     case "right":
       positionClasses =
-        "wpab-left-full wpab-ml-2 wpab-top-1/2 wpab--translate-y-1/2";
-      originClass = "wpab-origin-left";
+        "tubebay-left-full tubebay-ml-2 tubebay-top-1/2 tubebay--translate-y-1/2";
+      originClass = "tubebay-origin-left";
       break;
     default:
-      positionClasses = "wpab-top-full wpab-mt-2 wpab-left-0";
-      originClass = "wpab-origin-top-left";
+      positionClasses = "tubebay-top-full tubebay-mt-2 tubebay-left-0";
+      originClass = "tubebay-origin-top-left";
   }
 
   // Transition classes (Opacity + Scale)
   const transitionClasses = isOpen
-    ? "wpab-opacity-100 wpab-scale-100 wpab-pointer-events-auto"
-    : "wpab-opacity-0 wpab-scale-95 wpab-pointer-events-none";
+    ? "tubebay-opacity-100 tubebay-scale-100 tubebay-pointer-events-auto"
+    : "tubebay-opacity-0 tubebay-scale-95 tubebay-pointer-events-none";
 
   return (
     <div
       ref={containerRef}
-      className={`wpab-relative wpab-inline-block ${className} ${
+      className={`tubebay-relative tubebay-inline-block ${className} ${
         classNames?.root || ""
       }`}
     >
       {/* Trigger Wrapper */}
       <div
         onClick={toggle}
-        className={`wpab-cursor-pointer wpab-inline-flex ${
+        className={`tubebay-cursor-pointer tubebay-inline-flex ${
           classNames?.triggerWrapper || ""
         }`}
       >
@@ -125,9 +125,9 @@ export const Popover: React.FC<PopoverProps> = ({
       {/* Dropdown Content */}
       <div
         className={`
-          wpab-absolute wpab-z-50 wpab-w-48
-          wpab-bg-white wpab-rounded-xl wpab-shadow-xl wpab-border wpab-border-default
-          wpab-transition-all wpab-duration-200 wpab-ease-out
+          tubebay-absolute tubebay-z-50 tubebay-w-48
+          tubebay-bg-white tubebay-rounded-xl tubebay-shadow-xl tubebay-border tubebay-border-default
+          tubebay-transition-all tubebay-duration-200 tubebay-ease-out
           ${positionClasses}
           ${originClass}
           ${transitionClasses}

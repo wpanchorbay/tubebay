@@ -6,22 +6,22 @@ export const SkeletonAddonList: React.FC = () => {
   return (
     <>
       {skeletonRows.map((index) => (
-        <tr key={index} className="wpab-border-b wpab-border-gray-200 wpab-animate-pulse">
-          <td className="wpab-p-2">
-            <div className="wpab-w-4 wpab-h-4 wpab-bg-gray-200 wpab-rounded"></div>
+        <tr key={index} className="tubebay-border-b tubebay-border-gray-200 tubebay-animate-pulse">
+          <td className="tubebay-p-2">
+            <div className="tubebay-w-4 tubebay-h-4 tubebay-bg-gray-200 tubebay-rounded"></div>
           </td>
-          <td className="wpab-p-2">
-            <div className="wpab-h-4 wpab-bg-gray-200 wpab-rounded wpab-w-3/4"></div>
-            <div className="wpab-h-3 wpab-bg-gray-200 wpab-rounded wpab-w-1/2 wpab-mt-2"></div>
+          <td className="tubebay-p-2">
+            <div className="tubebay-h-4 tubebay-bg-gray-200 tubebay-rounded tubebay-w-3/4"></div>
+            <div className="tubebay-h-3 tubebay-bg-gray-200 tubebay-rounded tubebay-w-1/2 tubebay-mt-2"></div>
           </td>
-          <td className="wpab-p-2">
-            <div className="wpab-h-4 wpab-bg-gray-200 wpab-rounded wpab-w-6"></div>
+          <td className="tubebay-p-2">
+            <div className="tubebay-h-4 tubebay-bg-gray-200 tubebay-rounded tubebay-w-6"></div>
           </td>
-          <td className="wpab-p-2">
-            <div className="wpab-h-4 wpab-bg-gray-200 wpab-rounded wpab-w-1/3"></div>
+          <td className="tubebay-p-2">
+            <div className="tubebay-h-4 tubebay-bg-gray-200 tubebay-rounded tubebay-w-1/3"></div>
           </td>
-          <td className="wpab-p-2">
-            <div className="wpab-h-5 wpab-bg-gray-200 wpab-rounded wpab-w-12"></div>
+          <td className="tubebay-p-2">
+            <div className="tubebay-h-5 tubebay-bg-gray-200 tubebay-rounded tubebay-w-12"></div>
           </td>
         </tr>
       ))}

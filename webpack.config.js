@@ -8,7 +8,8 @@ module.exports = isLegacy
   ? {
       // --- LEGACY CONFIGURATION ---
       entry: {
-        admin: "./src/index.tsx",
+        admin: "./src/admin.tsx",
+        settings: "./src/settings.tsx",
       },
       output: {
         path: path.resolve(__dirname, "build"),
@@ -67,7 +68,8 @@ module.exports = isLegacy
         "react-dom": "ReactDOM",
       },
       entry: {
-        admin: "./src/index.tsx",
+        admin: "./src/admin.tsx",
+        settings: "./src/settings.tsx",
       },
       output: {
         ...defaults.output,

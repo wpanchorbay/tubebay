@@ -301,13 +301,13 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
     <div
       className={`${sizeClass} ${className} ${
         classNames?.container || ""
-      } wpab-align-middle`.trim()}
+      } tubebay-align-middle`.trim()}
       ref={containerRef}
     >
       {label && (
         <label
           htmlFor={selectId}
-          className={`wpab-block wpab-mb-1 ${
+          className={`tubebay-block tubebay-mb-1 ${
             classNames?.label || ""
           }`.trim()}
         >
@@ -316,7 +316,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
       )}
 
       <div
-        className={`wpab-relative ${classNames?.innerContainer}`}
+        className={`tubebay-relative ${classNames?.innerContainer}`}
         style={{ width: explicitWidth }}
       >
         {/* Trigger that looks like WP native select */}
@@ -328,30 +328,30 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
           onClick={() => !disabled && setIsOpen(!isOpen)}
           onKeyDown={handleTriggerKeyDown}
           className={`
-            wpab-flex wpab-items-center wpab-justify-between 
-            wpab-appearance-none wpab-border wpab-border-[#8c8f94] 
-            wpab-rounded-[3px] wpab-px-2 wpab-pr-6 wpab-min-h-[30px] 
-            wpab-leading-loose wpab-transition-all wpab-duration-100 
-            wpab-select-none wpab-relative wpab-box-border wpab-w-full 
+            tubebay-flex tubebay-items-center tubebay-justify-between 
+            tubebay-appearance-none tubebay-border tubebay-border-[#8c8f94] 
+            tubebay-rounded-[3px] tubebay-px-2 tubebay-pr-6 tubebay-min-h-[30px] 
+            tubebay-leading-loose tubebay-transition-all tubebay-duration-100 
+            tubebay-select-none tubebay-relative tubebay-box-border tubebay-w-full 
             ${
               disabled
-                ? `wpab-cursor-not-allowed wpab-bg-[#f0f0f1] wpab-text-[#a7aaad] ${
+                ? `tubebay-cursor-not-allowed tubebay-bg-[#f0f0f1] tubebay-text-[#a7aaad] ${
                     classNames?.triggerDisabled || ""
                   }`
-                : `wpab-cursor-pointer wpab-bg-white wpab-text-[#2c3338]`
+                : `tubebay-cursor-pointer tubebay-bg-white tubebay-text-[#2c3338]`
             } 
             ${
               isOpen
-                ? `!wpab-border-[#2271b1] wpab-shadow-[0_0_0_1px_#2271b1] wpab-outline-none ${
+                ? `!tubebay-border-[#2271b1] tubebay-shadow-[0_0_0_1px_#2271b1] tubebay-outline-none ${
                     classNames?.triggerOpen || ""
                   }`
-                : "wpab-shadow-none"
+                : "tubebay-shadow-none"
             } 
             ${classNames?.trigger || ""}
           `.trim()}
         >
           <span
-            className={`wpab-overflow-hidden wpab-text-ellipsis wpab-whitespace-nowrap wpab-flex-1 ${
+            className={`tubebay-overflow-hidden tubebay-text-ellipsis tubebay-whitespace-nowrap tubebay-flex-1 ${
               classNames?.value || ""
             }`.trim()}
           >
@@ -363,7 +363,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
           </span>
 
           {/* Native-looking arrow */}
-          <span className="wpab-absolute wpab-right-1.5 wpab-flex wpab-items-center wpab-pointer-events-none">
+          <span className="tubebay-absolute tubebay-right-1.5 tubebay-flex tubebay-items-center tubebay-pointer-events-none">
             <ChevronDown size={14} color="#50575e" />
           </span>
         </div>
@@ -373,12 +373,12 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
           createPortal(
             <div
               ref={dropdownRef}
-              className={`wpab-fixed wpab-z-[999999] wpab-bg-white wpab-border-2 wpab-border-[#2271b1] ${
+              className={`tubebay-fixed tubebay-z-[999999] tubebay-bg-white tubebay-border-2 tubebay-border-[#2271b1] ${
                 differentDropdownWidth
-                  ? "wpab-rounded-[3px]"
-                  : "wpab-border-t-0 wpab-mt-[-3px] wpab-rounded-b-[3px]"
+                  ? "tubebay-rounded-[3px]"
+                  : "tubebay-border-t-0 tubebay-mt-[-3px] tubebay-rounded-b-[3px]"
               } 
-              wpab-rounded-b-[3px] wpab-shadow-[0_3px_5px_rgba(0,0,0,0.2)] wpab-p-0 wpab-box-border ${
+              tubebay-rounded-b-[3px] tubebay-shadow-[0_3px_5px_rgba(0,0,0,0.2)] tubebay-p-0 tubebay-box-border ${
                 classNames?.dropdown || ""
               }`.trim()}
               style={{
@@ -390,7 +390,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
             >
               {enableSearch && (
                 <div
-                  className={`wpab-p-1.5 ${
+                  className={`tubebay-p-1.5 ${
                     classNames?.searchContainer || ""
                   }`.trim()}
                 >
@@ -405,7 +405,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
                     onKeyDown={handleSearchKeyDown}
                     onClick={(e) => e.stopPropagation()}
                     placeholder="Search..."
-                    className={`wpab-w-full wpab-px-2 wpab-leading-loose wpab-min-h-[26px] wpab-border wpab-border-[#aaaaaa] wpab-bg-[#fcfcfc] wpab-rounded-[3px] wpab-box-border wpab-text-[13px] focus:wpab-outline-none focus:wpab-shadow-none ${
+                    className={`tubebay-w-full tubebay-px-2 tubebay-leading-loose tubebay-min-h-[26px] tubebay-border tubebay-border-[#aaaaaa] tubebay-bg-[#fcfcfc] tubebay-rounded-[3px] tubebay-box-border tubebay-text-[13px] focus:tubebay-outline-none focus:tubebay-shadow-none ${
                       classNames?.searchInput || ""
                     }`.trim()}
                   />
@@ -415,7 +415,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
               <ul
                 ref={listRef}
                 role="listbox"
-                className={`wpab-max-h-[220px] wpab-overflow-y-auto wpab-m-0 wpab-p-0 wpab-list-none ${
+                className={`tubebay-max-h-[220px] tubebay-overflow-y-auto tubebay-m-0 tubebay-p-0 tubebay-list-none ${
                   classNames?.list || ""
                 }`.trim()}
                 style={{
@@ -423,7 +423,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
                 }}
               >
                 {filteredOptions.length === 0 ? (
-                  <li className="wpab-px-3 wpab-py-1.5 wpab-text-[#646970] wpab-italic wpab-text-[13px] wpab-m-0">
+                  <li className="tubebay-px-3 tubebay-py-1.5 tubebay-text-[#646970] tubebay-italic tubebay-text-[13px] tubebay-m-0">
                     {searchQuery ? "No results found" : "No options available"}
                   </li>
                 ) : (
@@ -451,37 +451,37 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
                           handleSelect(opt);
                         }}
                         className={`
-                        wpab-px-3 wpab-py-1.5 wpab-flex wpab-items-center 
-                        wpab-justify-between wpab-text-[13px] wpab-m-0 
+                        tubebay-px-3 tubebay-py-1.5 tubebay-flex tubebay-items-center 
+                        tubebay-justify-between tubebay-text-[13px] tubebay-m-0 
                         ${
                           isDisabled
-                            ? "wpab-cursor-not-allowed"
-                            : "wpab-cursor-pointer"
+                            ? "tubebay-cursor-not-allowed"
+                            : "tubebay-cursor-pointer"
                         } 
                         ${
                           isHighlighted
-                            ? `wpab-bg-[#2271b1] wpab-text-white ${
+                            ? `tubebay-bg-[#2271b1] tubebay-text-white ${
                                 classNames?.optionHighlighted || ""
                               }`
                             : isDisabled
-                            ? "wpab-bg-transparent wpab-text-[#a7aaad]"
-                            : `wpab-bg-transparent wpab-text-[#2c3338]`
+                            ? "tubebay-bg-transparent tubebay-text-[#a7aaad]"
+                            : `tubebay-bg-transparent tubebay-text-[#2c3338]`
                         } 
                         ${isSelected ? classNames?.optionSelected || "" : ""}
                         ${classNames?.option || ""}
                       `.trim()}
                       >
-                        <span className="wpab-flex wpab-items-center wpab-gap-2 wpab-overflow-hidden wpab-text-ellipsis wpab-whitespace-nowrap">
+                        <span className="tubebay-flex tubebay-items-center tubebay-gap-2 tubebay-overflow-hidden tubebay-text-ellipsis tubebay-whitespace-nowrap">
                           {renderOption ? renderOption(opt) : opt.label}
                         </span>
 
                         {/* Icons for variants */}
                         {isPro && (
                           <span
-                            className={`wpab-flex ${
+                            className={`tubebay-flex ${
                               isHighlighted
-                                ? "wpab-text-white"
-                                : "wpab-text-[#ffb900]"
+                                ? "tubebay-text-white"
+                                : "tubebay-text-[#ffb900]"
                             }`}
                           >
                             <Lock size={14} />
@@ -489,10 +489,10 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
                         )}
                         {isComingSoon && (
                           <span
-                            className={`wpab-text-[10px] wpab-uppercase wpab-px-1.5 wpab-py-0.5 wpab-rounded-[10px] wpab-font-semibold wpab-flex wpab-items-center wpab-gap-1 ${
+                            className={`tubebay-text-[10px] tubebay-uppercase tubebay-px-1.5 tubebay-py-0.5 tubebay-rounded-[10px] tubebay-font-semibold tubebay-flex tubebay-items-center tubebay-gap-1 ${
                               isHighlighted
-                                ? "wpab-bg-white/20 wpab-text-white"
-                                : "wpab-bg-[#f0f0f1] wpab-text-[#646970]"
+                                ? "tubebay-bg-white/20 tubebay-text-white"
+                                : "tubebay-bg-[#f0f0f1] tubebay-text-[#646970]"
                             }`}
                           >
                             <Hourglass size={10} />
@@ -511,7 +511,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
 
       {description && (
         <p
-          className={`description wpab-mt-1 ${
+          className={`description tubebay-mt-1 ${
             classNames?.description || ""
           }`.trim()}
         >
@@ -522,7 +522,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
       {/* Portal Tooltip or absolute Tooltip for variants */}
       {tooltipState?.visible && (
         <div
-          className="wpab-fixed wpab-bg-[#1d2327] wpab-text-white wpab-px-2.5 wpab-py-1 wpab-rounded-[3px] wpab-text-[12px] wpab-pointer-events-none wpab-z-[100000] wpab-whitespace-nowrap"
+          className="tubebay-fixed tubebay-bg-[#1d2327] tubebay-text-white tubebay-px-2.5 tubebay-py-1 tubebay-rounded-[3px] tubebay-text-[12px] tubebay-pointer-events-none tubebay-z-[100000] tubebay-whitespace-nowrap"
           style={{
             top: tooltipState.top - 8,
             left: tooltipState.left,
@@ -531,7 +531,7 @@ export const ClassicSelect: React.FC<ClassicSelectProps> = ({
         >
           {tooltipState.text}
           {/* Tooltip caret */}
-          <div className="wpab-absolute -wpab-bottom-1 wpab-left-1/2 -wpab-translate-x-1/2 wpab-border-x-4 wpab-border-t-4 wpab-border-x-transparent wpab-border-b-transparent wpab-border-t-[#1d2327]" />
+          <div className="tubebay-absolute -tubebay-bottom-1 tubebay-left-1/2 -tubebay-translate-x-1/2 tubebay-border-x-4 tubebay-border-t-4 tubebay-border-x-transparent tubebay-border-b-transparent tubebay-border-t-[#1d2327]" />
         </div>
       )}
     </div>
