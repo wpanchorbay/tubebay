@@ -119,8 +119,6 @@ All REST endpoints live under namespace `tubebay/v1/`. Base controller handles a
 | `GET`    | `/youtube/videos`              | YouTubeController  | Get videos (search, sort, paginate) |
 | `GET`    | `/logs`                        | LogController      | Retrieve debug log content          |
 | `DELETE` | `/logs`                        | LogController      | Clear all log files                 |
-| `GET`    | `/sample`                      | SampleController   | Dev reference endpoint              |
-| `POST`   | `/sample`                      | SampleController   | Dev reference endpoint              |
 
 ### SettingsController — Settings Management
 
@@ -261,8 +259,8 @@ Hooks into WooCommerce to display videos on product pages.
 | `replace_main_image`                   | Filters `woocommerce_single_product_image_thumbnail_html` | Replaces the main product image with video as the first gallery slide |
 | `add_to_gallery_last`                  | Filters `woocommerce_single_product_image_thumbnail_html` | Adds video as the last gallery slide                                  |
 | `woocommerce_product_thumbnails`       | Action hook                                               | Places video below the gallery                                        |
-| `woocommerce_after_add_to_cart_button` | Action hook                                               | Places video below add-to-cart                                        |
-| Any other WooCommerce action           | Action hook                                               | Configurable via setting                                              |
+
+> **Note**: Additional placement hooks are supported by the backend but are currently hidden in the UI pending further testing.
 
 **Video Rendering**:
 
@@ -295,7 +293,7 @@ Allows embedding TubeBay videos anywhere via shortcode.
 Only runs if `advanced_deleteAllOnUninstall` option is `true`. Cleanup steps:
 
 1. Delete all `tubebay_*` options from `wp_options`
-2. Delete all TubeBay product meta (`_tubebay_video_id`, `_tubebay_video_title`, `_tubebay_video_thumbnail`, `_tubebay_display_location`, `_tubebay_muted_autoplay`, `_tubebay_placement`)
+2. Delete all TubeBay product meta (`_tubebay_video_id`, `_tubebay_video_title`, `_tubebay_video_thumbnail`, `_tubebay_display_location`, `_tubebay_muted_autoplay`)
 3. Delete all `tubebay_` transients
 4. Remove `manage_tubebay` capability from all roles
 5. Unschedule cron events

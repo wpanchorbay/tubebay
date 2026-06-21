@@ -3,7 +3,7 @@
     "description": "TubeBay for WooCommerce",
     "type": "wordpress-plugin",
     "require": {
-        "php": ">=7.4"
+      "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {

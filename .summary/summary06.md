@@ -209,7 +209,7 @@ Processes TailwindCSS utilities and adds vendor prefixes.
 {
   "name": "dipta-sdd/tubebay",
   "type": "wordpress-plugin",
-  "require": { "php": ">=7.0" },
+  "require": { "php": ">=7.4" },
   "autoload": { "psr-4": { "TubeBay\\": "app/" } }
 }
 ```

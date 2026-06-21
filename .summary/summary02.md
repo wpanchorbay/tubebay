@@ -30,7 +30,7 @@ TubeBay follows a classic WordPress plugin architecture with a **PHP backend** a
 │  │        React/TypeScript Admin SPA (build/)           │    │
 │  │  ┌──────────┐ ┌──────────┐ ┌───────────┐           │    │
 │  │  │  Pages   │ │Components│ │   Store   │           │    │
-│  │  │          │ │ (33+ UI) │ │ (Context) │           │    │
+│  │  │          │ │ (38 UI)  │ │ (Context) │           │    │
 │  │  └──────────┘ └──────────┘ └───────────┘           │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                         │                                   │
@@ -66,7 +66,6 @@ tubebay/
 │   │   ├── SettingsController.php ← Settings CRUD
 │   │   ├── YouTubeController.php  ← YouTube operations
 │   │   ├── LogController.php      ← Log viewer
-│   │   └── SampleController.php   ← Dev reference
 │   ├── Data/                ← Data layer
 │   │   ├── DbManager.php    ← Database table management
 │   │   └── Entities/
@@ -94,9 +93,9 @@ tubebay/
 │   │   ├── ChannelLibrary.tsx ← Video library browser
 │   │   ├── Settings.tsx     ← Plugin settings
 │   │   └── Logs.tsx         ← Debug log viewer
-│   ├── components/          ← Reusable UI components
-│   │   ├── common/          ← 33 shared components
-│   │   ├── settings/        ← 7 settings-specific components
+├── components/          ← Reusable UI components
+│   ├── common/          ← 32 shared components
+│   ├── settings/        ← 6 settings-specific components
 │   │   └── loading/         ← Skeleton loaders
 │   ├── store/               ← State management
 │   │   ├── wpabStore.tsx    ← React Context store
@@ -135,7 +134,6 @@ tubebay/
 │
 ├── build.sh                 ← Production build script
 ├── package.sh               ← ZIP packaging script
-├── rename.sh                ← Plugin renaming utility
 │
 ├── README.md                ← Developer documentation
 └── readme.txt               ← WordPress.org listing

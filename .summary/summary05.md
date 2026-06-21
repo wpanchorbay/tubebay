@@ -14,6 +14,7 @@
 | PostCSS            | 8.x     | CSS transformations              |
 | Babel              | 7.x     | JavaScript transpilation         |
 | Composer           | -       | PHP dependency management        |
+| PHP                | 7.4+    | Backend language                 |
 
 ### npm Scripts
 
@@ -251,14 +252,6 @@ Creates a distribution-ready ZIP file (`tubebay.zip`) excluding:
 - Development files (`src/`, `node_modules/`, `.git/`, etc.)
 - Build configuration files
 - Only includes compiled `build/` directory and PHP source
-
-### rename.sh — Plugin Renaming
-
-Utility script to rebrand the plugin:
-
-- Renames files, directories, class names, function prefixes
-- Updates all internal references (constants, text domain, option names)
-- Useful for creating white-label versions
 
 ---
 

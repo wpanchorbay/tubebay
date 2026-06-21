@@ -41,11 +41,6 @@ WooCommerce merchants who use YouTube to market products face friction:
 
 ## Development Phases
 
-| Phase                 | Description                                                                                                          | Status     |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------- |
-| **Phase 1** | Manual API Key connection — core features and initial development.                         | ✅ Done  |
-| **Phase 2** | One-click OAuth Proxy connection via `wpanchorbay.com/oauth` — professional authentication approved by Google. | ✅ Active |
-
 OAuth is now the primary and recommended connection method, providing a seamless and secure experience for users without requiring manual API key creation.
 
 ---
@@ -107,7 +102,7 @@ TubeBay follows a classic WordPress plugin architecture with a **PHP backend** a
 │  │        React/TypeScript Admin SPA (build/)           │    │
 │  │  ┌──────────┐ ┌──────────┐ ┌───────────┐           │    │
 │  │  │  Pages   │ │Components│ │   Store   │           │    │
-│  │  │          │ │ (33+ UI) │ │ (Context) │           │    │
+│  │  │          │ │ (38 UI)  │ │ (Context) │           │    │
 │  │  └──────────┘ └──────────┘ └───────────┘           │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                         │                                   │
@@ -143,7 +138,6 @@ tubebay/
 │   │   ├── SettingsController.php ← Settings CRUD
 │   │   ├── YouTubeController.php  ← YouTube operations
 │   │   ├── LogController.php      ← Log viewer
-│   │   └── SampleController.php   ← Dev reference
 │   ├── Data/                ← Data layer
 │   │   ├── DbManager.php    ← Database table management
 │   │   └── Entities/
@@ -171,9 +165,9 @@ tubebay/
 │   │   ├── ChannelLibrary.tsx ← Video library browser
 │   │   ├── Settings.tsx     ← Plugin settings
 │   │   └── Logs.tsx         ← Debug log viewer
-│   ├── components/          ← Reusable UI components
-│   │   ├── common/          ← 33 shared components
-│   │   ├── settings/        ← 7 settings-specific components
+├── components/          ← Reusable UI components
+│   ├── common/          ← 32 shared components
+│   ├── settings/        ← 6 settings-specific components
 │   │   └── loading/         ← Skeleton loaders
 │   ├── store/               ← State management
 │   │   ├── wpabStore.tsx    ← React Context store
@@ -212,7 +206,6 @@ tubebay/
 │
 ├── build.sh                 ← Production build script
 ├── package.sh               ← ZIP packaging script
-├── rename.sh                ← Plugin renaming utility
 │
 ├── README.md                ← Developer documentation
 └── readme.txt               ← WordPress.org listing
@@ -392,8 +385,6 @@ All REST endpoints live under namespace `tubebay/v1/`. Base controller handles a
 | `GET`    | `/youtube/videos`              | YouTubeController  | Get videos (search, sort, paginate) |
 | `GET`    | `/logs`                        | LogController      | Retrieve debug log content          |
 | `DELETE` | `/logs`                        | LogController      | Clear all log files                 |
-| `GET`    | `/sample`                      | SampleController   | Dev reference endpoint              |
-| `POST`   | `/sample`                      | SampleController   | Dev reference endpoint              |
 
 ### SettingsController — Settings Management
 
@@ -534,8 +525,8 @@ Hooks into WooCommerce to display videos on product pages.
 | `replace_main_image`                   | Filters `woocommerce_single_product_image_thumbnail_html` | Replaces the main product image with video as the first gallery slide |
 | `add_to_gallery_last`                  | Filters `woocommerce_single_product_image_thumbnail_html` | Adds video as the last gallery slide                                  |
 | `woocommerce_product_thumbnails`       | Action hook                                               | Places video below the gallery                                        |
-| `woocommerce_after_add_to_cart_button` | Action hook                                               | Places video below add-to-cart                                        |
-| Any other WooCommerce action           | Action hook                                               | Configurable via setting                                              |
+
+> **Note**: Additional placement hooks are supported by the backend but are currently hidden in the UI pending further testing.
 
 **Video Rendering**:
 
@@ -568,7 +559,7 @@ Allows embedding TubeBay videos anywhere via shortcode.
 Only runs if `advanced_deleteAllOnUninstall` option is `true`. Cleanup steps:
 
 1. Delete all `tubebay_*` options from `wp_options`
-2. Delete all TubeBay product meta (`_tubebay_video_id`, `_tubebay_video_title`, `_tubebay_video_thumbnail`, `_tubebay_display_location`, `_tubebay_muted_autoplay`, `_tubebay_placement`)
+2. Delete all TubeBay product meta (`_tubebay_video_id`, `_tubebay_video_title`, `_tubebay_video_thumbnail`, `_tubebay_display_location`, `_tubebay_muted_autoplay`)
 3. Delete all `tubebay_` transients
 4. Remove `manage_tubebay` capability from all roles
 5. Unschedule cron events
@@ -932,6 +923,7 @@ Settings::get_all()         tubebay_Localize (global)
 | PostCSS            | 8.x     | CSS transformations              |
 | Babel              | 7.x     | JavaScript transpilation         |
 | Composer           | -       | PHP dependency management        |
+| PHP                | 7.4+    | Backend language                 |
 
 ### npm Scripts
 
@@ -1169,14 +1161,6 @@ Creates a distribution-ready ZIP file (`tubebay.zip`) excluding:
 - Development files (`src/`, `node_modules/`, `.git/`, etc.)
 - Build configuration files
 - Only includes compiled `build/` directory and PHP source
-
-### rename.sh — Plugin Renaming
-
-Utility script to rebrand the plugin:
-
-- Renames files, directories, class names, function prefixes
-- Updates all internal references (constants, text domain, option names)
-- Useful for creating white-label versions
 
 ---
 
@@ -1451,7 +1435,7 @@ Processes TailwindCSS utilities and adds vendor prefixes.
 {
   "name": "dipta-sdd/tubebay",
   "type": "wordpress-plugin",
-  "require": { "php": ">=7.0" },
+  "require": { "php": ">=7.4" },
   "autoload": { "psr-4": { "TubeBay\\": "app/" } }
 }
 ```
@@ -1586,7 +1570,7 @@ Where do the videos show up? The store owner gets to decide:
 
 A beautiful 3-step setup guide for first-time users:
 
-1. **Connect Account**: Paste an API key and click "Test Connection". It verifies the channel name to ensure you didn't make a typo.
+1. **Connect Account**: Choose between one-click **Google OAuth** (recommended) or manual API Key. It verifies the connection to ensure everything is working perfectly.
 2. **Configure Defaults**: Pick where videos should go globally by default.
 3. **Finish**: Automatically syncs your library in the background.
 

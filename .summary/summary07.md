@@ -26,9 +26,10 @@ Where do the videos show up? The store owner gets to decide:
 
 - **Replace Main Product Image**: Swaps the primary product photo for a video player.
 - **Below Product Gallery**: Adds the video right below the thumbnails section.
-- **Above Product Summary**: Places the video near the price and "Add to Cart" button.
-- **Below Product Summary**: Places the video below the short description.
+- **Below Main Image**: Places the video alongside the gallery thumbnails.
 - **Anywhere (Shortcode)**: Use `[tubebay_video]` to drop the video literally anywhere (blog posts, Elementor, Gutenberg, product descriptions).
+
+> **Note**: Additional placement options (Above Purchase Options, Below 'Add to Cart' Button, etc.) are currently in development and planned for a future release.
 
 ### Player Experience Customizations
 

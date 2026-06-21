@@ -234,7 +234,7 @@ class Settings {
 	 * @since 1.0.0
 	 */
 	public static function get_video_placement() {
-		return self::get( 'video_placement', 'below_gallery' );
+		return self::get( 'video_placement', 'add_to_gallery_last' );
 	}
 
 	/**
