@@ -415,7 +415,7 @@ class YouTubeController extends ApiController {
 
 		tubebay_log( 'Redirecting user to OAuth proxy: ' . $redirect_url );
 		tubebay_log( '_______________', $redirect_url );
-		wp_safe_redirect( $redirect_url );
+		wp_redirect( $redirect_url );
 		exit;
 	}
 }

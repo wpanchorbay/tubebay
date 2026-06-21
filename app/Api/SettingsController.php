@@ -336,7 +336,13 @@ class SettingsController extends ApiController
 			Settings::set('advanced_deleteAllOnUninstall', (bool) $body['advanced_deleteAllOnUninstall']);
 		}
 
-		if (!$creds_changed && isset($body['connection_status'])) {
+		$channel = new Channel();
+		if (!$channel->is_configured()) {
+			Settings::set('connection_status', 'disconnected');
+			Settings::set('channel_name', '');
+			Settings::set('thumbnails_default', '');
+			Settings::set('thumbnails_medium', '');
+		} elseif (!$creds_changed && isset($body['connection_status'])) {
 			Settings::set('connection_status', sanitize_text_field($body['connection_status']));
 		}
 

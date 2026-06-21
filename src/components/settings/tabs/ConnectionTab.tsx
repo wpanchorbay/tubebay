@@ -4,6 +4,7 @@ import { ClassicSettingsTable, ClassicInput, ClassicButton } from "../../classic
 import { useToast } from "../../../store/toast/use-toast";
 import { useYouTubeActions } from "../../../hooks/useYouTubeActions";
 import { PluginSettings } from "../../../utils/types";
+import { useWpabStore } from "../../../store/wpabStore";
 
 interface ConnectionTabProps {
   settings: PluginSettings;
@@ -21,8 +22,12 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
   const { addToast } = useToast();
   const { connectYouTube } = useYouTubeActions();
 
+  const store = useWpabStore();
+  const restUrl = store.rest_url;
+
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [showTokenInput, setShowTokenInput] = useState(!!settings.refresh_token);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const isConnected = settings.connection_status === "connected";
@@ -127,16 +132,14 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
       const response = await apiFetch<{
         success: boolean;
         message: string;
-        data: PluginSettings;
       }>({
-        path: "/tubebay/v1/auth/disconnect",
-        method: "POST",
+        path: "/tubebay/v1/youtube/disconnect",
+        method: "DELETE",
       });
 
       if (response.success) {
-        onConnect(response.data);
-        setFeedback(null);
         addToast(response.message, "success");
+        window.location.reload();
       }
     } catch (error) {
       addToast(`Error disconnecting: ${(error as Error).message}`, "error");
@@ -192,13 +195,30 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
           ) : (
             <p>No authentication token found. Please sign in.</p>
           )}
-          <ClassicButton
-            variant="secondary"
-            onClick={connectYouTube}
-            style={{ marginTop: '8px' }}
+          <a
+            href={`${restUrl}tubebay/v1/youtube/oauth-connect`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setShowTokenInput(true)}
+            className="button button-secondary"
+            style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center' }}
           >
             Sign in with YouTube
-          </ClassicButton>
+          </a>
+
+          {showTokenInput && (
+            <div style={{ marginTop: '15px' }}>
+              <p style={{ margin: '0 0 5px 0' }}><strong>Enter Access Code:</strong></p>
+              <ClassicInput
+                type="password"
+                value={settings.refresh_token || ""}
+                onChange={(e) => updateLocalSetting("refresh_token", e.target.value)}
+                placeholder="Paste the code you received from Google here..."
+                style={{ width: '100%', maxWidth: '500px' }}
+              />
+              <p className="description" style={{ marginTop: '5px' }}>Paste the code you received from Google above, then click "Save Connection".</p>
+            </div>
+          )}
 
           <div className="notice notice-info inline" style={{ marginTop: '15px', padding: '10px 15px', display: 'block', maxWidth: '600px' }}>
             <p style={{ margin: '0 0 10px 0' }}>

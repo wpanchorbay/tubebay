@@ -72,6 +72,8 @@ export const WpabProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [initialValue.nonce, initialValue.rest_url]);
 
+  console.log("store", store);
+
   const updateStore = <K extends keyof BoilerplateStore>(
     key: K,
     value: BoilerplateStore[K],

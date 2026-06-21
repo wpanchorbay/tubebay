@@ -20,7 +20,8 @@
 .tubebay-video-thumbnail-wrap {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    padding-top: 56.25%;
+    /* 16:9 Aspect Ratio */
     background: #000;
 }
 
@@ -68,13 +69,14 @@
     background: #fff;
     border: none;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
 }
 
 .tubebay-video-actions .tubebay-danger-btn {
     color: #dc2626;
 }
+
 .tubebay-video-actions .tubebay-danger-btn:hover {
     color: #b91c1c;
     background: #fee2e2;
@@ -99,6 +101,7 @@
     padding: 15px 0;
     border-bottom: 1px solid #f3f4f6;
 }
+
 .tubebay-setting-row:last-child {
     border-bottom: none;
 }
@@ -152,15 +155,15 @@
     transition: .4s;
 }
 
-input:checked + .tubebay-slider {
+input:checked+.tubebay-slider {
     background-color: #3b82f6;
 }
 
-input:focus + .tubebay-slider {
+input:focus+.tubebay-slider {
     box-shadow: 0 0 1px #3b82f6;
 }
 
-input:checked + .tubebay-slider:before {
+input:checked+.tubebay-slider:before {
     transform: translateX(16px);
 }
 
@@ -188,7 +191,7 @@ input:checked + .tubebay-slider:before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
 }
 
 .tubebay-modal-content {
@@ -203,7 +206,7 @@ input:checked + .tubebay-slider:before {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .tubebay-modal-header {
@@ -224,6 +227,7 @@ input:checked + .tubebay-slider:before {
     cursor: pointer;
     color: #6b7280;
 }
+
 .tubebay-modal-close:hover {
     color: #111827;
 }
@@ -266,12 +270,12 @@ input:checked + .tubebay-slider:before {
     cursor: pointer;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    overflow: hidden;
+    /* overflow: hidden; */
     transition: box-shadow 0.2s;
 }
 
 .tubebay-modal-video-item:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-color: #3b82f6;
 }
 
