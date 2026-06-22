@@ -61,7 +61,7 @@ export default function Settings() {
         ...response,
         connection_method: response.connection_status === "connected" ? (response.connection_method || "oauth") : "oauth",
         auto_sync: response.auto_sync ?? true,
-        video_placement: response.video_placement || "below_gallery",
+        video_placement: response.video_placement || "add_to_gallery_last",
         cache_duration: response.cache_duration || 12,
         debug_enableMode: response.debug_enableMode ?? false,
         muted_autoplay: response.muted_autoplay ?? true,

@@ -21,13 +21,14 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
               <>
                 <ClassicSelect
                   id="video_placement"
-                  value={settings.video_placement || "below_gallery"}
+                  value={settings.video_placement || "add_to_gallery_last"}
                   onChange={(val) => updateLocalSetting("video_placement", val)}
                   options={[
-                    { label: "Below Product Gallery", value: "below_gallery" },
-                    { label: "Inside Product Gallery (Last Item)", value: "inside_gallery" },
-                    { label: "Inside Product Tabs (New Tab)", value: "product_tabs" },
-                    { label: "Above Product Summary", value: "above_summary" },
+                    { label: "Inside Product Gallery (Last Slide)", value: "add_to_gallery_last" },
+                    { label: "Inside Product Gallery (First Slide)", value: "replace_main_image" },
+                    { label: "Below Product Gallery", value: "woocommerce_product_thumbnails" },
+                    { label: "Above Product Summary", value: "woocommerce_before_single_product_summary" },
+                    { label: "Below Product Summary", value: "woocommerce_after_single_product_summary" },
                   ]}
                 />
                 <p className="description">Choose where the synced videos should appear on the product page.</p>

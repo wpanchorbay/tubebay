@@ -152,7 +152,7 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
       label: "Connection Method",
       render: () => (
         <>
-          <fieldset>
+          <fieldset disabled={isConnected && !credentialsChanged}>
             <label style={{ display: 'block', marginBottom: '5px' }}>
               <input
                 type="radio"
@@ -160,6 +160,7 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
                 value="oauth"
                 checked={settings.connection_method === "oauth"}
                 onChange={() => updateLocalSetting("connection_method", "oauth")}
+                disabled={isConnected && !credentialsChanged}
               />
               {' '}OAuth 2.0 (Recommended)
             </label>
@@ -170,6 +171,7 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
                 value="api"
                 checked={settings.connection_method === "api"}
                 onChange={() => updateLocalSetting("connection_method", "api")}
+                disabled={isConnected && !credentialsChanged}
               />
               {' '}API Key (Legacy)
             </label>
@@ -180,115 +182,117 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
     }
   ];
 
-  if (settings.connection_method === "oauth") {
+  if (!isConnected || credentialsChanged) {
+    if (settings.connection_method === "oauth") {
+      fields.push({
+        id: "oauth_connect",
+        label: "OAuth Authentication",
+        render: () => (
+          <>
+            {settings.refresh_token ? (
+              <p>
+                <strong style={{ color: 'green' }}>Authentication Token Saved.</strong>
+                <br />
+                You can re-authenticate if needed.
+              </p>
+            ) : (
+              <p>No authentication token found. Please sign in.</p>
+            )}
+            <a
+              href={`${restUrl}tubebay/v1/youtube/oauth-connect`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowTokenInput(true)}
+              className="button button-secondary"
+              style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center' }}
+            >
+              Sign in with YouTube
+            </a>
+
+            {showTokenInput && (
+              <div style={{ marginTop: '15px' }}>
+                <p style={{ margin: '0 0 5px 0' }}><strong>Enter Access Code:</strong></p>
+                <ClassicInput
+                  type="password"
+                  value={settings.refresh_token || ""}
+                  onChange={(e) => updateLocalSetting("refresh_token", e.target.value)}
+                  placeholder="Paste the code you received from Google here..."
+                  style={{ width: '100%', maxWidth: '500px' }}
+                />
+                <p className="description" style={{ marginTop: '5px' }}>Paste the code you received from Google above, then click "Save Connection".</p>
+              </div>
+            )}
+
+            <div className="notice notice-info inline" style={{ marginTop: '15px', padding: '10px 15px', display: 'block', maxWidth: '600px' }}>
+              <p style={{ margin: '0 0 10px 0' }}>
+                <strong>Read-only access:</strong> TubeBay only reads your public video data (titles, thumbnails, and IDs) to sync your library. We will never upload, edit, or modify your YouTube channel in any way.
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Why does it say "WPAnchorBay"?</strong> TubeBay is developed and published by <a href="https://wpanchorbay.com" target="_blank" rel="noopener noreferrer">WPAnchorBay</a>. You will see this name on the Google authorization screen — this is expected and your connection is fully secure.
+              </p>
+            </div>
+          </>
+        )
+      });
+    } else {
+      fields.push(
+        {
+          id: "api_key",
+          label: "YouTube API Key",
+          render: () => (
+            <>
+              <ClassicInput
+                id="api_key"
+                value={settings.api_key || ""}
+                onChange={(e) => updateLocalSetting("api_key", e.target.value)}
+                className="regular-text"
+              />
+              <p className="description">Your Google Cloud Console API Key.</p>
+            </>
+          )
+        },
+        {
+          id: "channel_id",
+          label: "YouTube Channel ID",
+          render: () => (
+            <>
+              <ClassicInput
+                id="channel_id"
+                value={settings.channel_id || ""}
+                onChange={(e) => updateLocalSetting("channel_id", e.target.value)}
+                className="regular-text"
+              />
+              <p className="description">The ID of the YouTube channel to sync from.</p>
+            </>
+          )
+        }
+      );
+    }
+
     fields.push({
-      id: "oauth_connect",
-      label: "OAuth Authentication",
+      id: "actions",
+      label: "",
       render: () => (
         <>
-          {settings.refresh_token ? (
-            <p>
-              <strong style={{ color: 'green' }}>Authentication Token Saved.</strong>
-              <br />
-              You can re-authenticate if needed.
-            </p>
-          ) : (
-            <p>No authentication token found. Please sign in.</p>
-          )}
-          <a
-            href={`${restUrl}tubebay/v1/youtube/oauth-connect`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setShowTokenInput(true)}
-            className="button button-secondary"
-            style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center' }}
+          <ClassicButton
+            variant="primary"
+            onClick={handleConnect}
+            disabled={saving}
+            style={{ marginRight: '10px' }}
           >
-            Sign in with YouTube
-          </a>
-
-          {showTokenInput && (
-            <div style={{ marginTop: '15px' }}>
-              <p style={{ margin: '0 0 5px 0' }}><strong>Enter Access Code:</strong></p>
-              <ClassicInput
-                type="password"
-                value={settings.refresh_token || ""}
-                onChange={(e) => updateLocalSetting("refresh_token", e.target.value)}
-                placeholder="Paste the code you received from Google here..."
-                style={{ width: '100%', maxWidth: '500px' }}
-              />
-              <p className="description" style={{ marginTop: '5px' }}>Paste the code you received from Google above, then click "Save Connection".</p>
-            </div>
-          )}
-
-          <div className="notice notice-info inline" style={{ marginTop: '15px', padding: '10px 15px', display: 'block', maxWidth: '600px' }}>
-            <p style={{ margin: '0 0 10px 0' }}>
-              <strong>Read-only access:</strong> TubeBay only reads your public video data (titles, thumbnails, and IDs) to sync your library. We will never upload, edit, or modify your YouTube channel in any way.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>Why does it say "WPAnchorBay"?</strong> TubeBay is developed and published by <a href="https://wpanchorbay.com" target="_blank" rel="noopener noreferrer">WPAnchorBay</a>. You will see this name on the Google authorization screen — this is expected and your connection is fully secure.
-            </p>
-          </div>
+            {saving ? "Saving..." : "Save Connection"}
+          </ClassicButton>
+          <ClassicButton
+            variant="secondary"
+            onClick={handleTestConnection}
+            disabled={testing}
+          >
+            {testing ? "Testing..." : "Test Connection"}
+          </ClassicButton>
         </>
       )
     });
-  } else {
-    fields.push(
-      {
-        id: "api_key",
-        label: "YouTube API Key",
-        render: () => (
-          <>
-            <ClassicInput
-              id="api_key"
-              value={settings.api_key || ""}
-              onChange={(e) => updateLocalSetting("api_key", e.target.value)}
-              className="regular-text"
-            />
-            <p className="description">Your Google Cloud Console API Key.</p>
-          </>
-        )
-      },
-      {
-        id: "channel_id",
-        label: "YouTube Channel ID",
-        render: () => (
-          <>
-            <ClassicInput
-              id="channel_id"
-              value={settings.channel_id || ""}
-              onChange={(e) => updateLocalSetting("channel_id", e.target.value)}
-              className="regular-text"
-            />
-            <p className="description">The ID of the YouTube channel to sync from.</p>
-          </>
-        )
-      }
-    );
   }
-
-  fields.push({
-    id: "actions",
-    label: "",
-    render: () => (
-      <>
-        <ClassicButton
-          variant="primary"
-          onClick={handleConnect}
-          disabled={saving}
-          style={{ marginRight: '10px' }}
-        >
-          {saving ? "Saving..." : "Save Connection"}
-        </ClassicButton>
-        <ClassicButton
-          variant="secondary"
-          onClick={handleTestConnection}
-          disabled={testing}
-        >
-          {testing ? "Testing..." : "Test Connection"}
-        </ClassicButton>
-      </>
-    )
-  });
 
   return (
     <>
@@ -298,7 +302,7 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
         </div>
       )}
 
-      {isConnected && !credentialsChanged ? (
+      {isConnected && !credentialsChanged && (
         <div className="notice notice-success inline" style={{ display: 'block', marginBottom: '20px' }}>
           <p>
             <strong>Connected to YouTube</strong><br />
@@ -310,7 +314,7 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
             </ClassicButton>
           </p>
         </div>
-      ) : null}
+      )}
 
       <ClassicSettingsTable
         title="YouTube Connection"
