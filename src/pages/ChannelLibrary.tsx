@@ -174,29 +174,19 @@ export default function ChannelLibrary() {
   return (
     <div className="wrap tubebay-wrap">
       <h1 className="tubebay-ignore-preflight">Channel Library</h1>
-      <ClassicButton
-        variant="secondary"
-        className="page-title-action"
-        onClick={handleSyncNow}
-        disabled={syncing}
-      >
-        {syncing ? "Syncing..." : "Sync Now"}
-      </ClassicButton>
 
       <hr className="wp-header-end" />
 
       {/* Toolbar */}
-      <div className="tablenav top" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div className="alignleft actions">
+      <div className="tablenav top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+        <div className="alignleft actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <ClassicSelect
             value={sortBy}
             onChange={(val) => setSortBy(val as string)}
             options={SORT_OPTIONS}
             style={{ float: 'none', marginLeft: 0 }}
           />
-        </div>
-        <div className="alignright">
-          <p className="search-box" style={{ margin: 0 }}>
+          <p className="search-box" style={{ margin: 0, float: 'none' }}>
             <label className="screen-reader-text" htmlFor="video-search-input">Search videos:</label>
             <ClassicInput
               type="search"
@@ -206,6 +196,16 @@ export default function ChannelLibrary() {
               placeholder="Search by title..."
             />
           </p>
+        </div>
+        <div className="alignright" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <ClassicButton
+            variant="secondary"
+            onClick={handleSyncNow}
+            disabled={syncing}
+            style={{ margin: 0 }}
+          >
+            {syncing ? "Syncing..." : "Sync Now"}
+          </ClassicButton>
         </div>
       </div>
 
@@ -235,7 +235,6 @@ export default function ChannelLibrary() {
               <th scope="col" id="title" className="manage-column column-primary">Title</th>
               <th scope="col" id="products" className="manage-column" style={{ width: '200px' }}>Products</th>
               <th scope="col" id="date" className="manage-column" style={{ width: '150px' }}>Published</th>
-              <th scope="col" id="actions" className="manage-column" style={{ width: '330px' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -250,8 +249,33 @@ export default function ChannelLibrary() {
                     />
                   </div>
                 </td>
-                <td className="title column-title column-primary">
+                <td className="title column-title has-row-actions column-primary">
                   <strong>{video.title}</strong>
+                  <div className="row-actions">
+                    <span className="view">
+                      <button
+                        type="button"
+                        className="button-link"
+                        onClick={() => setPreviewVideoId(video.id)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Youtube size={12} />
+                        View on YouTube
+                      </button>
+                      {" | "}
+                    </span>
+                    <span className="copy">
+                      <button
+                        type="button"
+                        className="button-link"
+                        onClick={() => handleCopyShortcode(video.id)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Copy size={12} />
+                        {copiedVideoId === video.id ? "Copied!" : "Copy Shortcode"}
+                      </button>
+                    </span>
+                  </div>
                 </td>
                 <td className="products column-products" style={{ verticalAlign: 'middle' }}>
                   {video.products && video.products.length > 0 ? (
@@ -267,26 +291,6 @@ export default function ChannelLibrary() {
                 </td>
                 <td className="date column-date" style={{ verticalAlign: 'middle' }}>
                   {formatDate(video.published_at)}
-                </td>
-                <td className="actions column-actions" style={{ verticalAlign: 'middle' }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <ClassicButton
-                      variant="secondary"
-                      onClick={() => setPreviewVideoId(video.id)}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <Youtube size={14} />
-                      View on YouTube
-                    </ClassicButton>
-                    <ClassicButton
-                      variant="secondary"
-                      onClick={() => handleCopyShortcode(video.id)}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <Copy size={14} />
-                      {copiedVideoId === video.id ? "Copied!" : "Copy Shortcode"}
-                    </ClassicButton>
-                  </div>
                 </td>
               </tr>
             ))}
