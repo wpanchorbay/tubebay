@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import apiFetch from "@wordpress/api-fetch";
 import { useToast } from "../store/toast/use-toast";
 import { ClassicInput, ClassicButton, ClassicSelect } from "../components/classics";
+import { Youtube, Copy } from "lucide-react";
 import CustomModal from "../components/common/CustomModal";
 import { useWpabStore, useWpabStoreActions } from "../store/wpabStore";
 import { timeDiff } from "../utils/Dates";
@@ -12,6 +13,7 @@ interface VideoData {
   thumbnail_url: string;
   published_at: string;
   description: string;
+  products?: { id: number; name: string }[];
 }
 
 export default function ChannelLibrary() {
@@ -29,16 +31,17 @@ export default function ChannelLibrary() {
   const [serverSearchQuery, setServerSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("date_desc");
   const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
+  const [copiedVideoId, setCopiedVideoId] = useState<string | null>(null);
   const { plugin_settings } = useWpabStore();
 
   const isConnected = plugin_settings?.connection_status === "connected";
 
   const SORT_OPTIONS = [
-    { value: "date_desc", label: "Recently Added" },
-    { value: "date_asc", label: "Oldest First" },
-    { value: "title_asc", label: "Title (A-Z)" },
-    { value: "title_desc", label: "Title (Z-A)" },
-    { value: "view_count", label: "Most Viewed" },
+    { value: "date_desc", label: "Sort by Date (Newest)" },
+    { value: "date_asc", label: "Sort by Date (Oldest)" },
+    { value: "title_asc", label: "Sort by Title (A-Z)" },
+    { value: "title_desc", label: "Sort by Title (Z-A)" },
+    { value: "view_count", label: "Sort by Views" },
   ];
 
   const fetchVideos = async (page_token: string = "", isLoadMore = false) => {
@@ -90,7 +93,7 @@ export default function ChannelLibrary() {
         setServerSearchQuery("");
         setSortBy("date_desc");
         setVideos(response.videos);
-        
+
         const updateData: any = {};
         if (response.last_sync_time)
           updateData.last_sync_time = Number(response.last_sync_time);
@@ -141,10 +144,19 @@ export default function ChannelLibrary() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const handleCopyShortcode = (videoId: string) => {
+    navigator.clipboard.writeText(`[tubebay_video id="${videoId}"]`);
+    addToast("Shortcode copied to clipboard", "success");
+    setCopiedVideoId(videoId);
+    setTimeout(() => {
+      setCopiedVideoId(null);
+    }, 2000);
+  };
+
   if (!isConnected) {
     return (
       <div className="wrap tubebay-wrap">
-        <h2>Channel Library</h2>
+        <h1 className="tubebay-ignore-preflight">Channel Library</h1>
         <div className="notice notice-error inline">
           <p>
             <strong>Your YouTube library is currently disconnected.</strong> Please complete the onboarding setup or connect your account in the Settings to sync videos.
@@ -161,7 +173,7 @@ export default function ChannelLibrary() {
 
   return (
     <div className="wrap tubebay-wrap">
-      <h1 className="wp-heading-inline">Channel Library</h1>
+      <h1 className="tubebay-ignore-preflight">Channel Library</h1>
       <ClassicButton
         variant="secondary"
         className="page-title-action"
@@ -220,15 +232,16 @@ export default function ChannelLibrary() {
           <thead>
             <tr>
               <th scope="col" id="thumbnail" className="manage-column" style={{ width: '160px' }}>Thumbnail</th>
-              <th scope="col" id="title" className="manage-column column-primary">Title & Description</th>
-              <th scope="col" id="date" className="manage-column" style={{ width: '120px' }}>Date</th>
-              <th scope="col" id="actions" className="manage-column" style={{ width: '200px' }}>Actions</th>
+              <th scope="col" id="title" className="manage-column column-primary">Title</th>
+              <th scope="col" id="products" className="manage-column" style={{ width: '200px' }}>Products</th>
+              <th scope="col" id="date" className="manage-column" style={{ width: '150px' }}>Published</th>
+              <th scope="col" id="actions" className="manage-column" style={{ width: '330px' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {videos.map((video) => (
               <tr key={video.id}>
-                <td className="thumbnail column-thumbnail has-row-actions column-primary">
+                <td className="thumbnail column-thumbnail">
                   <div style={{ width: '120px', height: '68px', backgroundColor: '#f0f0f1', overflow: 'hidden', position: 'relative' }}>
                     <img
                       src={video.thumbnail_url}
@@ -237,32 +250,43 @@ export default function ChannelLibrary() {
                     />
                   </div>
                 </td>
-                <td className="title column-title">
+                <td className="title column-title column-primary">
                   <strong>{video.title}</strong>
-                  <p className="description" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {video.description}
-                  </p>
                 </td>
-                <td className="date column-date">
+                <td className="products column-products" style={{ verticalAlign: 'middle' }}>
+                  {video.products && video.products.length > 0 ? (
+                    video.products.map((p, idx) => (
+                      <span key={p.id}>
+                        <a href={`post.php?post=${p.id}&action=edit`}>{p.name}</a>
+                        {idx < video.products.length - 1 ? ", " : ""}
+                      </span>
+                    ))
+                  ) : (
+                    <span style={{ color: '#c3c4c7' }}>—</span>
+                  )}
+                </td>
+                <td className="date column-date" style={{ verticalAlign: 'middle' }}>
                   {formatDate(video.published_at)}
                 </td>
                 <td className="actions column-actions" style={{ verticalAlign: 'middle' }}>
-                  <ClassicButton
-                    variant="secondary"
-                    onClick={() => setPreviewVideoId(video.id)}
-                    style={{ marginRight: '8px' }}
-                  >
-                    Preview
-                  </ClassicButton>
-                  <ClassicButton
-                    variant="secondary"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`[tubebay_video id="${video.id}"]`);
-                      addToast("Shortcode copied to clipboard", "success");
-                    }}
-                  >
-                    Copy Shortcode
-                  </ClassicButton>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <ClassicButton
+                      variant="secondary"
+                      onClick={() => setPreviewVideoId(video.id)}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Youtube size={14} />
+                      View on YouTube
+                    </ClassicButton>
+                    <ClassicButton
+                      variant="secondary"
+                      onClick={() => handleCopyShortcode(video.id)}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Copy size={14} />
+                      {copiedVideoId === video.id ? "Copied!" : "Copy Shortcode"}
+                    </ClassicButton>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -218,9 +218,12 @@ class YouTubeController extends ApiController {
 		\TubeBay\Helper\Settings::set( 'connection_status', 'connected' );
 
 		// Send back an array of the newly fetched videos.
+		$product_map = $this->get_product_video_map();
 		$response_videos = array();
 		foreach ( $videos as $video ) {
-			$response_videos[] = $video->to_array();
+			$arr = $video->to_array();
+			$arr['products'] = $product_map[ $video->id ] ?? array();
+			$response_videos[] = $arr;
 		}
 
 		return new WP_REST_Response(
@@ -325,9 +328,12 @@ class YouTubeController extends ApiController {
 			return new \WP_Error( 'fetch_failed', $videos->get_error_message(), array( 'status' => 400 ) );
 		}
 
+		$product_map = $this->get_product_video_map();
 		$response_videos = array();
 		foreach ( $videos as $video ) {
-			$response_videos[] = $video->to_array();
+			$arr = $video->to_array();
+			$arr['products'] = $product_map[ $video->id ] ?? array();
+			$response_videos[] = $arr;
 		}
 
 		return new WP_REST_Response(
@@ -417,5 +423,31 @@ class YouTubeController extends ApiController {
 		tubebay_log( '_______________', $redirect_url );
 		wp_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Get mapping of video IDs to products.
+	 *
+	 * @return array Map of video_id => list of array('id' => product_id, 'name' => product_title)
+	 */
+	private function get_product_video_map() {
+		global $wpdb;
+		$results = $wpdb->get_results(
+			"SELECT pm.meta_value AS video_id, p.ID AS product_id, p.post_title AS product_name 
+			 FROM {$wpdb->postmeta} pm
+			 JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+			 WHERE pm.meta_key = '_tubebay_video_id' AND p.post_status = 'publish'"
+		);
+
+		$product_map = array();
+		if ( ! empty( $results ) ) {
+			foreach ( $results as $row ) {
+				$product_map[ $row->video_id ][] = array(
+					'id'   => (int) $row->product_id,
+					'name' => $row->product_name,
+				);
+			}
+		}
+		return $product_map;
 	}
 }
