@@ -27,8 +27,6 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
                     { label: "Inside Product Gallery (Last Slide)", value: "add_to_gallery_last" },
                     { label: "Inside Product Gallery (First Slide)", value: "replace_main_image" },
                     { label: "Below Product Gallery", value: "woocommerce_product_thumbnails" },
-                    { label: "Above Product Summary", value: "woocommerce_before_single_product_summary" },
-                    { label: "Below Product Summary", value: "woocommerce_after_single_product_summary" },
                   ]}
                 />
                 <p className="description">Choose where the synced videos should appear on the product page.</p>
