@@ -230,7 +230,56 @@ export default function ChannelLibrary() {
       </div>
 
       {loading ? (
-        <p className="description">Loading videos...</p>
+        <>
+          <style type="text/css">{`
+            @keyframes tubebay-pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: .4; }
+            }
+            .tubebay-skeleton-bar {
+              height: 14px;
+              background-color: #e2e8f0;
+              border-radius: 4px;
+              animation: tubebay-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .tubebay-skeleton-thumbnail {
+              width: 120px;
+              height: 68px;
+              background-color: #e2e8f0;
+              border-radius: 4px;
+              animation: tubebay-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+          `}</style>
+          <table className="wp-list-table widefat fixed striped table-view-list">
+            <thead>
+              <tr>
+                <th scope="col" style={{ width: '160px' }}>Thumbnail</th>
+                <th scope="col" className="column-primary">Title</th>
+                <th scope="col" style={{ width: '200px' }}>Products</th>
+                <th scope="col" style={{ width: '150px' }}>Published</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i}>
+                  <td>
+                    <div className="tubebay-skeleton-thumbnail" />
+                  </td>
+                  <td className="column-primary" style={{ verticalAlign: 'middle' }}>
+                    <div className="tubebay-skeleton-bar" style={{ width: '75%', marginBottom: '8px' }} />
+                    <div className="tubebay-skeleton-bar" style={{ width: '40%' }} />
+                  </td>
+                  <td style={{ verticalAlign: 'middle' }}>
+                    <div className="tubebay-skeleton-bar" style={{ width: '60%' }} />
+                  </td>
+                  <td style={{ verticalAlign: 'middle' }}>
+                    <div className="tubebay-skeleton-bar" style={{ width: '70%' }} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       ) : videos.length === 0 ? (
         <p className="description">No videos found. Try syncing or adjusting your search.</p>
       ) : (
