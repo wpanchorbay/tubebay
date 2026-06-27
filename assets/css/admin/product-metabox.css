@@ -139,6 +139,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 16px;
+    align-content: start; /* Prevents rows from stretching vertically to fill the height */
 }
 
 .tubebay-modal-video-item {
