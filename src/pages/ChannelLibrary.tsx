@@ -157,6 +157,9 @@ export default function ChannelLibrary() {
     return (
       <div className="wrap tubebay-wrap">
         <h1 className="tubebay-ignore-preflight">Channel Library</h1>
+        <p className="description" style={{ marginBottom: '15px' }}>
+          Browse, search, and manage your synced YouTube videos.
+        </p>
         <div className="notice notice-error inline">
           <p>
             <strong>Your YouTube library is currently disconnected.</strong> Please complete the onboarding setup or connect your account in the Settings to sync videos.
@@ -177,6 +180,10 @@ export default function ChannelLibrary() {
 
       <hr className="wp-header-end" />
 
+      <p className="description" style={{ marginBottom: '15px' }}>
+        Browse, search, and manage your synced YouTube videos.
+      </p>
+
       {/* Toolbar */}
       <div className="tablenav top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
         <div className="alignleft actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -184,7 +191,6 @@ export default function ChannelLibrary() {
             value={sortBy}
             onChange={(val) => setSortBy(val as string)}
             options={SORT_OPTIONS}
-            style={{ float: 'none', marginLeft: 0 }}
           />
           <p className="search-box" style={{ margin: 0, float: 'none' }}>
             <label className="screen-reader-text" htmlFor="video-search-input">Search videos:</label>
@@ -209,7 +215,7 @@ export default function ChannelLibrary() {
         </div>
       </div>
 
-      <div className="notice notice-info inline" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="notice notice-info inline" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
         <p>
           {videos.length > 0 ? (
             <strong>{videos.length} videos available.</strong>
@@ -282,7 +288,7 @@ export default function ChannelLibrary() {
                     video.products.map((p, idx) => (
                       <span key={p.id}>
                         <a href={`post.php?post=${p.id}&action=edit`}>{p.name}</a>
-                        {idx < video.products.length - 1 ? ", " : ""}
+                        {idx < video?.products?.length - 1 ? ", " : ""}
                       </span>
                     ))
                   ) : (
