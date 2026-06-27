@@ -121,46 +121,52 @@ jQuery(document).ready(function ($) {
                     videoGrid.empty();
                 }
 
-                if (response && response.success && response.videos.length > 0) {
-                    var html = '';
-                    response.videos.forEach(function (video) {
-                        html += '<div class="tubebay-modal-video-item" data-id="' + video.id + '" data-title="' + video.title + '" data-thumbnail="' + video.thumbnail_url + '">';
-                        html += '<img src="' + video.thumbnail_url + '" alt="Thumbnail" />';
-                        html += '<p title="' + video.title + '">' + video.title + '</p>';
-                        html += '</div>';
-                    });
+                if (response && response.success) {
+                    if (response.videos && response.videos.length > 0) {
+                        var html = '';
+                        response.videos.forEach(function (video) {
+                            html += '<div class="tubebay-modal-video-item" data-id="' + video.id + '" data-title="' + video.title + '" data-thumbnail="' + video.thumbnail_url + '">';
+                            html += '<img src="' + video.thumbnail_url + '" alt="Thumbnail" />';
+                            html += '<p title="' + video.title + '">' + video.title + '</p>';
+                            html += '</div>';
+                        });
 
-                    videoGrid.append(html);
+                        videoGrid.append(html);
 
-                    // Add click handlers for the newly loaded items
-                    $('.tubebay-modal-video-item').off('click').on('click', function () {
-                        var vidId = $(this).data('id');
-                        var vidTitle = $(this).data('title');
-                        var vidThumb = $(this).data('thumbnail');
+                        // Add click handlers for the newly loaded items
+                        $('.tubebay-modal-video-item').off('click').on('click', function () {
+                            var vidId = $(this).data('id');
+                            var vidTitle = $(this).data('title');
+                            var vidThumb = $(this).data('thumbnail');
 
-                        $('#tubebay_video_id').val(vidId);
-                        $('#tubebay_video_title').val(vidTitle);
-                        $('#tubebay_video_thumbnail').val(vidThumb);
+                            $('#tubebay_video_id').val(vidId);
+                            $('#tubebay_video_title').val(vidTitle);
+                            $('#tubebay_video_thumbnail').val(vidThumb);
 
-                        // Update UI
-                        $('#tubebay_video_title_display').text(vidTitle);
-                        $('#tubebay_video_thumbnail_img').attr('src', vidThumb);
+                            // Update UI
+                            $('#tubebay_video_title_display').text(vidTitle);
+                            $('#tubebay_video_thumbnail_img').attr('src', vidThumb);
 
-                        $('#tubebay-selected-video-container').removeClass('tubebay-hidden');
-                        $('#tubebay-add-video-container').addClass('tubebay-hidden');
-                        $('#tubebay-autoplay-setting').removeClass('tubebay-hidden');
+                            $('#tubebay-selected-video-container').removeClass('tubebay-hidden');
+                            $('#tubebay-add-video-container').addClass('tubebay-hidden');
+                            $('#tubebay-autoplay-setting').removeClass('tubebay-hidden');
 
-                        hideModal();
-                    });
+                            hideModal();
+                        });
 
-                    // Update Pagination State
-                    nextPageToken = response.next_page_token || null;
-                    if (nextPageToken) {
-                        loadMoreContainer.show();
+                        // Update Pagination State
+                        nextPageToken = response.next_page_token || null;
+                        if (nextPageToken) {
+                            loadMoreContainer.show();
+                        } else {
+                            loadMoreContainer.hide();
+                        }
                     } else {
+                        if (!isLoadMore) {
+                            videoGrid.html('<p class="tubebay-loading-text">' + tubebayMetabox.i18n.noVideos + '</p>');
+                        }
                         loadMoreContainer.hide();
                     }
-
                 } else {
                     if (!isLoadMore) {
                         videoGrid.html('<p class="tubebay-loading-text">' + tubebayMetabox.i18n.error + '</p>');

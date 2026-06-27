@@ -143,6 +143,7 @@ class ProductMetabox {
 					'removeVideo' => __( 'Remove Video', 'tubebay' ),
 					'loading'     => __( 'Loading...', 'tubebay' ),
 					'error'       => __( 'Error loading videos.', 'tubebay' ),
+					'noVideos'    => __( 'No videos found.', 'tubebay' ),
 					'loadMore'    => __( 'Load More', 'tubebay' ),
 					'search'      => __( 'Search videos...', 'tubebay' ),
 					'sort'        => array(
@@ -247,7 +248,7 @@ class ProductMetabox {
 							</div>
 							
 							<!-- Main content block -->
-							<div class="media-frame-content" style="top: 50px; bottom: 60px;">
+							<div class="media-frame-content" style="top: 50px; bottom: 0;">
 								<div class="attachments-browser">
 									<!-- Filter/Search Toolbar -->
 									<div class="media-toolbar">
@@ -270,13 +271,6 @@ class ProductMetabox {
 									<div class="tubebay-modal-body" id="tubebay-modal-video-grid">
 										<p class="tubebay-loading-text"><?php esc_html_e( 'Loading videos...', 'tubebay' ); ?></p>
 									</div>
-								</div>
-							</div>
-							
-							<!-- Load More Footer (media-frame-toolbar) -->
-							<div class="media-frame-toolbar" id="tubebay-modal-footer" style="display:none; bottom: 0; height: 60px; border-top: 1px solid #dcdcde;">
-								<div class="media-toolbar" style="height: 60px; display: flex; align-items: center; justify-content: center; padding: 0 16px;">
-									<button type="button" class="button button-secondary" id="tubebay-modal-load-more"><?php esc_html_e( 'Load More', 'tubebay' ); ?></button>
 								</div>
 							</div>
 						</div>
