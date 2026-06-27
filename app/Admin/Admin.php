@@ -415,7 +415,6 @@ class Admin {
 			$note->set_source( 'tubebay' );
 
 			$setup_url   = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
-			$dismiss_url = wp_nonce_url( add_query_arg( 'tubebay_dismiss_onboarding', '1' ), 'tubebay_dismiss_onboarding' );
 
 			// Start Setup (Primary action)
 			$note->add_action(
@@ -424,15 +423,6 @@ class Admin {
 				$setup_url,
 				'actioned',
 				true
-			);
-
-			// Skip Setup (Secondary action)
-			$note->add_action(
-				'skip-setup',
-				__( 'No thanks', 'tubebay' ),
-				$dismiss_url,
-				'actioned',
-				false
 			);
 
 			$note->save();
