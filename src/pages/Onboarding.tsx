@@ -71,15 +71,17 @@ export default function Onboarding() {
     return (
       <div className="wrap">
         <h2>Welcome to TubeBay</h2>
-        <div className="postbox" style={{ maxWidth: '600px', marginTop: '20px' }}>
-          <div className="inside">
-            <h3>Ready to Get Started?</h3>
-            <p>Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store.</p>
-            <p>
+        <div className="postbox" style={{ maxWidth: '600px', marginTop: '24px' }}>
+          <div className="inside" style={{ padding: '24px' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 600 }}>Ready to Get Started?</h3>
+            <p style={{ margin: '0 0 24px 0', lineHeight: '1.5', fontSize: '14px', color: '#4c4c4c' }}>
+              Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store.
+            </p>
+            <p style={{ margin: 0, display: 'flex', gap: '12px' }}>
               <ClassicButton variant="primary" onClick={() => setWizardStarted(true)}>
                 Start Setup Wizard
               </ClassicButton>
-              <ClassicButton variant="secondary" onClick={handleSkip} style={{ marginLeft: '10px' }}>
+              <ClassicButton variant="secondary" onClick={handleSkip}>
                 Skip Setup
               </ClassicButton>
             </p>
@@ -93,7 +95,7 @@ export default function Onboarding() {
     <div className="wrap">
       <h2>TubeBay Setup Wizard</h2>
       
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', padding: '10px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px', padding: '10px 0' }}>
         {WIZARD_STEPS.map((step, index) => {
           const stepNum = index + 1;
           const isActive = stepNum === currentStep;
@@ -120,8 +122,8 @@ export default function Onboarding() {
         })}
       </div>
 
-      <div className="postbox" style={{ maxWidth: '800px' }}>
-        <div className="inside">
+      <div className="postbox" style={{marginTop: '24px' }}>
+        <div className="inside" style={{ padding: '24px' }}>
           {currentStep === 1 && (
             <ConnectionTab 
               settings={settings} 
@@ -143,7 +145,7 @@ export default function Onboarding() {
           {currentStep === 2 && (
             <>
               <PlayerTab settings={settings} updateLocalSetting={updateLocalSetting} />
-              <p style={{ marginTop: '20px' }}>
+              <p style={{ marginTop: '24px', marginBottom: 0 }}>
                 <ClassicButton variant="primary" onClick={handleFinish}>
                   Save & Continue
                 </ClassicButton>
@@ -152,10 +154,12 @@ export default function Onboarding() {
           )}
 
           {currentStep === 3 && (
-            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <h3>You're All Set!</h3>
-              <p>TubeBay is connected and configured. You can now assign YouTube videos to your WooCommerce products.</p>
-              <p>
+            <div style={{ textAlign: 'center', padding: '30px 10px' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: 600 }}>You're All Set!</h3>
+              <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#4c4c4c', lineHeight: '1.5' }}>
+                TubeBay is connected and configured. You can now assign YouTube videos to your WooCommerce products.
+              </p>
+              <p style={{ margin: 0 }}>
                 <ClassicButton variant="primary" onClick={() => { window.location.hash = "/"; }}>
                   Go to Channel Library
                 </ClassicButton>

@@ -169,7 +169,7 @@ export default function Settings() {
   ];
 
   return (
-    <div className="tubebay-settings-container" style={{ maxWidth: '800px' }}>
+    <div className="tubebay-settings-container">
       <input
         type="hidden"
         name="tubebay_has_changes"
