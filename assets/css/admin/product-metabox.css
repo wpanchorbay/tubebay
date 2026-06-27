@@ -1,296 +1,174 @@
-/* TubeBay Product Metabox Styles */
+/* TubeBay Product Metabox Styles - Classic WordPress Design */
 
+/* ==========================================================================
+   Sidebar Metabox Panel (mirrors WooCommerce Product Image)
+   ========================================================================== */
 .tubebay-metabox-wrapper {
-    padding: 10px 0;
+    padding: 0;
 }
 
 .tubebay-hidden {
     display: none !important;
 }
 
-/* Video Card */
-.tubebay-video-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 20px;
+#tubebay-video-thumbnail-container {
+    margin-bottom: 10px;
 }
 
-.tubebay-video-thumbnail-wrap {
-    position: relative;
+#tubebay-video-thumbnail-container img {
     width: 100%;
-    padding-top: 56.25%;
-    /* 16:9 Aspect Ratio */
-    background: #000;
-}
-
-.tubebay-video-thumbnail-wrap img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.tubebay-play-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 48px;
-    height: 48px;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    pointer-events: none;
-}
-
-.tubebay-video-actions {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    gap: 8px;
-}
-
-.tubebay-video-actions .button {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border: none;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-}
-
-.tubebay-video-actions .tubebay-danger-btn {
-    color: #dc2626;
-}
-
-.tubebay-video-actions .tubebay-danger-btn:hover {
-    color: #b91c1c;
-    background: #fee2e2;
-}
-
-.tubebay-video-title {
-    padding: 12px 16px;
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Settings Rows */
-.tubebay-setting-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.tubebay-setting-row:last-child {
-    border-bottom: none;
-}
-
-.tubebay-setting-label strong {
+    height: auto;
     display: block;
-    margin-bottom: 4px;
-    font-size: 14px;
-    color: #111827;
-}
-
-.tubebay-setting-label .description {
-    margin: 0;
-    font-size: 12px;
-    color: #6b7280;
-}
-
-/* Toggle Switch */
-.tubebay-switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 24px;
-}
-
-.tubebay-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.tubebay-slider {
-    position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
 }
 
-.tubebay-slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
+.tubebay-video-title-text {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1d2327;
+    margin: 0 0 6px 0;
+    word-break: break-word;
 }
 
-input:checked+.tubebay-slider {
-    background-color: #3b82f6;
+.tubebay-video-link-actions {
+    margin: 0 0 10px 0;
+    font-size: 13px;
 }
 
-input:focus+.tubebay-slider {
-    box-shadow: 0 0 1px #3b82f6;
+.tubebay-video-link-actions a {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
-input:checked+.tubebay-slider:before {
-    transform: translateX(16px);
+.tubebay-video-link-actions a.delete {
+    color: #b32d2e;
 }
 
-.tubebay-slider.tubebay-round {
-    border-radius: 24px;
+.tubebay-video-link-actions a.delete:hover {
+    color: #a00;
 }
 
-.tubebay-slider.tubebay-round:before {
-    border-radius: 50%;
+.tubebay-sep {
+    color: #dcdcde;
 }
 
-/* Modal Overlay & Content */
+#tubebay-add-video-container a {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Autoplay options */
+#tubebay-autoplay-setting {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #dcdcde;
+}
+
+#tubebay-autoplay-setting label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+#tubebay-autoplay-setting .description {
+    margin: 4px 0 0 0;
+    font-style: italic;
+}
+
+
+/* ==========================================================================
+   WordPress Media Modal Wrapper & Body Layout
+   ========================================================================== */
 #tubebay-video-modal {
     position: fixed;
-    z-index: 100000;
+    z-index: 159900;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
 
-.tubebay-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-}
-
-.tubebay-modal-content {
-    position: absolute;
-    top: 50%;
+/* Standard WP Media Modal Overrides */
+#tubebay-video-modal .media-modal {
     left: 50%;
-    transform: translate(-50%, -50%);
+    right: auto;
+    transform: translateX(-50%);
     width: 90%;
-    max-width: 800px;
-    max-height: 80vh;
-    background: #fff;
+    max-width: 900px;
+    height: calc(100% - 80px);
+    top: 40px;
     border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+}
+
+#tubebay-video-modal .media-modal-content {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#tubebay-video-modal .media-modal-close {
+    border-top-right-radius: 8px;
+}
+
+/* Make search inputs look native in the media toolbar */
+#tubebay-video-modal .media-toolbar-primary.search-form {
+    max-width: 260px;
+}
+
+/* Flexbox Layout inside Attachments Browser */
+#tubebay-video-modal .attachments-browser {
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    height: 100%;
 }
 
-.tubebay-modal-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Remove Absolute Positioning from Media Toolbar */
+#tubebay-video-modal .attachments-browser .media-toolbar {
+    position: relative !important;
 }
 
-.tubebay-modal-header h2 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.tubebay-modal-close {
-    font-size: 24px;
-    cursor: pointer;
-    color: #6b7280;
-}
-
-.tubebay-modal-close:hover {
-    color: #111827;
-}
-
-/* Filter Toolbar */
-.tubebay-modal-toolbar {
-    padding: 16px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    gap: 16px;
-    background: #f9fafb;
-}
-
-#tubebay-modal-search {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-#tubebay-modal-sort {
-    width: 180px;
-    padding: 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-/* Modal Body */
+/* Grid body fills the rest of the space and scrolls independently */
 .tubebay-modal-body {
-    padding: 24px;
+    flex-grow: 1;
     overflow-y: auto;
+    padding: 16px;
+    background: #f0f0f1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 16px;
 }
 
 .tubebay-modal-video-item {
     cursor: pointer;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    /* overflow: hidden; */
-    transition: box-shadow 0.2s;
+    border: 2px solid #c3c4c7;
+    border-radius: 6px;
+    background: #fff;
+    overflow: visible;
+    transition: border-color 0.1s;
+    box-sizing: border-box;
 }
 
 .tubebay-modal-video-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #3b82f6;
+    border-color: #2271b1;
 }
 
 .tubebay-modal-video-item img {
     width: 100%;
-    height: 120px;
+    height: auto;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
 }
 
 .tubebay-modal-video-item p {
     margin: 0;
-    padding: 10px;
+    padding: 10px 12px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
+    color: #1d2327;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -299,20 +177,7 @@ input:checked+.tubebay-slider:before {
 .tubebay-loading-text {
     grid-column: 1 / -1;
     text-align: center;
-    color: #6b7280;
+    color: #646970;
     padding: 40px 0;
-}
-
-/* Modal Footer */
-.tubebay-modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid #e5e7eb;
-    text-align: center;
-    background: #f9fafb;
-    border-radius: 0 0 8px 8px;
-}
-
-#tubebay-modal-load-more {
-    width: 200px;
-    font-weight: 600;
+    font-size: 13px;
 }

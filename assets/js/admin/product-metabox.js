@@ -3,8 +3,8 @@ jQuery(document).ready(function ($) {
     var selectBtn = $('#tubebay_select_video_btn');
     var editBtn = $('#tubebay_edit_video_btn');
     var removeBtn = $('#tubebay_remove_video_btn');
-    var closeModal = $('.tubebay-modal-close');
-    var overlay = $('.tubebay-modal-overlay');
+    var closeModal = $('#tubebay-modal-close-btn');
+    var backdrop = $('#tubebay-modal-backdrop');
 
     var videoGrid = $('#tubebay-modal-video-grid');
     var searchInput = $('#tubebay-modal-search');
@@ -24,6 +24,7 @@ jQuery(document).ready(function ($) {
     function openModal() {
         if (!isConnected) return;
         modal.show();
+        $('body').addClass('modal-open');
         if (!isLoaded) {
             fetchVideos();
         }
@@ -32,6 +33,7 @@ jQuery(document).ready(function ($) {
     // Hide Modal
     function hideModal() {
         modal.hide();
+        $('body').removeClass('modal-open');
     }
 
     selectBtn.on('click', function (e) {
@@ -48,7 +50,7 @@ jQuery(document).ready(function ($) {
         hideModal();
     });
 
-    overlay.on('click', function () {
+    backdrop.on('click', function () {
         hideModal();
     });
 

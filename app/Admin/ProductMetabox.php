@@ -186,107 +186,103 @@ class ProductMetabox {
 		<div class="tubebay-metabox-wrapper">
 			<!-- Hidden inputs to store selection -->
 			<input type="hidden" id="tubebay_video_id" name="tubebay_video_id" value="<?php echo esc_attr( $video_id ); ?>" />
-			<input type="hidden" id="tubebay_video_title" name="tubebay_video_title"
-				value="<?php echo esc_attr( $video_title ); ?>" />
-			<input type="hidden" id="tubebay_video_thumbnail" name="tubebay_video_thumbnail"
-				value="<?php echo esc_attr( $video_thumb ); ?>" />
+			<input type="hidden" id="tubebay_video_title" name="tubebay_video_title" value="<?php echo esc_attr( $video_title ); ?>" />
+			<input type="hidden" id="tubebay_video_thumbnail" name="tubebay_video_thumbnail" value="<?php echo esc_attr( $video_thumb ); ?>" />
 			<input type="hidden" name="tubebay_display_location" value="<?php echo esc_attr( $display_location ); ?>" />
 
+			<!-- Selected Video Preview (mirrors WooCommerce "Product image" metabox) -->
 			<div id="tubebay-selected-video-container" class="<?php echo empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<div class="tubebay-video-card">
-					<div class="tubebay-video-thumbnail-wrap">
-						<img id="tubebay_video_thumbnail_img" src="<?php echo esc_url( $video_thumb ); ?>"
-							alt="Video Thumbnail" />
-						<div class="tubebay-play-icon">▶</div>
-						<div class="tubebay-video-actions">
-							<?php if ( $is_connected ) : ?>
-							<button type="button" class="button" id="tubebay_edit_video_btn"
-								title="<?php esc_attr_e( 'Change Video', 'tubebay' ); ?>"><span
-									class="dashicons dashicons-edit"></span></button>
-							<?php endif; ?>
-							<button type="button" class="button tubebay-danger-btn" id="tubebay_remove_video_btn"
-								title="<?php esc_attr_e( 'Remove Video', 'tubebay' ); ?>"><span
-									class="dashicons dashicons-trash"></span></button>
-						</div>
-					</div>
-					<p id="tubebay_video_title_display" class="tubebay-video-title">
-						<?php echo esc_html( $video_title ); ?>
-					</p>
+				<div id="tubebay-video-thumbnail-container">
+					<img id="tubebay_video_thumbnail_img" src="<?php echo esc_url( $video_thumb ); ?>" alt="<?php esc_attr_e( 'Video thumbnail', 'tubebay' ); ?>" />
 				</div>
+				<p id="tubebay_video_title_display" class="tubebay-video-title-text"><?php echo esc_html( $video_title ); ?></p>
+				<p class="tubebay-video-link-actions">
+					<?php if ( $is_connected ) : ?>
+						<a href="#" id="tubebay_edit_video_btn"><?php esc_html_e( 'Change video', 'tubebay' ); ?></a>
+						<span class="tubebay-sep"> | </span>
+					<?php endif; ?>
+					<a href="#" id="tubebay_remove_video_btn" class="delete"><?php esc_html_e( 'Remove video', 'tubebay' ); ?></a>
+				</p>
 			</div>
 
+			<!-- Add Video Button -->
 			<?php if ( $is_connected ) : ?>
 			<div id="tubebay-add-video-container" class="<?php echo ! empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<button type="button" class="button button-primary" id="tubebay_select_video_btn">
-					<?php esc_html_e( 'Select Video from Library', 'tubebay' ); ?>
-				</button>
+				<a href="#" id="tubebay_select_video_btn"><?php esc_html_e( 'Set product video', 'tubebay' ); ?></a>
 			</div>
 			<?php else : ?>
 				<?php if ( empty( $video_id ) ) : ?>
-			<p class="description" style="margin-top: 8px; color: #b91c1c;">
+				<p class="description" style="color: #d63638;">
 					<?php esc_html_e( 'Connect your YouTube account in TubeBay Settings to select videos.', 'tubebay' ); ?>
-			</p>
-			<?php else : ?>
-			<p class="description" style="margin-top: 8px; color: #b91c1c;">
-				<?php esc_html_e( 'Reconnect your YouTube account in TubeBay Settings to change or add videos.', 'tubebay' ); ?>
-			</p>
-			<?php endif; ?>
+				</p>
+				<?php else : ?>
+				<p class="description" style="color: #d63638;">
+					<?php esc_html_e( 'Reconnect your YouTube account in TubeBay Settings to change or add videos.', 'tubebay' ); ?>
+				</p>
+				<?php endif; ?>
 			<?php endif; ?>
 
+			<!-- Muted Autoplay Option -->
 			<div id="tubebay-autoplay-setting" class="<?php echo empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<hr />
-				<div class="tubebay-setting-row">
-					<div class="tubebay-setting-label">
-						<strong>
-							<?php esc_html_e( 'Muted Autoplay', 'tubebay' ); ?>
-						</strong>
-						<p class="description">
-							<?php esc_html_e( 'Video plays automatically without sound', 'tubebay' ); ?>
-						</p>
-					</div>
-					<div class="tubebay-setting-control">
-						<label class="tubebay-switch">
-							<input type="checkbox" name="tubebay_muted_autoplay" value="1" <?php checked( $muted_autoplay, '1' ); ?> />
-							<span class="tubebay-slider tubebay-round"></span>
-						</label>
-					</div>
-				</div>
+				<label for="tubebay_muted_autoplay">
+					<input type="checkbox" id="tubebay_muted_autoplay" name="tubebay_muted_autoplay" value="1" <?php checked( $muted_autoplay, '1' ); ?> />
+					<?php esc_html_e( 'Muted autoplay', 'tubebay' ); ?>
+				</label>
+				<p class="description"><?php esc_html_e( 'Video plays automatically without sound on page load.', 'tubebay' ); ?></p>
 			</div>
 
 			<?php if ( $is_connected ) : ?>
-			<!-- Modal (Hidden by default) -->
+			<!-- Video Selection Modal (WordPress media-modal pattern) -->
 			<div id="tubebay-video-modal" style="display:none;">
-				<div class="tubebay-modal-overlay"></div>
-				<div class="tubebay-modal-content">
-					<div class="tubebay-modal-header">
-						<h2>
-							<?php esc_html_e( 'Select a Video', 'tubebay' ); ?>
-						</h2>
-						<span class="tubebay-modal-close">&times;</span>
-					</div>
-
-					<!-- Filter Toolbar -->
-					<div class="tubebay-modal-toolbar">
-						<input type="text" id="tubebay-modal-search" placeholder="<?php esc_attr_e( 'Search videos...', 'tubebay' ); ?>" />
-						<select id="tubebay-modal-sort">
-							<option value="date_desc"><?php esc_html_e( 'Recently Added', 'tubebay' ); ?></option>
-							<option value="date_asc"><?php esc_html_e( 'Oldest First', 'tubebay' ); ?></option>
-							<option value="title_asc"><?php esc_html_e( 'Title (A-Z)', 'tubebay' ); ?></option>
-							<option value="title_desc"><?php esc_html_e( 'Title (Z-A)', 'tubebay' ); ?></option>
-							<option value="view_count"><?php esc_html_e( 'Most Viewed', 'tubebay' ); ?></option>
-						</select>
-					</div>
-
-					<div class="tubebay-modal-body" id="tubebay-modal-video-grid">
-						<p class="tubebay-loading-text">
-							<?php esc_html_e( 'Loading videos...', 'tubebay' ); ?>
-						</p>
-					</div>
-					
-					<div class="tubebay-modal-footer" id="tubebay-modal-footer" style="display:none;">
-						<button type="button" class="button" id="tubebay-modal-load-more"><?php esc_html_e( 'Load More', 'tubebay' ); ?></button>
+				<div class="media-modal wp-core-ui">
+					<button type="button" class="media-modal-close" id="tubebay-modal-close-btn">
+						<span class="media-modal-icon">
+							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'tubebay' ); ?></span>
+						</span>
+					</button>
+					<div class="media-modal-content">
+						<div class="media-frame wp-core-ui hide-menu hide-router">
+							<div class="media-frame-title">
+								<h1 style="padding-left:16px;"><?php esc_html_e( 'Select a Video', 'tubebay' ); ?></h1>
+							</div>
+							
+							<!-- Main content block -->
+							<div class="media-frame-content" style="top: 50px; bottom: 60px;">
+								<div class="attachments-browser">
+									<!-- Filter/Search Toolbar -->
+									<div class="media-toolbar">
+										<div class="media-toolbar-secondary">
+											<select id="tubebay-modal-sort" class="attachment-filters">
+												<option value="date_desc"><?php esc_html_e( 'Recently Added', 'tubebay' ); ?></option>
+												<option value="date_asc"><?php esc_html_e( 'Oldest First', 'tubebay' ); ?></option>
+												<option value="title_asc"><?php esc_html_e( 'Title (A-Z)', 'tubebay' ); ?></option>
+												<option value="title_desc"><?php esc_html_e( 'Title (Z-A)', 'tubebay' ); ?></option>
+												<option value="view_count"><?php esc_html_e( 'Most Viewed', 'tubebay' ); ?></option>
+											</select>
+										</div>
+										<div class="media-toolbar-primary search-form">
+											<label for="tubebay-modal-search" class="screen-reader-text"><?php esc_html_e( 'Search videos', 'tubebay' ); ?></label>
+											<input type="search" placeholder="<?php esc_attr_e( 'Search videos...', 'tubebay' ); ?>" id="tubebay-modal-search" class="search" />
+										</div>
+									</div>
+									
+									<!-- Scrollable Grid Body -->
+									<div class="tubebay-modal-body" id="tubebay-modal-video-grid">
+										<p class="tubebay-loading-text"><?php esc_html_e( 'Loading videos...', 'tubebay' ); ?></p>
+									</div>
+								</div>
+							</div>
+							
+							<!-- Load More Footer (media-frame-toolbar) -->
+							<div class="media-frame-toolbar" id="tubebay-modal-footer" style="display:none; bottom: 0; height: 60px; border-top: 1px solid #dcdcde;">
+								<div class="media-toolbar" style="height: 60px; display: flex; align-items: center; justify-content: center; padding: 0 16px;">
+									<button type="button" class="button button-secondary" id="tubebay-modal-load-more"><?php esc_html_e( 'Load More', 'tubebay' ); ?></button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
+				<div class="media-modal-backdrop" id="tubebay-modal-backdrop"></div>
 			</div>
 			<?php endif; ?>
 		</div>
