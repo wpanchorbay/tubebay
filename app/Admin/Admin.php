@@ -297,6 +297,150 @@ class Admin {
 		$settings[] = new WCSettingsTab();
 		return $settings;
 	}
+
+	/**
+	 * Dismiss onboarding notice action.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function handle_dismiss_onboarding() {
+		if ( isset( $_GET['tubebay_dismiss_onboarding'] ) && check_admin_referer( 'tubebay_dismiss_onboarding' ) ) {
+			Settings::set( 'is_onboarding_completed', true );
+			wp_safe_redirect( remove_query_arg( array( 'tubebay_dismiss_onboarding', '_wpnonce' ) ) );
+			exit;
+		}
+	}
+
+	/**
+	 * Display onboarding notice on WooCommerce pages.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function display_onboarding_notice() {
+		if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		$is_wc_page = false;
+		if ( strpos( $screen->id, 'woocommerce' ) !== false || strpos( $screen->id, 'wc-' ) !== false || 'dashboard' === $screen->id || 'edit-product' === $screen->id || 'product' === $screen->id ) {
+			$is_wc_page = true;
+		}
+
+		if ( ! $is_wc_page ) {
+			return;
+		}
+
+		if ( Settings::get( 'is_onboarding_completed' ) ) {
+			return;
+		}
+
+		if ( $this->is_menu_page() ) {
+			return;
+		}
+
+		$setup_url   = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
+		$dismiss_url = wp_nonce_url( add_query_arg( 'tubebay_dismiss_onboarding', '1' ), 'tubebay_dismiss_onboarding' );
+		?>
+		<style type="text/css">
+			/* WooCommerce Admin SPA stylesheet hides standard notices under #wpbody-content. We force ours to show. */
+			#wpbody-content .tubebay-onboarding-notice,
+			.woocommerce-layout__notice-list-wrapper .tubebay-onboarding-notice,
+			.tubebay-onboarding-notice {
+				display: block !important;
+				visibility: visible !important;
+				opacity: 1 !important;
+				margin: 20px 20px 10px 2px !important;
+			}
+		</style>
+		<div class="notice notice-info is-dismissible tubebay-onboarding-notice" style="padding: 15px 20px; border-left-color: #2271b1; position: relative; display: block !important;">
+			<h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;"><?php esc_html_e( 'Welcome to TubeBay!', 'tubebay' ); ?></h3>
+			<p style="margin: 0 0 12px 0; font-size: 13px; line-height: 1.5; color: #4c4c4c;">
+				<?php esc_html_e( 'Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store.', 'tubebay' ); ?>
+			</p>
+			<p style="margin: 0;">
+				<a href="<?php echo esc_url( $setup_url ); ?>" class="button button-primary" style="margin-right: 10px;"><?php esc_html_e( 'Start Setup Wizard', 'tubebay' ); ?></a>
+				<a href="<?php echo esc_url( $dismiss_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Skip Setup', 'tubebay' ); ?></a>
+			</p>
+		</div>
+		<script type="text/javascript">
+			jQuery(document).on('click', '.tubebay-onboarding-notice .notice-dismiss', function() {
+				window.location.href = '<?php echo esc_url_raw( $dismiss_url ); ?>';
+			});
+		</script>
+		<?php
+	}
+
+	/**
+	 * Register or update the WooCommerce Admin Inbox Note for onboarding.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function manage_woocommerce_inbox_note() {
+		if ( ! class_exists( 'Automattic\WooCommerce\Admin\Notes\Note' ) || ! class_exists( 'Automattic\WooCommerce\Admin\Notes\Notes' ) ) {
+			return;
+		}
+
+		$note_name = 'tubebay-onboarding-setup';
+
+		// If onboarding is completed, delete the note
+		if ( Settings::get( 'is_onboarding_completed' ) ) {
+			try {
+				\Automattic\WooCommerce\Admin\Notes\Notes::delete_notes_with_name( $note_name );
+			} catch ( \Exception $e ) {
+				// Ignore errors
+			}
+			return;
+		}
+
+		try {
+			$note_exists = \Automattic\WooCommerce\Admin\Notes\Notes::get_note_by_name( $note_name );
+			if ( $note_exists ) {
+				return;
+			}
+
+			$note = new \Automattic\WooCommerce\Admin\Notes\Note();
+			$note->set_title( __( 'Ready to get started with TubeBay?', 'tubebay' ) );
+			$note->set_content( __( 'Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store.', 'tubebay' ) );
+			$note->set_content_data( (object) array() );
+			$note->set_type( \Automattic\WooCommerce\Admin\Notes\Note::E_WC_ADMIN_NOTE_INFORMATIONAL );
+			$note->set_name( $note_name );
+			$note->set_source( 'tubebay' );
+
+			$setup_url   = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
+			$dismiss_url = wp_nonce_url( add_query_arg( 'tubebay_dismiss_onboarding', '1' ), 'tubebay_dismiss_onboarding' );
+
+			// Start Setup (Primary action)
+			$note->add_action(
+				'start-setup',
+				__( 'Start Setup Wizard', 'tubebay' ),
+				$setup_url,
+				'actioned',
+				true
+			);
+
+			// Skip Setup (Secondary action)
+			$note->add_action(
+				'skip-setup',
+				__( 'No thanks', 'tubebay' ),
+				$dismiss_url,
+				'actioned',
+				false
+			);
+
+			$note->save();
+		} catch ( \Exception $e ) {
+			// Ignore database errors
+		}
+	}
+
 	/**
 	 * Register the hooks for the admin area.
 	 *
@@ -311,6 +455,9 @@ class Admin {
 		$loader->add_filter( 'woocommerce_get_settings_pages', $this, 'add_wc_settings_tab' );
 		$loader->add_filter( 'admin_body_class', $this, 'add_has_sticky_header' );
 		$loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_resources' );
+		$loader->add_action( 'admin_notices', $this, 'display_onboarding_notice' );
+		$loader->add_action( 'admin_init', $this, 'handle_dismiss_onboarding' );
+		$loader->add_action( 'admin_init', $this, 'manage_woocommerce_inbox_note' );
 
 		$plugin_basename = plugin_basename( TUBEBAY_PATH . 'tubebay.php' );
 		$loader->add_filter( 'plugin_action_links_' . $plugin_basename, $this, 'add_plugin_action_links', 10, 4 );
