@@ -1,0 +1,15 @@
+/* TubeBay Product Manager CSS */
+.tubebay-manager-wrap .wp-list-table th.column-thumb {
+    width: 60px;
+}
+.tubebay-manager-wrap .wp-list-table th.column-cb {
+    width: 32px;
+}
+.tubebay-manager-wrap .wp-list-table td.column-thumb img {
+    max-width: 50px;
+    height: auto;
+    border-radius: 4px;
+}
+.tubebay-manager-wrap .tablenav .actions select {
+    max-width: 150px;
+}

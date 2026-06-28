@@ -60,7 +60,56 @@ class Activator {
 		tubebay_log( 'Activator: Adding custom plugin capabilities', 'debug' );
 		self::add_plugin_roles_and_capabilities();
 
+		// Migrate old data.
+		tubebay_log( 'Activator: Running data migration', 'debug' );
+		self::migrate_legacy_video_data();
+
 		tubebay_log( 'Activator: Activation sequence complete', 'info' );
+	}
+
+	/**
+	 * Migrates single `_tubebay_video_id` to array `_tubebay_video_ids`.
+	 *
+	 * @since 1.1.0
+	 * @access private
+	 * @return void
+	 */
+	private static function migrate_legacy_video_data() {
+		global $wpdb;
+
+		// Get all products that have _tubebay_video_id but NO _tubebay_video_ids
+		$query = "
+			SELECT p.ID, pm.meta_value as video_id
+			FROM {$wpdb->posts} p
+			INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_tubebay_video_id'
+			LEFT JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_tubebay_video_ids'
+			WHERE p.post_type = 'product' AND pm.meta_value != '' AND pm2.meta_id IS NULL
+		";
+
+		$results = $wpdb->get_results( $query );
+
+		if ( ! empty( $results ) ) {
+			tubebay_log( 'Activator: Found ' . count( $results ) . ' products to migrate.', 'info' );
+
+			foreach ( $results as $row ) {
+				$video_id = $row->video_id;
+				$video_title = get_post_meta( $row->ID, '_tubebay_video_title', true );
+				$video_thumbnail = get_post_meta( $row->ID, '_tubebay_video_thumbnail', true );
+
+				$video_array = array(
+					array(
+						'type'      => 'youtube',
+						'id'        => $video_id,
+						'title'     => $video_title ? $video_title : '',
+						'thumbnail' => $video_thumbnail ? $video_thumbnail : '',
+					)
+				);
+
+				update_post_meta( $row->ID, '_tubebay_video_ids', wp_json_encode( $video_array ) );
+			}
+
+			tubebay_log( 'Activator: Migration complete.', 'info' );
+		}
 	}
 
 	/**

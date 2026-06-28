@@ -292,6 +292,99 @@ export default function PlacementSettingsCard({
 
       <hr className="tubebay-border-gray-200" />
 
+      {/* Gallery Mode Default */}
+      <div className="tubebay-flex tubebay-items-start tubebay-justify-between">
+        <div className="tubebay-flex tubebay-gap-[12px]">
+          <div className="tubebay-bg-[#eff6ff] tubebay-p-[8px] tubebay-rounded-[8px] tubebay-h-fit">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              opacity="0.8"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="tubebay-text-[#3b82f6]"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div className="tubebay-flex tubebay-flex-col tubebay-gap-[4px]">
+            <h3 className="tubebay-t-4-bold tubebay-text-color-default">
+              Video Gallery Mode
+            </h3>
+            <p className="tubebay-text-[13px] tubebay-leading-[20px] tubebay-text-gray-500 tubebay-max-w-[540px]">
+              Choose whether clicked videos play inline in the gallery or open in a lightbox.
+            </p>
+          </div>
+        </div>
+        <div className="tubebay-w-[200px]">
+          <Select
+            value={tmpOtherSettings.gallery_mode || "inline"}
+            onChange={(val) =>
+              setTmpOtherSettings({
+                ...tmpOtherSettings,
+                gallery_mode: val as string,
+              })
+            }
+            options={[
+              { value: "inline", label: "Play Inline" },
+              { value: "lightbox", label: "Open Lightbox" },
+            ]}
+            placeholder="Select mode..."
+            border="tubebay-border-gray-200"
+            color="tubebay-text-gray-700"
+            fontSize={14}
+          />
+        </div>
+      </div>
+
+      <hr className="tubebay-border-gray-200" />
+
+      {/* Max Videos */}
+      <div className="tubebay-flex tubebay-items-start tubebay-justify-between">
+        <div className="tubebay-flex tubebay-gap-[12px]">
+          <div className="tubebay-bg-[#eff6ff] tubebay-p-[8px] tubebay-rounded-[8px] tubebay-h-fit">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              opacity="0.8"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="tubebay-text-[#3b82f6]"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <div className="tubebay-flex tubebay-flex-col tubebay-gap-[4px]">
+            <h3 className="tubebay-t-4-bold tubebay-text-color-default">
+              Max Videos Per Product
+            </h3>
+            <p className="tubebay-text-[13px] tubebay-leading-[20px] tubebay-text-gray-500 tubebay-max-w-[540px]">
+              Set a limit to the number of videos a product can have (0 = unlimited).
+            </p>
+          </div>
+        </div>
+        <div className="tubebay-w-[100px]">
+          <input
+            type="number"
+            min="0"
+            value={tmpOtherSettings.max_videos_per_product ?? 0}
+            onChange={(e) =>
+              setTmpOtherSettings({
+                ...tmpOtherSettings,
+                max_videos_per_product: parseInt(e.target.value, 10),
+              })
+            }
+            className="tubebay-w-full tubebay-px-3 tubebay-py-2 tubebay-border tubebay-border-gray-200 tubebay-rounded-md"
+          />
+        </div>
+      </div>
+
+      <hr className="tubebay-border-gray-200" />
+
       {/* Muted Autoplay Default */}
       <div className="tubebay-flex tubebay-items-start tubebay-justify-between">
         <div className="tubebay-flex tubebay-gap-[12px]">
@@ -388,6 +481,94 @@ export default function PlacementSettingsCard({
           }
           className={
             tmpOtherSettings.show_controls
+              ? "tubebay-bg-[#3b82f6]"
+              : "tubebay-bg-gray-200"
+          }
+        />
+      </div>
+
+      <hr className="tubebay-border-gray-200" />
+
+      {/* Show Duration Badge Default */}
+      <div className="tubebay-flex tubebay-items-start tubebay-justify-between">
+        <div className="tubebay-flex tubebay-gap-[12px]">
+          <div className="tubebay-bg-[#eff6ff] tubebay-p-[8px] tubebay-rounded-[8px] tubebay-h-fit">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              opacity="0.8"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="tubebay-text-[#3b82f6]"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="tubebay-flex tubebay-flex-col tubebay-gap-[4px]">
+            <h3 className="tubebay-t-4-bold tubebay-text-color-default">
+              Show Duration Badge
+            </h3>
+            <p className="tubebay-text-[13px] tubebay-leading-[20px] tubebay-text-gray-500 tubebay-max-w-[540px]">
+              Display the video duration badge over the thumbnail.
+            </p>
+          </div>
+        </div>
+        <Switch
+          checked={!!tmpOtherSettings.show_duration}
+          onChange={(checked) =>
+            setTmpOtherSettings({
+              ...tmpOtherSettings,
+              show_duration: checked,
+            })
+          }
+          className={
+            tmpOtherSettings.show_duration
+              ? "tubebay-bg-[#3b82f6]"
+              : "tubebay-bg-gray-200"
+          }
+        />
+      </div>
+
+      <hr className="tubebay-border-gray-200" />
+
+      {/* Privacy Mode Default */}
+      <div className="tubebay-flex tubebay-items-start tubebay-justify-between">
+        <div className="tubebay-flex tubebay-gap-[12px]">
+          <div className="tubebay-bg-[#eff6ff] tubebay-p-[8px] tubebay-rounded-[8px] tubebay-h-fit">
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              opacity="0.8"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="tubebay-text-[#3b82f6]"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div className="tubebay-flex tubebay-flex-col tubebay-gap-[4px]">
+            <h3 className="tubebay-t-4-bold tubebay-text-color-default">
+              Privacy Mode (GDPR)
+            </h3>
+            <p className="tubebay-text-[13px] tubebay-leading-[20px] tubebay-text-gray-500 tubebay-max-w-[540px]">
+              Use youtube-nocookie.com for embedded players.
+            </p>
+          </div>
+        </div>
+        <Switch
+          checked={!!tmpOtherSettings.privacy_mode}
+          onChange={(checked) =>
+            setTmpOtherSettings({
+              ...tmpOtherSettings,
+              privacy_mode: checked,
+            })
+          }
+          className={
+            tmpOtherSettings.privacy_mode
               ? "tubebay-bg-[#3b82f6]"
               : "tubebay-bg-gray-200"
           }

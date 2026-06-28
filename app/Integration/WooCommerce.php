@@ -82,14 +82,33 @@ class WooCommerce {
 			return;
 		}
 
-		$video_id = get_post_meta( $product->get_id(), '_tubebay_video_id', true );
+		$video_ids_json = get_post_meta( $product->get_id(), '_tubebay_video_ids', true );
+		$videos = array();
 
-		if ( empty( $video_id ) ) {
+		if ( ! empty( $video_ids_json ) ) {
+			$decoded = json_decode( $video_ids_json, true );
+			if ( is_array( $decoded ) && ! empty( $decoded ) ) {
+				$videos = $decoded;
+			}
+		}
+
+		// Fallback to single video ID
+		if ( empty( $videos ) ) {
+			$legacy_id = get_post_meta( $product->get_id(), '_tubebay_video_id', true );
+			if ( ! empty( $legacy_id ) ) {
+				$videos[] = array(
+					'type' => 'youtube',
+					'id' => $legacy_id,
+				);
+			}
+		}
+
+		if ( empty( $videos ) ) {
 			tubebay_log( 'WooCommerce: No video assigned to product ID ' . $product->get_id(), 'debug' );
 			return;
 		}
 
-		tubebay_log( 'WooCommerce: Rendering video ' . $video_id . ' for product ID ' . $product->get_id(), 'info' );
+		tubebay_log( 'WooCommerce: Rendering videos for product ID ' . $product->get_id(), 'info' );
 
 		$muted_autoplay = get_post_meta( $product->get_id(), '_tubebay_muted_autoplay', true );
 
@@ -100,26 +119,57 @@ class WooCommerce {
 
 		// Show player controls only uses global setting
 		$show_controls = Settings::get( 'show_controls', true ) ? '1' : '0';
-
-		// Build the YouTube embed URL
-		$embed_url = 'https://www.youtube.com/embed/' . esc_attr( $video_id ) . '?rel=0';
-
-		if ( '1' === $muted_autoplay ) {
-			$embed_url .= '&autoplay=1&mute=1';
-		}
-		if ( '0' === $show_controls ) {
-			$embed_url .= '&controls=0';
-		}
+		$privacy_mode = Settings::get( 'privacy_mode', false );
+		$domain = $privacy_mode ? 'www.youtube-nocookie.com' : 'www.youtube.com';
 
 		?>
-		<div class="tubebay-product-video-wrapper">
-			<div class="tubebay-responsive-iframe-container">
-				<iframe width="560" height="315" src="<?php echo esc_url( $embed_url ); ?>"
-					title="<?php esc_attr_e( 'TubeBay Product Video', 'tubebay' ); ?>" frameborder="0"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-					allowfullscreen>
-				</iframe>
-			</div>
+		<div class="tubebay-product-video-wrapper" style="display: flex; flex-direction: column; gap: 15px;">
+			<?php foreach ( $videos as $index => $video ) : ?>
+				<?php
+				$video_type = isset( $video['type'] ) ? $video['type'] : 'youtube';
+				$vid = '';
+
+				if ( 'youtube' === $video_type ) {
+					$vid = isset( $video['id'] ) ? $video['id'] : '';
+				} else {
+					$vid = isset( $video['url'] ) ? $video['url'] : '';
+				}
+
+				if ( empty( $vid ) ) {
+					continue;
+				}
+
+				$autoplay = ( $index === 0 && '1' === $muted_autoplay );
+				?>
+				<div class="tubebay-responsive-iframe-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; background: #000;">
+					<?php if ( 'youtube' === $video_type ) : ?>
+						<?php
+						$embed_url = 'https://' . esc_attr( $domain ) . '/embed/' . esc_attr( $vid ) . '?rel=0';
+						if ( $autoplay ) {
+							$embed_url .= '&autoplay=1&mute=1';
+						}
+						if ( '0' === $show_controls ) {
+							$embed_url .= '&controls=0';
+						}
+						?>
+						<iframe width="560" height="315" src="<?php echo esc_url( $embed_url ); ?>"
+							title="<?php esc_attr_e( 'TubeBay Product Video', 'tubebay' ); ?>" frameborder="0"
+							style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+							allowfullscreen>
+						</iframe>
+					<?php else : ?>
+						<video
+							src="<?php echo esc_url( $vid ); ?>"
+							<?php if ( ! empty( $video['thumbnail'] ) ) : ?>poster="<?php echo esc_url( $video['thumbnail'] ); ?>"<?php endif; ?>
+							style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;"
+							<?php echo $autoplay ? 'autoplay muted loop' : ''; ?>
+							<?php echo ( '1' === $show_controls ) ? 'controls' : ''; ?>
+							playsinline>
+						</video>
+					<?php endif; ?>
+				</div>
+			<?php endforeach; ?>
 		</div>
 		<?php
 	}
@@ -140,99 +190,169 @@ class WooCommerce {
 			return $html;
 		}
 
-		// 2. Get the saved video ID
-		$video_id = get_post_meta( $post->ID, '_tubebay_video_id', true );
+		// 2. Get the saved videos
+		$video_ids_json = get_post_meta( $post->ID, '_tubebay_video_ids', true );
+		$videos = array();
 
-		// 3. If no video, return normal image
-		if ( empty( $video_id ) ) {
+		if ( ! empty( $video_ids_json ) ) {
+			$decoded = json_decode( $video_ids_json, true );
+			if ( is_array( $decoded ) && ! empty( $decoded ) ) {
+				$videos = $decoded;
+			}
+		}
+
+		// Fallback to single video ID
+		if ( empty( $videos ) ) {
+			$legacy_id = get_post_meta( $post->ID, '_tubebay_video_id', true );
+			if ( ! empty( $legacy_id ) ) {
+				$legacy_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
+				$videos[] = array(
+					'type' => 'youtube',
+					'id' => $legacy_id,
+					'thumbnail' => $legacy_thumb,
+				);
+			}
+		}
+
+		// 3. If no videos, return normal image
+		if ( empty( $videos ) ) {
 			return $html;
 		}
-
-		// 4. Check for Autoplay
-		$is_autoplay = get_post_meta( $post->ID, '_tubebay_muted_autoplay', true );
-		if ( $is_autoplay === '' ) {
-			$is_autoplay = Settings::get( 'muted_autoplay' );
-		}
-		$is_autoplay = filter_var( $is_autoplay, FILTER_VALIDATE_BOOLEAN );
 
 		$main_image_id = get_post_thumbnail_id( $post->ID );
 		$placement     = Settings::get( 'video_placement' );
 
-		// 5. Get the YouTube thumbnail
-		$yt_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
-		if ( empty( $yt_thumb ) ) {
-			$yt_thumb = 'https://i.ytimg.com/vi/' . esc_attr( $video_id ) . '/hqdefault.jpg';
-		}
-
-		// Build the Video Slide HTML
-		ob_start();
-		?>
-		<div data-thumb="<?php echo esc_url( $yt_thumb ); ?>" class="woocommerce-product-gallery__image tubebay-video-slide">
-			<div class="tubebay-video-wrapper"
-				style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; background: #000;">
-
-				<?php if ( $is_autoplay ) : ?>
-					<iframe
-						src="https://www.youtube.com/embed/<?php echo esc_attr( $video_id ); ?>?autoplay=1&mute=1&loop=1&playlist=<?php echo esc_attr( $video_id ); ?>&rel=0&controls=0"
-						style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-						allowfullscreen>
-					</iframe>
-				<?php else : ?>
-					<div class="tubebay-video-facade" data-video-id="<?php echo esc_attr( $video_id ); ?>"
-						style="cursor: pointer; height: 100%; width: 100%; position: absolute; top: 0; left: 0;">
-						<img src="<?php echo esc_url( $yt_thumb ); ?>" alt="Product Video"
-							style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
-
-						<div class="tubebay-play-button"
-							style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 48px; transition: all 0.2s ease-in-out;">
-							<svg viewBox="0 0 68 48" version="1.1" xmlns="http://www.w3.org/2000/svg">
-								<path class="tubebay-play-bg"
-									d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"
-									fill="#212121" fill-opacity="0.8"></path>
-								<path d="M 45,24 27,14 27,34" fill="#fff"></path>
-							</svg>
-						</div>
-					</div>
-				<?php endif; ?>
-
-			</div>
-		</div>
-		<?php
-		$video_slide_html = ob_get_clean();
-
 		// SCENARIO A: FIRST SLIDE
 		if ( 'replace_main_image' === $placement ) {
-			if ( empty( $main_image_id ) ) {
-				return $video_slide_html;
-			}
-			if ( $post_thumbnail_id == $main_image_id ) {
-				return $video_slide_html . $html;
+			if ( ! empty( $main_image_id ) && $post_thumbnail_id != $main_image_id ) {
+				return $html;
 			}
 		}
 
 		// SCENARIO B: LAST SLIDE
 		if ( 'add_to_gallery_last' === $placement ) {
-			// No main image at all — append the video to the placeholder.
-			if ( empty( $main_image_id ) ) {
-				return  $video_slide_html;
-			}
-
-			$product = wc_get_product( $post->ID );
-			if ( $product ) {
-				$gallery_ids = $product->get_gallery_image_ids();
-				if ( empty( $gallery_ids ) ) {
-					// Only main image exists, so it is the last image
-					if ( $post_thumbnail_id == $main_image_id ) {
-						return $html . $video_slide_html;
-					}
-				} else {
-					$last_gallery_id = end( $gallery_ids );
-					if ( $post_thumbnail_id == $last_gallery_id ) {
-						return $html . $video_slide_html;
+			if ( ! empty( $main_image_id ) ) {
+				$product = wc_get_product( $post->ID );
+				if ( $product ) {
+					$gallery_ids = $product->get_gallery_image_ids();
+					if ( empty( $gallery_ids ) ) {
+						// Only main image exists, so it is the last image
+						if ( $post_thumbnail_id != $main_image_id ) {
+							return $html;
+						}
+					} else {
+						$last_gallery_id = end( $gallery_ids );
+						if ( $post_thumbnail_id != $last_gallery_id ) {
+							return $html;
+						}
 					}
 				}
 			}
+		}
+
+		// 4. Check for Autoplay (only applies to first video)
+		$is_autoplay = get_post_meta( $post->ID, '_tubebay_muted_autoplay', true );
+		if ( $is_autoplay === '' ) {
+			$is_autoplay = Settings::get( 'muted_autoplay' );
+		}
+		$is_autoplay = filter_var( $is_autoplay, FILTER_VALIDATE_BOOLEAN );
+		$privacy_mode = Settings::get( 'privacy_mode', false );
+		$show_duration = Settings::get( 'show_duration', true );
+
+		$video_slide_html = '';
+
+		foreach ( $videos as $index => $video ) {
+			$video_type = isset( $video['type'] ) ? $video['type'] : 'youtube';
+			$vid = '';
+			$thumb = '';
+			$duration = isset( $video['duration'] ) ? intval( $video['duration'] ) : 0;
+
+			if ( 'youtube' === $video_type ) {
+				$vid = isset( $video['id'] ) ? $video['id'] : '';
+				$thumb = ! empty( $video['thumbnail'] ) ? $video['thumbnail'] : 'https://i.ytimg.com/vi/' . esc_attr( $vid ) . '/hqdefault.jpg';
+			} else {
+				$vid = isset( $video['url'] ) ? $video['url'] : '';
+				$thumb = ! empty( $video['thumbnail'] ) ? $video['thumbnail'] : ''; // We need a poster for self-hosted
+			}
+
+			if ( empty( $vid ) ) {
+				continue;
+			}
+
+			// Only autoplay the first video if enabled
+			$autoplay_this = ( $index === 0 && $is_autoplay );
+
+			ob_start();
+			?>
+			<div data-thumb="<?php echo esc_url( $thumb ); ?>" class="woocommerce-product-gallery__image tubebay-video-slide" data-tubebay-type="<?php echo esc_attr( $video_type ); ?>" data-tubebay-src="<?php echo esc_attr( $vid ); ?>" data-tubebay-poster="<?php echo esc_url( $thumb ); ?>">
+				<div class="tubebay-video-wrapper"
+					style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; background: #000;">
+
+					<?php if ( $autoplay_this ) : ?>
+						<?php if ( 'youtube' === $video_type ) : ?>
+							<?php
+							$domain = $privacy_mode ? 'www.youtube-nocookie.com' : 'www.youtube.com';
+							?>
+							<iframe
+								src="https://<?php echo esc_attr( $domain ); ?>/embed/<?php echo esc_attr( $vid ); ?>?autoplay=1&mute=1&loop=1&playlist=<?php echo esc_attr( $vid ); ?>&rel=0&controls=0"
+								style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+								allowfullscreen>
+							</iframe>
+						<?php else : ?>
+							<video
+								src="<?php echo esc_url( $vid ); ?>"
+								poster="<?php echo esc_url( $thumb ); ?>"
+								style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;"
+								autoplay muted loop playsinline controls>
+							</video>
+						<?php endif; ?>
+					<?php else : ?>
+						<div class="tubebay-video-facade"
+							data-video-id="<?php echo esc_attr( $vid ); ?>"
+							data-video-type="<?php echo esc_attr( $video_type ); ?>"
+							style="cursor: pointer; height: 100%; width: 100%; position: absolute; top: 0; left: 0;">
+
+							<?php if ( ! empty( $thumb ) ) : ?>
+								<img src="<?php echo esc_url( $thumb ); ?>" alt="Product Video" loading="lazy"
+									style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+							<?php else : ?>
+								<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #333;"></div>
+							<?php endif; ?>
+
+							<div class="tubebay-play-button"
+								style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 48px; transition: all 0.2s ease-in-out;">
+								<svg viewBox="0 0 68 48" version="1.1" xmlns="http://www.w3.org/2000/svg">
+									<path class="tubebay-play-bg"
+										d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"
+										fill="#212121" fill-opacity="0.8"></path>
+									<path d="M 45,24 27,14 27,34" fill="#fff"></path>
+								</svg>
+							</div>
+
+							<?php if ( $show_duration && $duration > 0 ) : ?>
+								<?php
+								$m = floor( $duration / 60 );
+								$s = $duration % 60;
+								$duration_text = $m . ':' . str_pad( $s, 2, '0', STR_PAD_LEFT );
+								?>
+								<div class="tubebay-duration-badge" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: monospace;">
+									<?php echo esc_html( $duration_text ); ?>
+								</div>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+
+				</div>
+			</div>
+			<?php
+			$video_slide_html .= ob_get_clean();
+		}
+
+		if ( 'replace_main_image' === $placement ) {
+			return empty( $main_image_id ) ? $video_slide_html : $video_slide_html . $html;
+		} elseif ( 'add_to_gallery_last' === $placement ) {
+			return empty( $main_image_id ) ? $video_slide_html : $html . $video_slide_html;
 		}
 
 		return $html;

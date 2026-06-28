@@ -28,6 +28,13 @@ interface VideoData {
   thumbnail_url: string;
   published_at: string;
   description: string;
+  is_assigned?: boolean;
+  assigned_count?: number;
+}
+
+interface ProductInfo {
+  id: number;
+  name: string;
 }
 
 export default function ChannelLibrary() {
@@ -46,6 +53,15 @@ export default function ChannelLibrary() {
   const [sortBy, setSortBy] = useState("date_desc");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
+  const [selectedVideoIds, setSelectedVideoIds] = useState<string[]>([]);
+  const [isBulkAssignModalOpen, setIsBulkAssignModalOpen] = useState(false);
+  const [bulkActionType, setBulkActionType] = useState<"assign" | "remove">("assign");
+  const [productsToAssign, setProductsToAssign] = useState<ProductInfo[]>([]);
+  const [searchProductInput, setSearchProductInput] = useState("");
+  const [searchedProducts, setSearchedProducts] = useState<ProductInfo[]>([]);
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+  const [isSavingBulk, setIsSavingBulk] = useState(false);
+
   const { plugin_settings } = useWpabStore();
 
   const isConnected = plugin_settings?.connection_status === "connected";
@@ -266,38 +282,76 @@ export default function ChannelLibrary() {
       )}
 
       {/* Toolbar */}
-      <div className="tubebay-flex tubebay-flex-col md:tubebay-flex-row tubebay-gap-[16px] tubebay-p-[24px] tubebay-bg-white tubebay-rounded-[16px] tubebay-border tubebay-shadow-sm ">
-        <div className="tubebay-flex-1">
-          <Input
-            type="text"
-            placeholder="Search videos by title..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            classNames={{ input: "tubebay-bg-white" }}
-          />
+      <div className="tubebay-flex tubebay-flex-col tubebay-gap-[16px] tubebay-p-[24px] tubebay-bg-white tubebay-rounded-[16px] tubebay-border tubebay-shadow-sm ">
+        <div className="tubebay-flex tubebay-flex-col md:tubebay-flex-row tubebay-gap-[16px]">
+          <div className="tubebay-flex-1">
+            <Input
+              type="text"
+              placeholder="Search videos by title..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              classNames={{ input: "tubebay-bg-white" }}
+            />
+          </div>
+          <div className="tubebay-w-full md:tubebay-w-[200px]">
+            <Select
+              value={sortBy}
+              onChange={(val) => setSortBy(val as string)}
+              options={SORT_OPTIONS}
+              fontSize={13}
+              className="tubebay-bg-white tubebay-h-[42px]"
+            />
+          </div>
+          <div className="tubebay-flex tubebay-items-center tubebay-gap-[8px]">
+            <Toggler
+              options={[
+                { label: <LayoutGridIcon size={18} />, value: "grid" },
+                { label: <ListIcon size={18} />, value: "list" },
+              ]}
+              value={viewMode}
+              onChange={(val) => setViewMode(val as "grid" | "list")}
+              classNames={{
+                button: "!tubebay-px-2",
+              }}
+            />
+          </div>
         </div>
-        <div className="tubebay-w-full md:tubebay-w-[200px]">
-          <Select
-            value={sortBy}
-            onChange={(val) => setSortBy(val as string)}
-            options={SORT_OPTIONS}
-            fontSize={13}
-            className="tubebay-bg-white tubebay-h-[42px]"
-          />
-        </div>
-        <div className="tubebay-flex tubebay-items-center tubebay-gap-[8px]">
-          <Toggler
-            options={[
-              { label: <LayoutGridIcon size={18} />, value: "grid" },
-              { label: <ListIcon size={18} />, value: "list" },
-            ]}
-            value={viewMode}
-            onChange={(val) => setViewMode(val as "grid" | "list")}
-            classNames={{
-              button: "!tubebay-px-2",
-            }}
-          />
-        </div>
+
+        {/* Bulk Actions */}
+        {selectedVideoIds.length > 0 && (
+          <div className="tubebay-flex tubebay-items-center tubebay-justify-between tubebay-bg-blue-50 tubebay-border tubebay-border-blue-200 tubebay-rounded-[8px] tubebay-p-[12px]">
+            <span className="tubebay-text-[14px] tubebay-font-medium tubebay-text-blue-800">
+              {selectedVideoIds.length} video(s) selected
+            </span>
+            <div className="tubebay-flex tubebay-gap-[8px]">
+              <Button
+                variant="outline"
+                className="!tubebay-bg-white !tubebay-text-red-600 !tubebay-border-red-200 hover:!tubebay-bg-red-50"
+                onClick={() => {
+                  setBulkActionType("remove");
+                  setIsBulkAssignModalOpen(true);
+                  setProductsToAssign([]);
+                  setSearchProductInput("");
+                  setSearchedProducts([]);
+                }}
+              >
+                Remove from Products
+              </Button>
+              <Button
+                color="primary"
+                onClick={() => {
+                  setBulkActionType("assign");
+                  setIsBulkAssignModalOpen(true);
+                  setProductsToAssign([]);
+                  setSearchProductInput("");
+                  setSearchedProducts([]);
+                }}
+              >
+                Assign to Products
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -331,6 +385,30 @@ export default function ChannelLibrary() {
                     : "tubebay-aspect-video"
                 }`}
               >
+                <div className="tubebay-absolute tubebay-top-[8px] tubebay-left-[8px] tubebay-z-10">
+                  <input
+                    type="checkbox"
+                    className="tubebay-w-[18px] tubebay-h-[18px] tubebay-rounded tubebay-border-gray-300 tubebay-cursor-pointer"
+                    checked={selectedVideoIds.includes(video.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedVideoIds([...selectedVideoIds, video.id]);
+                      } else {
+                        setSelectedVideoIds(selectedVideoIds.filter((id) => id !== video.id));
+                      }
+                    }}
+                  />
+                </div>
+                {video.is_assigned && (
+                  <div className="tubebay-absolute tubebay-top-[8px] tubebay-right-[8px] tubebay-z-10">
+                    <span
+                      className="tubebay-bg-blue-600 tubebay-text-white tubebay-text-[11px] tubebay-font-medium tubebay-px-[8px] tubebay-py-[4px] tubebay-rounded-full tubebay-cursor-help"
+                      title={`Assigned to ${video.assigned_count} product(s)`}
+                    >
+                      Assigned ({video.assigned_count})
+                    </span>
+                  </div>
+                )}
                 <img
                   src={video.thumbnail_url}
                   alt={video.title}
@@ -416,6 +494,128 @@ export default function ChannelLibrary() {
           </Button>
         </div>
       )}
+      {/* Bulk Assign Modal */}
+      <CustomModal
+        isOpen={isBulkAssignModalOpen}
+        onClose={() => setIsBulkAssignModalOpen(false)}
+        title={bulkActionType === "assign" ? "Assign to Products" : "Remove from Products"}
+        size="md"
+      >
+        <div className="tubebay-p-[24px]">
+          <p className="tubebay-mb-[16px] tubebay-text-gray-600">
+            {bulkActionType === "assign"
+              ? `Search and select products to assign the ${selectedVideoIds.length} selected video(s) to.`
+              : `Search and select products to remove the ${selectedVideoIds.length} selected video(s) from.`}
+          </p>
+
+          <div className="tubebay-mb-[24px]">
+            <Input
+              type="text"
+              placeholder="Search products by name or SKU..."
+              value={searchProductInput}
+              onChange={(e) => {
+                setSearchProductInput(e.target.value);
+                if (e.target.value.length > 2) {
+                  setIsSearchingProducts(true);
+                  apiFetch<{ success: boolean; data: ProductInfo[] }>({
+                    path: `/wc/v3/products?search=${encodeURIComponent(e.target.value)}&per_page=10`,
+                  })
+                    .then((res) => {
+                      // Normalize wc/v3 response
+                      const prods = Array.isArray(res) ? res : (res.data || []);
+                      setSearchedProducts(prods.map((p: any) => ({ id: p.id, name: p.name })));
+                    })
+                    .catch(() => {
+                      // ignore
+                    })
+                    .finally(() => setIsSearchingProducts(false));
+                } else {
+                  setSearchedProducts([]);
+                }
+              }}
+            />
+
+            {isSearchingProducts && <p className="tubebay-mt-[8px] tubebay-text-[13px] tubebay-text-gray-500">Searching...</p>}
+
+            {searchedProducts.length > 0 && searchProductInput.length > 2 && (
+              <div className="tubebay-mt-[8px] tubebay-border tubebay-border-gray-200 tubebay-rounded-[8px] tubebay-overflow-hidden tubebay-max-h-[200px] tubebay-overflow-y-auto">
+                {searchedProducts.map(prod => (
+                  <div
+                    key={prod.id}
+                    className="tubebay-p-[8px] hover:tubebay-bg-gray-50 tubebay-cursor-pointer tubebay-border-b tubebay-border-gray-100 last:tubebay-border-0 tubebay-flex tubebay-justify-between tubebay-items-center"
+                    onClick={() => {
+                      if (!productsToAssign.find(p => p.id === prod.id)) {
+                        setProductsToAssign([...productsToAssign, prod]);
+                      }
+                      setSearchProductInput("");
+                      setSearchedProducts([]);
+                    }}
+                  >
+                    <span>{prod.name}</span>
+                    <Button variant="outline" size="small">Add</Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {productsToAssign.length > 0 && (
+            <div className="tubebay-mb-[24px]">
+              <h4 className="tubebay-font-medium tubebay-mb-[8px]">Selected Products</h4>
+              <div className="tubebay-flex tubebay-flex-wrap tubebay-gap-[8px]">
+                {productsToAssign.map(prod => (
+                  <div key={prod.id} className="tubebay-bg-blue-50 tubebay-text-blue-800 tubebay-px-[12px] tubebay-py-[4px] tubebay-rounded-full tubebay-text-[13px] tubebay-flex tubebay-items-center tubebay-gap-[8px]">
+                    {prod.name}
+                    <button
+                      className="tubebay-text-blue-500 hover:tubebay-text-blue-700"
+                      onClick={() => setProductsToAssign(productsToAssign.filter(p => p.id !== prod.id))}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="tubebay-flex tubebay-justify-end tubebay-gap-[12px]">
+            <Button variant="outline" onClick={() => setIsBulkAssignModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              color="primary"
+              disabled={productsToAssign.length === 0 || isSavingBulk}
+              onClick={async () => {
+                setIsSavingBulk(true);
+                const videosPayload = selectedVideoIds.map(id => ({ type: 'youtube', id }));
+
+                try {
+                  await apiFetch({
+                    path: '/tubebay/v1/products/bulk-assign',
+                    method: 'POST',
+                    data: {
+                      product_ids: productsToAssign.map(p => p.id),
+                      videos: videosPayload,
+                      action: bulkActionType
+                    }
+                  });
+                  addToast(`Successfully ${bulkActionType === 'assign' ? 'assigned' : 'removed'} videos`, "success");
+                  setIsBulkAssignModalOpen(false);
+                  setSelectedVideoIds([]);
+                  fetchVideos(); // refresh to update badges
+                } catch (e: any) {
+                  addToast(e.message || "An error occurred", "error");
+                } finally {
+                  setIsSavingBulk(false);
+                }
+              }}
+            >
+              {isSavingBulk ? "Saving..." : (bulkActionType === "assign" ? "Assign Videos" : "Remove Videos")}
+            </Button>
+          </div>
+        </div>
+      </CustomModal>
+
       {/* Video Preview Modal */}
       {previewVideoId && (
         <CustomModal

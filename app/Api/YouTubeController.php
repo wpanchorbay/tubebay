@@ -18,6 +18,7 @@ use WP_REST_Server;
 use WP_REST_Request;
 use WP_REST_Response;
 use TubeBay\Data\Entities\Channel;
+use TubeBay\Helper\ProductVideoMap;
 
 /**
  * YouTube API Controller class.
@@ -69,6 +70,34 @@ class YouTubeController extends ApiController {
 							'required' => true,
 							'type'     => 'string',
 							'enum'     => array( 'api', 'oauth' ),
+						),
+					),
+				),
+			)
+		);
+
+		// Route to bulk assign videos to products.
+		register_rest_route(
+			$namespace,
+			'/products/bulk-assign',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'bulk_assign_videos' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'args'                => array(
+						'product_ids' => array(
+							'required' => true,
+							'type'     => 'array',
+						),
+						'videos' => array(
+							'required' => true,
+							'type'     => 'array',
+						),
+						'action' => array(
+							'required' => true,
+							'type'     => 'string',
+							'enum'     => array( 'assign', 'remove' ),
 						),
 					),
 				),
@@ -219,8 +248,13 @@ class YouTubeController extends ApiController {
 
 		// Send back an array of the newly fetched videos.
 		$response_videos = array();
+		$product_map = ProductVideoMap::get_map();
+
 		foreach ( $videos as $video ) {
-			$response_videos[] = $video->to_array();
+			$video_array = $video->to_array();
+			$video_array['is_assigned'] = isset( $product_map[ $video->get_id() ] ) && ! empty( $product_map[ $video->get_id() ] );
+			$video_array['assigned_count'] = isset( $product_map[ $video->get_id() ] ) ? count( $product_map[ $video->get_id() ] ) : 0;
+			$response_videos[] = $video_array;
 		}
 
 		return new WP_REST_Response(
@@ -326,8 +360,13 @@ class YouTubeController extends ApiController {
 		}
 
 		$response_videos = array();
+		$product_map = ProductVideoMap::get_map();
+
 		foreach ( $videos as $video ) {
-			$response_videos[] = $video->to_array();
+			$video_array = $video->to_array();
+			$video_array['is_assigned'] = isset( $product_map[ $video->get_id() ] ) && ! empty( $product_map[ $video->get_id() ] );
+			$video_array['assigned_count'] = isset( $product_map[ $video->get_id() ] ) ? count( $product_map[ $video->get_id() ] ) : 0;
+			$response_videos[] = $video_array;
 		}
 
 		return new WP_REST_Response(
@@ -335,6 +374,125 @@ class YouTubeController extends ApiController {
 				'success'         => true,
 				'videos'          => $response_videos,
 				'next_page_token' => $next_page_token ?? null,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Bulk assign videos to products.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error The REST response or error.
+	 * @since 1.0.0
+	 */
+	public function bulk_assign_videos( $request ) {
+		$params = $request->get_params();
+		$product_ids = $params['product_ids'];
+		$videos = $params['videos'];
+		$action = $params['action'];
+
+		if ( empty( $product_ids ) || empty( $videos ) ) {
+			return new \WP_Error( 'invalid_params', __( 'Product IDs and videos are required.', 'tubebay' ), array( 'status' => 400 ) );
+		}
+
+		$modified_count = 0;
+
+		foreach ( $product_ids as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				continue;
+			}
+
+			$existing_json = get_post_meta( $product_id, '_tubebay_video_ids', true );
+			$existing_videos = array();
+
+			if ( ! empty( $existing_json ) ) {
+				$decoded = json_decode( $existing_json, true );
+				if ( is_array( $decoded ) ) {
+					$existing_videos = $decoded;
+				}
+			} else {
+				// Fallback to legacy single video
+				$legacy_id = get_post_meta( $product_id, '_tubebay_video_id', true );
+				if ( ! empty( $legacy_id ) ) {
+					$existing_videos[] = array(
+						'type' => 'youtube',
+						'id' => $legacy_id,
+					);
+				}
+			}
+
+			$changed = false;
+
+			if ( 'assign' === $action ) {
+				// Prevent duplicates
+				foreach ( $videos as $new_video ) {
+					$exists = false;
+					foreach ( $existing_videos as $ev ) {
+						if ( isset( $ev['type'] ) && isset( $new_video['type'] ) && $ev['type'] === $new_video['type'] ) {
+							if ( 'youtube' === $ev['type'] && isset( $ev['id'] ) && isset( $new_video['id'] ) && $ev['id'] === $new_video['id'] ) {
+								$exists = true;
+								break;
+							}
+						}
+					}
+					if ( ! $exists ) {
+						$existing_videos[] = $new_video;
+						$changed = true;
+					}
+				}
+			} elseif ( 'remove' === $action ) {
+				$new_list = array();
+				foreach ( $existing_videos as $ev ) {
+					$should_remove = false;
+					foreach ( $videos as $remove_video ) {
+						if ( isset( $ev['type'] ) && isset( $remove_video['type'] ) && $ev['type'] === $remove_video['type'] ) {
+							if ( 'youtube' === $ev['type'] && isset( $ev['id'] ) && isset( $remove_video['id'] ) && $ev['id'] === $remove_video['id'] ) {
+								$should_remove = true;
+								break;
+							}
+						}
+					}
+					if ( ! $should_remove ) {
+						$new_list[] = $ev;
+					} else {
+						$changed = true;
+					}
+				}
+				$existing_videos = $new_list;
+			}
+
+			if ( $changed ) {
+				update_post_meta( $product_id, '_tubebay_video_ids', wp_json_encode( $existing_videos ) );
+
+				// Update backward compatibility field
+				$legacy_id = '';
+				foreach ( $existing_videos as $ev ) {
+					if ( 'youtube' === $ev['type'] && ! empty( $ev['id'] ) ) {
+						$legacy_id = $ev['id'];
+						break;
+					}
+				}
+				if ( empty( $legacy_id ) ) {
+					delete_post_meta( $product_id, '_tubebay_video_id' );
+				} else {
+					update_post_meta( $product_id, '_tubebay_video_id', $legacy_id );
+				}
+
+				$modified_count++;
+			}
+		}
+
+		if ( $modified_count > 0 && class_exists( '\TubeBay\Helper\ProductVideoMap' ) ) {
+			ProductVideoMap::invalidate_cache();
+		}
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => sprintf( __( 'Successfully updated %d products.', 'tubebay' ), $modified_count ),
+				'modified_count' => $modified_count,
 			),
 			200
 		);
