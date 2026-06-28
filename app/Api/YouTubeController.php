@@ -421,6 +421,7 @@ class YouTubeController extends ApiController {
 
 		tubebay_log( 'Redirecting user to OAuth proxy: ' . $redirect_url );
 		tubebay_log( '_______________', $redirect_url );
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		wp_redirect( $redirect_url );
 		exit;
 	}
@@ -431,7 +432,16 @@ class YouTubeController extends ApiController {
 	 * @return array Map of video_id => list of array('id' => product_id, 'name' => product_title)
 	 */
 	private function get_product_video_map() {
+		$cache_key   = 'tubebay_product_video_map';
+		$cache_group = 'tubebay';
+		$product_map = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false !== $product_map ) {
+			return $product_map;
+		}
+
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$results = $wpdb->get_results(
 			"SELECT pm.meta_value AS video_id, p.ID AS product_id, p.post_title AS product_name 
 			 FROM {$wpdb->postmeta} pm
@@ -448,6 +458,9 @@ class YouTubeController extends ApiController {
 				);
 			}
 		}
+
+		wp_cache_set( $cache_key, $product_map, $cache_group, 300 );
+
 		return $product_map;
 	}
 }

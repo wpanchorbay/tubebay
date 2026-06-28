@@ -348,6 +348,9 @@ class ProductMetabox {
 		update_post_meta( $post_id, '_tubebay_muted_autoplay', $muted_autoplay );
 		tubebay_log( 'ProductMetabox: Saved muted_autoplay=' . $muted_autoplay . ' for product ID ' . $post_id, 'debug' );
 
+		// Clear cached mapping of videos to products.
+		wp_cache_delete( 'tubebay_product_video_map', 'tubebay' );
+
 		return $post_id;
 	}
 }
