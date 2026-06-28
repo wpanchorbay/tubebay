@@ -121,10 +121,20 @@ class ProductMetabox {
 			TUBEBAY_VERSION
 		);
 
+		wp_enqueue_media();
+
+		wp_enqueue_script(
+			'tubebay-sortable-js',
+			'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js',
+			array(),
+			'1.15.2',
+			true
+		);
+
 		wp_enqueue_script(
 			'tubebay-product-metabox-js',
 			TUBEBAY_URL . 'assets/js/admin/product-metabox.js',
-			array( 'jquery' ),
+			array( 'jquery', 'tubebay-sortable-js' ),
 			TUBEBAY_VERSION,
 			true
 		);
@@ -138,6 +148,7 @@ class ProductMetabox {
 				'restUrl'     => esc_url_raw( rest_url( 'tubebay/v1/youtube/videos' ) ),
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'isConnected' => $is_connected,
+				'maxVideos'   => Settings::get( 'max_videos_per_product', 0 ),
 				'i18n'        => array(
 					'selectVideo' => __( 'Select Video', 'tubebay' ),
 					'removeVideo' => __( 'Remove Video', 'tubebay' ),
@@ -152,6 +163,10 @@ class ProductMetabox {
 						'title_desc' => __( 'Title (Z-A)', 'tubebay' ),
 						'view_count' => __( 'Most Viewed', 'tubebay' ),
 					),
+					'selfHosted'  => __( 'Self-Hosted', 'tubebay' ),
+					'duration'    => __( 'Duration', 'tubebay' ),
+					'mediaPickerTitle' => __( 'Choose a video', 'tubebay' ),
+					'mediaPickerButton' => __( 'Select Video', 'tubebay' ),
 				),
 			)
 		);
@@ -168,9 +183,29 @@ class ProductMetabox {
 		wp_nonce_field( 'tubebay_product_metabox_nonce', 'tubebay_product_metabox_nonce_field' );
 
 		// Retrieve existing values.
-		$video_id    = get_post_meta( $post->ID, '_tubebay_video_id', true );
-		$video_title = get_post_meta( $post->ID, '_tubebay_video_title', true );
-		$video_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
+		$video_ids_json = get_post_meta( $post->ID, '_tubebay_video_ids', true );
+
+		// Fallback for older products with only _tubebay_video_id
+		if ( empty( $video_ids_json ) ) {
+			$legacy_id = get_post_meta( $post->ID, '_tubebay_video_id', true );
+			if ( ! empty( $legacy_id ) ) {
+				$legacy_title = get_post_meta( $post->ID, '_tubebay_video_title', true );
+				$legacy_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
+				$legacy_video = array(
+					array(
+						'type'      => 'youtube',
+						'id'        => $legacy_id,
+						'title'     => $legacy_title,
+						'thumbnail' => $legacy_thumb,
+					)
+				);
+				$video_ids_json = wp_json_encode( $legacy_video );
+			}
+		}
+
+		if ( empty( $video_ids_json ) ) {
+			$video_ids_json = '[]';
+		}
 
 		// These are currently fixed for the free version.
 		$display_location = 'default';
@@ -184,56 +219,32 @@ class ProductMetabox {
 
 		?>
 		<div class="tubebay-metabox-wrapper">
-			<!-- Hidden inputs to store selection -->
-			<input type="hidden" id="tubebay_video_id" name="tubebay_video_id" value="<?php echo esc_attr( $video_id ); ?>" />
-			<input type="hidden" id="tubebay_video_title" name="tubebay_video_title"
-				value="<?php echo esc_attr( $video_title ); ?>" />
-			<input type="hidden" id="tubebay_video_thumbnail" name="tubebay_video_thumbnail"
-				value="<?php echo esc_attr( $video_thumb ); ?>" />
+			<!-- Hidden input to store JSON array of selected videos -->
+			<input type="hidden" id="tubebay_video_ids" name="tubebay_video_ids" value="<?php echo esc_attr( $video_ids_json ); ?>" />
 			<input type="hidden" name="tubebay_display_location" value="<?php echo esc_attr( $display_location ); ?>" />
 
-			<div id="tubebay-selected-video-container" class="<?php echo empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<div class="tubebay-video-card">
-					<div class="tubebay-video-thumbnail-wrap">
-						<img id="tubebay_video_thumbnail_img" src="<?php echo esc_url( $video_thumb ); ?>"
-							alt="Video Thumbnail" />
-						<div class="tubebay-play-icon">▶</div>
-						<div class="tubebay-video-actions">
-							<?php if ( $is_connected ) : ?>
-							<button type="button" class="button" id="tubebay_edit_video_btn"
-								title="<?php esc_attr_e( 'Change Video', 'tubebay' ); ?>"><span
-									class="dashicons dashicons-edit"></span></button>
-							<?php endif; ?>
-							<button type="button" class="button tubebay-danger-btn" id="tubebay_remove_video_btn"
-								title="<?php esc_attr_e( 'Remove Video', 'tubebay' ); ?>"><span
-									class="dashicons dashicons-trash"></span></button>
-						</div>
-					</div>
-					<p id="tubebay_video_title_display" class="tubebay-video-title">
-						<?php echo esc_html( $video_title ); ?>
-					</p>
-				</div>
+			<!-- Container for sortable list of selected videos -->
+			<div id="tubebay-selected-video-list" class="tubebay-selected-video-list">
+				<!-- JS will render selected videos here -->
 			</div>
 
-			<?php if ( $is_connected ) : ?>
-			<div id="tubebay-add-video-container" class="<?php echo ! empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<button type="button" class="button button-primary" id="tubebay_select_video_btn">
-					<?php esc_html_e( 'Select Video from Library', 'tubebay' ); ?>
+			<div id="tubebay-add-video-container" style="margin-top: 15px;">
+				<?php if ( $is_connected ) : ?>
+				<button type="button" class="button button-primary" id="tubebay_select_video_btn" style="margin-right: 8px;">
+					<?php esc_html_e( 'Add YouTube Video', 'tubebay' ); ?>
+				</button>
+				<?php else : ?>
+				<p class="description" style="margin-bottom: 8px; color: #b91c1c;">
+					<?php esc_html_e( 'Connect your YouTube account in TubeBay Settings to select YouTube videos.', 'tubebay' ); ?>
+				</p>
+				<?php endif; ?>
+
+				<button type="button" class="button" id="tubebay_add_self_hosted_btn">
+					<?php esc_html_e( 'Add Self-Hosted Video', 'tubebay' ); ?>
 				</button>
 			</div>
-			<?php else : ?>
-				<?php if ( empty( $video_id ) ) : ?>
-			<p class="description" style="margin-top: 8px; color: #b91c1c;">
-					<?php esc_html_e( 'Connect your YouTube account in TubeBay Settings to select videos.', 'tubebay' ); ?>
-			</p>
-			<?php else : ?>
-			<p class="description" style="margin-top: 8px; color: #b91c1c;">
-				<?php esc_html_e( 'Reconnect your YouTube account in TubeBay Settings to change or add videos.', 'tubebay' ); ?>
-			</p>
-			<?php endif; ?>
-			<?php endif; ?>
 
-			<div id="tubebay-autoplay-setting" class="<?php echo empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
+			<div id="tubebay-autoplay-setting">
 				<hr />
 				<div class="tubebay-setting-row">
 					<div class="tubebay-setting-label">
@@ -327,23 +338,89 @@ class ProductMetabox {
 			}
 		}
 
-		// Santize and save Video ID.
-		if ( isset( $_POST['tubebay_video_id'] ) ) {
-			$video_id = sanitize_text_field( wp_unslash( $_POST['tubebay_video_id'] ) );
-			update_post_meta( $post_id, '_tubebay_video_id', $video_id );
+		// Save Multi-Video array (_tubebay_video_ids)
+		if ( isset( $_POST['tubebay_video_ids'] ) ) {
+			// Expected format is JSON from frontend
+			$video_ids_json = wp_unslash( $_POST['tubebay_video_ids'] );
+			$videos = json_decode( $video_ids_json, true );
 
-			// If video ID is cleared, clear other video data too.
-			if ( empty( $video_id ) ) {
-				tubebay_log( 'ProductMetabox: Cleared video assignment for product ID ' . $post_id, 'info' );
+			$sanitized_videos = array();
+
+			if ( is_array( $videos ) ) {
+				foreach ( $videos as $video ) {
+					if ( ! isset( $video['type'] ) ) {
+						continue;
+					}
+
+					$sanitized_video = array(
+						'type' => sanitize_text_field( $video['type'] ),
+					);
+
+					if ( 'youtube' === $video['type'] ) {
+						if ( empty( $video['id'] ) ) {
+							continue;
+						}
+						$sanitized_video['id'] = sanitize_text_field( $video['id'] );
+						$sanitized_video['title'] = isset( $video['title'] ) ? sanitize_text_field( $video['title'] ) : '';
+						$sanitized_video['thumbnail'] = isset( $video['thumbnail'] ) ? esc_url_raw( $video['thumbnail'] ) : '';
+
+						if ( isset( $video['duration'] ) ) {
+							$sanitized_video['duration'] = intval( $video['duration'] );
+						}
+					} elseif ( 'self-hosted' === $video['type'] ) {
+						if ( empty( $video['url'] ) ) {
+							continue;
+						}
+						$sanitized_video['url'] = esc_url_raw( $video['url'] );
+						$sanitized_video['id'] = isset( $video['id'] ) ? intval( $video['id'] ) : null;
+						$sanitized_video['mime'] = isset( $video['mime'] ) ? sanitize_text_field( $video['mime'] ) : '';
+						$sanitized_video['title'] = isset( $video['title'] ) ? sanitize_text_field( $video['title'] ) : '';
+						$sanitized_video['thumbnail'] = isset( $video['thumbnail'] ) ? esc_url_raw( $video['thumbnail'] ) : '';
+
+						if ( isset( $video['duration'] ) ) {
+							$sanitized_video['duration'] = intval( $video['duration'] );
+						}
+					}
+
+					$sanitized_videos[] = $sanitized_video;
+				}
+			}
+
+			$encoded_videos = wp_json_encode( $sanitized_videos );
+			update_post_meta( $post_id, '_tubebay_video_ids', $encoded_videos );
+
+			// Invalidate cache when assignments change
+			if ( class_exists( '\TubeBay\Helper\ProductVideoMap' ) ) {
+				\TubeBay\Helper\ProductVideoMap::invalidate_cache();
+			}
+
+			// Keep _tubebay_video_id updated for backward compatibility (set to first YouTube video if available)
+			$legacy_id = '';
+			foreach ( $sanitized_videos as $sv ) {
+				if ( 'youtube' === $sv['type'] && ! empty( $sv['id'] ) ) {
+					$legacy_id = $sv['id'];
+					break;
+				}
+			}
+
+			if ( empty( $legacy_id ) ) {
+				delete_post_meta( $post_id, '_tubebay_video_id' );
 				delete_post_meta( $post_id, '_tubebay_video_title' );
 				delete_post_meta( $post_id, '_tubebay_video_thumbnail' );
 			} else {
-				tubebay_log( 'ProductMetabox: Saved video assignment ' . $video_id . ' for product ID ' . $post_id, 'info' );
-				if ( isset( $_POST['tubebay_video_title'] ) ) {
-					update_post_meta( $post_id, '_tubebay_video_title', sanitize_text_field( wp_unslash( $_POST['tubebay_video_title'] ) ) );
-				}
-				if ( isset( $_POST['tubebay_video_thumbnail'] ) ) {
-					update_post_meta( $post_id, '_tubebay_video_thumbnail', esc_url_raw( wp_unslash( $_POST['tubebay_video_thumbnail'] ) ) );
+				update_post_meta( $post_id, '_tubebay_video_id', $legacy_id );
+
+				// Optional: update title/thumbnail for legacy
+				foreach ( $sanitized_videos as $sv ) {
+					if ( 'youtube' === $sv['type'] && $sv['id'] === $legacy_id ) {
+						if ( isset( $sv['title'] ) ) {
+							update_post_meta( $post_id, '_tubebay_video_title', $sv['title'] );
+						}
+						if ( isset( $sv['thumbnail'] ) ) {
+							update_post_meta( $post_id, '_tubebay_video_thumbnail', $sv['thumbnail'] );
+						}
+						break;
+					}
 				}
 			}
 		}

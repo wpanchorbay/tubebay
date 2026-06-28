@@ -143,6 +143,16 @@ class Plugin {
 			TUBEBAY_VERSION,
 			true
 		);
+
+		wp_localize_script(
+			TUBEBAY_OPTION_NAME . '_public_js',
+			'tubebaySettings',
+			array(
+				'privacyMode' => \TubeBay\Helper\Settings::get( 'privacy_mode', false ),
+				'showControls' => \TubeBay\Helper\Settings::get( 'show_controls', true ),
+				'galleryMode' => \TubeBay\Helper\Settings::get( 'gallery_mode', 'inline' ), // or 'lightbox'
+			)
+		);
 	}
 
 	/**
