@@ -195,7 +195,6 @@ class ProductMetabox {
 		}
 
 		// Fallback for settings
-		$player_mode = get_post_meta( $post->ID, '_tubebay_player_mode', true );
 		$max_videos = get_post_meta( $post->ID, '_tubebay_max_videos', true );
 		$video_position = get_post_meta( $post->ID, '_tubebay_video_position', true );
 		$autoplay_first = get_post_meta( $post->ID, '_tubebay_autoplay_first', true );
@@ -231,14 +230,7 @@ class ProductMetabox {
 			</div>
 
 			<div class="tubebay-gallery-settings" style="display: none; padding-left: 5px;">
-				<p>
-					<label for="tubebay_player_mode"><?php esc_html_e('Player Mode:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_player_mode" id="tubebay_player_mode" style="width: 100%;">
-						<option value="" <?php selected($player_mode, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<option value="inline" <?php selected($player_mode, 'inline'); ?>><?php esc_html_e('Inline', 'tubebay'); ?></option>
-						<option value="lightbox" <?php selected($player_mode, 'lightbox'); ?>><?php esc_html_e('Lightbox', 'tubebay'); ?></option>
-					</select>
-				</p>
+
 				<p>
 					<label for="tubebay_max_videos"><?php esc_html_e('Max Videos:', 'tubebay'); ?></label><br/>
 					<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;">
@@ -397,7 +389,6 @@ class ProductMetabox {
 
 		// Save gallery settings
 		$settings_keys = array(
-			'tubebay_player_mode' => '_tubebay_player_mode',
 			'tubebay_max_videos' => '_tubebay_max_videos',
 			'tubebay_video_position' => '_tubebay_video_position',
 			'tubebay_autoplay_first' => '_tubebay_autoplay_first',

@@ -61,7 +61,6 @@ class Settings {
 		'is_onboarding_completed'       => false,
 		'last_sync_time'                => 0,
 		'connection_method'             => 'oauth',
-		'player_mode'                   => 'inline',
 		'max_videos'                    => 0,
 		'video_position'                => 'first',
 		'autoplay_first'                => false,

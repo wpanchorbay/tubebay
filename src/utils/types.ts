@@ -46,7 +46,7 @@ export interface PluginSettings {
     is_onboarding_completed: boolean;
     connection_method: "oauth" | "api";
     refresh_token: string;
-    player_mode: string;
+
     max_videos: number;
     video_position: string;
     autoplay_first: boolean;

@@ -14,24 +14,7 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
         title="Video Player Settings"
         description="Configure how YouTube videos are displayed on your product pages."
         fields={[
-          {
-            id: "player_mode",
-            label: "Default Player Mode",
-            render: () => (
-              <>
-                <ClassicSelect
-                  id="player_mode"
-                  value={settings.player_mode || "inline"}
-                  onChange={(val) => updateLocalSetting("player_mode", val)}
-                  options={[
-                    { label: "Inline (Plays inside gallery)", value: "inline" },
-                    { label: "Lightbox (Opens in popup)", value: "lightbox" },
-                  ]}
-                />
-                <p className="description">Choose how videos are played when clicked in the gallery.</p>
-              </>
-            ),
-          },
+
           {
             id: "max_videos",
             label: "Max Videos Per Product",

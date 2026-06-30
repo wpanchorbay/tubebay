@@ -69,15 +69,7 @@ class WooCommerce {
 
 		// CSS
 		wp_enqueue_style( 'tubebay-gallery-css', TUBEBAY_URL . 'assets/css/frontend/tubebay-gallery.css', array(), $version );
-		wp_enqueue_style( 'tubebay-lightbox-css', TUBEBAY_URL . 'assets/css/frontend/tubebay-lightbox.css', array(), $version );
-
-		// JS
-		wp_enqueue_script( 'tubebay-facade', TUBEBAY_URL . 'assets/js/frontend/tubebay-facade.js', array(), $version, true );
-		wp_enqueue_script( 'tubebay-player', TUBEBAY_URL . 'assets/js/frontend/tubebay-player.js', array(), $version, true );
-		wp_enqueue_script( 'tubebay-lightbox', TUBEBAY_URL . 'assets/js/frontend/tubebay-lightbox.js', array(), $version, true );
-		wp_enqueue_script( 'tubebay-gallery', TUBEBAY_URL . 'assets/js/frontend/tubebay-gallery.js', array('tubebay-facade', 'tubebay-player', 'tubebay-lightbox'), $version, true );
 	}
-
 	/**
 	 * Render the video iframe if a video is attached to the current product.
 	 *
@@ -148,6 +140,11 @@ class WooCommerce {
 			return $html;
 		}
 
+		static $injected = false;
+		if ( $injected ) {
+			return $html;
+		}
+
 		// 1. Get array of videos
 		$video_ids_json = get_post_meta( $post->ID, '_tubebay_video_ids', true );
 		$videos = array();
@@ -179,9 +176,6 @@ class WooCommerce {
 		$placement = get_post_meta( $post->ID, '_tubebay_video_position', true );
 		$placement = ( $placement !== '' ) ? $placement : Settings::get( 'video_position', 'first' );
 
-		$player_mode = get_post_meta( $post->ID, '_tubebay_player_mode', true );
-		$player_mode = ( $player_mode !== '' ) ? $player_mode : Settings::get( 'player_mode', 'inline' );
-
 		$autoplay_first = get_post_meta( $post->ID, '_tubebay_autoplay_first', true );
 		$autoplay_first = ( $autoplay_first !== '' ) ? ($autoplay_first === 'yes') : Settings::get( 'autoplay_first', false );
 
@@ -199,7 +193,6 @@ class WooCommerce {
 		static $has_output_gallery_data = false;
 		if ( ! $has_output_gallery_data ) {
 			$gallery_config = array(
-				'player_mode' => $player_mode,
 				'privacy_mode' => $privacy_mode,
 				'placement' => $placement
 			);
@@ -218,6 +211,10 @@ class WooCommerce {
 
 			if ( $vid_type === 'youtube' && empty($vid_thumb) ) {
 				$vid_thumb = 'https://i.ytimg.com/vi/' . esc_attr( $vid_id ) . '/hqdefault.jpg';
+			}
+
+			if ( $vid_type === 'self_hosted' && empty($vid_thumb) ) {
+				$vid_thumb = includes_url( 'images/media/video.svg' );
 			}
 
 			$is_first = ( $index === 0 );
@@ -269,6 +266,7 @@ class WooCommerce {
 		// Note: The frontend JS will rearrange them if 'last' is selected, but it's easier to inject them all at the beginning and let JS sort it.
 
 		if ( $post_thumbnail_id == $main_image_id || empty( $main_image_id ) ) {
+			$injected = true;
 			if ( $placement === 'first' ) {
 				return $videos_html . $html;
 			} else {

@@ -328,9 +328,7 @@ class SettingsController extends ApiController
 			Settings::set('show_controls', (bool) $body['show_controls']);
 		}
 
-		if (isset($body['player_mode'])) {
-			Settings::set('player_mode', sanitize_text_field($body['player_mode']));
-		}
+
 
 		if (isset($body['max_videos'])) {
 			Settings::set('max_videos', absint($body['max_videos']));
