@@ -6,6 +6,7 @@ import { useMenuSync } from "./utils/useMenuSync";
 
 import ChannelLibrary from "./pages/ChannelLibrary";
 import Onboarding from "./pages/Onboarding";
+import Manager from "./pages/Manager";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -18,6 +19,7 @@ function AdminApp() {
           <MenuSyncProvider>
             <Routes>
               <Route path="/" element={<OnboardingCheck><ChannelLibrary /></OnboardingCheck>} />
+              <Route path="/manager" element={<OnboardingCheck><Manager /></OnboardingCheck>} />
               <Route path="/onboarding" element={<Onboarding />} />
             </Routes>
           </MenuSyncProvider>

@@ -181,4 +181,14 @@
     color: #646970;
     padding: 40px 0;
     font-size: 13px;
+}.tubebay-list-item:hover {
+    border-color: #2271b1 !important;
+}
+.tubebay-gallery-settings p {
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+.tubebay-gallery-settings label {
+    font-size: 12px;
+    color: #646970;
 }

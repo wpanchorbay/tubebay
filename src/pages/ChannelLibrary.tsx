@@ -32,6 +32,10 @@ export default function ChannelLibrary() {
   const [sortBy, setSortBy] = useState("date_desc");
   const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
   const [copiedVideoId, setCopiedVideoId] = useState<string | null>(null);
+
+  const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState("");
+  const [expandedProductVideoId, setExpandedProductVideoId] = useState<string | null>(null);
   const { plugin_settings } = useWpabStore();
 
   const isConnected = plugin_settings?.connection_status === "connected";
@@ -153,6 +157,31 @@ export default function ChannelLibrary() {
     }, 2000);
   };
 
+  const toggleSelectAll = () => {
+    if (selectedVideos.length === videos.length) {
+      setSelectedVideos([]);
+    } else {
+      setSelectedVideos(videos.map((v) => v.id));
+    }
+  };
+
+  const toggleSelectVideo = (id: string) => {
+    setSelectedVideos((prev) =>
+      prev.includes(id) ? prev.filter((vId) => vId !== id) : [...prev, id]
+    );
+  };
+
+  const handleApplyBulkAction = () => {
+    if (selectedVideos.length === 0 || !bulkAction) return;
+
+    if (bulkAction === 'assign') {
+      window.location.hash = `/manager?action=assign&videos=${selectedVideos.join(',')}`;
+    }
+
+    // reset
+    setBulkAction("");
+  };
+
   if (!isConnected) {
     return (
       <div className="wrap tubebay-wrap">
@@ -187,6 +216,18 @@ export default function ChannelLibrary() {
       {/* Toolbar */}
       <div className="tablenav top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
         <div className="alignleft actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <ClassicSelect
+            value={bulkAction}
+            onChange={(val) => setBulkAction(val as string)}
+            options={[
+              { label: "Bulk Actions", value: "" },
+              { label: "Assign to Products", value: "assign" },
+            ]}
+          />
+          <ClassicButton variant="secondary" onClick={handleApplyBulkAction} disabled={!bulkAction || selectedVideos.length === 0} style={{ margin: 0 }}>
+            Apply
+          </ClassicButton>
+          <span style={{ color: '#c3c4c7', margin: '0 5px' }}>|</span>
           <ClassicSelect
             value={sortBy}
             onChange={(val) => setSortBy(val as string)}
@@ -286,6 +327,15 @@ export default function ChannelLibrary() {
         <table className="wp-list-table widefat fixed striped table-view-list">
           <thead>
             <tr>
+              <th scope="col" id="cb" className="manage-column column-cb check-column" style={{ width: '2.2em' }}>
+                <label className="screen-reader-text" htmlFor="cb-select-all-1">Select All</label>
+                <input
+                  id="cb-select-all-1"
+                  type="checkbox"
+                  checked={videos.length > 0 && selectedVideos.length === videos.length}
+                  onChange={toggleSelectAll}
+                />
+              </th>
               <th scope="col" id="thumbnail" className="manage-column" style={{ width: '160px' }}>Thumbnail</th>
               <th scope="col" id="title" className="manage-column column-primary">Title</th>
               <th scope="col" id="products" className="manage-column" style={{ width: '200px' }}>Products</th>
@@ -294,7 +344,16 @@ export default function ChannelLibrary() {
           </thead>
           <tbody>
             {videos.map((video) => (
-              <tr key={video.id}>
+              <tr key={video.id} className={selectedVideos.includes(video.id) ? 'active' : ''}>
+                <th scope="row" className="check-column">
+                  <label className="screen-reader-text" htmlFor={`cb-select-${video.id}`}>Select {video.title}</label>
+                  <input
+                    id={`cb-select-${video.id}`}
+                    type="checkbox"
+                    checked={selectedVideos.includes(video.id)}
+                    onChange={() => toggleSelectVideo(video.id)}
+                  />
+                </th>
                 <td className="thumbnail column-thumbnail">
                   <div style={{ width: '120px', height: '68px', backgroundColor: '#f0f0f1', overflow: 'hidden', position: 'relative' }}>
                     <img
@@ -333,13 +392,28 @@ export default function ChannelLibrary() {
                   </div>
                 </td>
                 <td className="products column-products" style={{ verticalAlign: 'middle' }}>
-                  {video.products && video.products.length > 0 ? (
-                    video.products.map((p, idx) => (
-                      <span key={p.id}>
-                        <a href={`post.php?post=${p.id}&action=edit`}>{p.name}</a>
-                        {idx < video?.products?.length - 1 ? ", " : ""}
+                  {video.is_assigned ? (
+                    <div>
+                      <span
+                        className="awaiting-mod count"
+                        style={{ cursor: 'pointer', display: 'inline-block', marginBottom: expandedProductVideoId === video.id ? '5px' : '0' }}
+                        onClick={() => setExpandedProductVideoId(expandedProductVideoId === video.id ? null : video.id)}
+                      >
+                        <span className="pending-count" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          Assigned to {video.assigned_count} {video.assigned_count === 1 ? 'product' : 'products'}
+                          <span className={`dashicons dashicons-arrow-${expandedProductVideoId === video.id ? 'up' : 'down'}-alt2`} style={{ fontSize: '14px', width: '14px', height: '14px' }}></span>
+                        </span>
                       </span>
-                    ))
+                      {expandedProductVideoId === video.id && (
+                        <div style={{ marginTop: '5px', fontSize: '12px' }}>
+                          {video.products.map((p, idx) => (
+                            <div key={p.id} style={{ marginBottom: '3px' }}>
+                              <a href={`post.php?post=${p.id}&action=edit`} title={`Edit ${p.name}`}>{p.name}</a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <span style={{ color: '#c3c4c7' }}>—</span>
                   )}
