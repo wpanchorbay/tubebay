@@ -143,6 +143,7 @@ class ProductMetabox {
 					'removeVideo' => __( 'Remove Video', 'tubebay' ),
 					'loading'     => __( 'Loading...', 'tubebay' ),
 					'error'       => __( 'Error loading videos.', 'tubebay' ),
+					'noVideos'    => __( 'No videos found.', 'tubebay' ),
 					'loadMore'    => __( 'Load More', 'tubebay' ),
 					'search'      => __( 'Search videos...', 'tubebay' ),
 					'sort'        => array(
@@ -172,121 +173,146 @@ class ProductMetabox {
 		$video_title = get_post_meta( $post->ID, '_tubebay_video_title', true );
 		$video_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
 
-		// These are currently fixed for the free version.
-		$display_location = 'default';
-
-		$muted_autoplay = get_post_meta( $post->ID, '_tubebay_muted_autoplay', true );
-
-		// Fallback to global defaults if not explicitly set yet.
-		$muted_autoplay = ( '' === $muted_autoplay ) ? ( Settings::get( 'muted_autoplay', true ) ? '1' : '0' ) : $muted_autoplay;
-
 		$is_connected = ( Settings::get( 'connection_status', 'inactive' ) === 'connected' );
+
+		// 1. Get existing legacy single video ID and convert if needed, or get new array
+		$video_ids_json = get_post_meta( $post->ID, '_tubebay_video_ids', true );
+		if ( empty( $video_ids_json ) ) {
+			if ( ! empty( $video_id ) ) {
+				$video_ids = array(
+					array(
+						'id' => $video_id,
+						'type' => 'youtube',
+						'title' => get_post_meta( $post->ID, '_tubebay_video_title', true ),
+						'thumbnail' => get_post_meta( $post->ID, '_tubebay_video_thumbnail', true )
+					)
+				);
+			} else {
+				$video_ids = array();
+			}
+		} else {
+			$video_ids = json_decode( $video_ids_json, true ) ?: array();
+		}
+
+		// Fallback for settings
+		$max_videos = get_post_meta( $post->ID, '_tubebay_max_videos', true );
+		$video_position = get_post_meta( $post->ID, '_tubebay_video_position', true );
+		$autoplay_first = get_post_meta( $post->ID, '_tubebay_autoplay_first', true );
+		$show_duration = get_post_meta( $post->ID, '_tubebay_show_duration', true );
 
 		?>
 		<div class="tubebay-metabox-wrapper">
 			<!-- Hidden inputs to store selection -->
-			<input type="hidden" id="tubebay_video_id" name="tubebay_video_id" value="<?php echo esc_attr( $video_id ); ?>" />
-			<input type="hidden" id="tubebay_video_title" name="tubebay_video_title"
-				value="<?php echo esc_attr( $video_title ); ?>" />
-			<input type="hidden" id="tubebay_video_thumbnail" name="tubebay_video_thumbnail"
-				value="<?php echo esc_attr( $video_thumb ); ?>" />
-			<input type="hidden" name="tubebay_display_location" value="<?php echo esc_attr( $display_location ); ?>" />
+			<input type="hidden" id="tubebay_video_ids" name="tubebay_video_ids" value="<?php echo esc_attr( wp_json_encode( $video_ids ) ); ?>" />
 
-			<div id="tubebay-selected-video-container" class="<?php echo empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<div class="tubebay-video-card">
-					<div class="tubebay-video-thumbnail-wrap">
-						<img id="tubebay_video_thumbnail_img" src="<?php echo esc_url( $video_thumb ); ?>"
-							alt="Video Thumbnail" />
-						<div class="tubebay-play-icon">▶</div>
-						<div class="tubebay-video-actions">
-							<?php if ( $is_connected ) : ?>
-							<button type="button" class="button" id="tubebay_edit_video_btn"
-								title="<?php esc_attr_e( 'Change Video', 'tubebay' ); ?>"><span
-									class="dashicons dashicons-edit"></span></button>
-							<?php endif; ?>
-							<button type="button" class="button tubebay-danger-btn" id="tubebay_remove_video_btn"
-								title="<?php esc_attr_e( 'Remove Video', 'tubebay' ); ?>"><span
-									class="dashicons dashicons-trash"></span></button>
+			<!-- Sortable Video List -->
+			<div id="tubebay-video-list" class="tubebay-video-list" style="margin-bottom: 10px;">
+				<!-- JS will render items here -->
+			</div>
+
+			<!-- Add Video Buttons -->
+			<div class="tubebay-add-video-buttons" style="margin-top: 10px; display: flex; flex-direction: column; gap: 5px;">
+				<?php if ( $is_connected ) : ?>
+					<a href="#" id="tubebay_select_youtube_btn" class="button" style="text-align: center;"><?php esc_html_e( 'Add YouTube Video', 'tubebay' ); ?></a>
+				<?php else : ?>
+					<p class="description" style="color: #d63638; margin-bottom: 5px;">
+						<?php esc_html_e( 'Connect your YouTube account in TubeBay Settings to select YouTube videos.', 'tubebay' ); ?>
+					</p>
+				<?php endif; ?>
+				<a href="#" id="tubebay_select_self_hosted_btn" class="button" style="text-align: center;"><?php esc_html_e( 'Add Self-Hosted Video', 'tubebay' ); ?></a>
+			</div>
+
+			<hr style="margin: 15px 0;">
+
+			<!-- Gallery Settings (Collapsible) -->
+			<div class="tubebay-gallery-settings-toggle" style="cursor: pointer; font-weight: 600; margin-bottom: 10px;">
+				<span class="dashicons dashicons-arrow-down-alt2" style="font-size: 16px; margin-top: 2px;"></span> <?php esc_html_e('Video Gallery Settings', 'tubebay'); ?>
+			</div>
+
+			<div class="tubebay-gallery-settings" style="display: none; padding-left: 5px;">
+
+				<p>
+					<label for="tubebay_max_videos"><?php esc_html_e('Max Videos:', 'tubebay'); ?></label><br/>
+					<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;">
+						<option value="" <?php selected($max_videos, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
+						<?php for($i=1; $i<=10; $i++): ?>
+							<option value="<?php echo $i; ?>" <?php selected($max_videos, (string)$i); ?>><?php echo $i; ?></option>
+						<?php endfor; ?>
+						<option value="0" <?php selected($max_videos, '0'); ?>><?php esc_html_e('Unlimited', 'tubebay'); ?></option>
+					</select>
+				</p>
+				<p>
+					<label for="tubebay_video_position"><?php esc_html_e('Video Position:', 'tubebay'); ?></label><br/>
+					<select name="tubebay_video_position" id="tubebay_video_position" style="width: 100%;">
+						<option value="" <?php selected($video_position, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
+						<option value="first" <?php selected($video_position, 'first'); ?>><?php esc_html_e('First (Before Images)', 'tubebay'); ?></option>
+						<option value="last" <?php selected($video_position, 'last'); ?>><?php esc_html_e('Last (After Images)', 'tubebay'); ?></option>
+						<option value="mixed" <?php selected($video_position, 'mixed'); ?>><?php esc_html_e('Mixed (Drag/Drop Order)', 'tubebay'); ?></option>
+					</select>
+				</p>
+				<p>
+					<label for="tubebay_autoplay_first"><?php esc_html_e('Autoplay First Video:', 'tubebay'); ?></label><br/>
+					<select name="tubebay_autoplay_first" id="tubebay_autoplay_first" style="width: 100%;">
+						<option value="" <?php selected($autoplay_first, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
+						<option value="yes" <?php selected($autoplay_first, 'yes'); ?>><?php esc_html_e('Yes', 'tubebay'); ?></option>
+						<option value="no" <?php selected($autoplay_first, 'no'); ?>><?php esc_html_e('No', 'tubebay'); ?></option>
+					</select>
+				</p>
+				<p>
+					<label for="tubebay_show_duration"><?php esc_html_e('Show Duration Badge:', 'tubebay'); ?></label><br/>
+					<select name="tubebay_show_duration" id="tubebay_show_duration" style="width: 100%;">
+						<option value="" <?php selected($show_duration, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
+						<option value="yes" <?php selected($show_duration, 'yes'); ?>><?php esc_html_e('Yes', 'tubebay'); ?></option>
+						<option value="no" <?php selected($show_duration, 'no'); ?>><?php esc_html_e('No', 'tubebay'); ?></option>
+					</select>
+				</p>
+			</div>
+
+			<?php if ( $is_connected ) : ?>
+			<!-- Video Selection Modal (WordPress media-modal pattern) -->
+			<div id="tubebay-video-modal" style="display:none;">
+				<div class="media-modal wp-core-ui">
+					<button type="button" class="media-modal-close" id="tubebay-modal-close-btn">
+						<span class="media-modal-icon">
+							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'tubebay' ); ?></span>
+						</span>
+					</button>
+					<div class="media-modal-content">
+						<div class="media-frame wp-core-ui hide-menu hide-router">
+							<div class="media-frame-title">
+								<h1 style="padding-left:16px;"><?php esc_html_e( 'Select a Video', 'tubebay' ); ?></h1>
+							</div>
+							
+							<!-- Main content block -->
+							<div class="media-frame-content" style="top: 50px; bottom: 0;">
+								<div class="attachments-browser">
+									<!-- Filter/Search Toolbar -->
+									<div class="media-toolbar">
+										<div class="media-toolbar-secondary">
+											<select id="tubebay-modal-sort" class="attachment-filters">
+												<option value="date_desc"><?php esc_html_e( 'Recently Added', 'tubebay' ); ?></option>
+												<option value="date_asc"><?php esc_html_e( 'Oldest First', 'tubebay' ); ?></option>
+												<option value="title_asc"><?php esc_html_e( 'Title (A-Z)', 'tubebay' ); ?></option>
+												<option value="title_desc"><?php esc_html_e( 'Title (Z-A)', 'tubebay' ); ?></option>
+												<option value="view_count"><?php esc_html_e( 'Most Viewed', 'tubebay' ); ?></option>
+											</select>
+										</div>
+										<div class="media-toolbar-primary search-form">
+											<label for="tubebay-modal-search" class="screen-reader-text"><?php esc_html_e( 'Search videos', 'tubebay' ); ?></label>
+											<input type="search" placeholder="<?php esc_attr_e( 'Search videos...', 'tubebay' ); ?>" id="tubebay-modal-search" class="search" />
+										</div>
+									</div>
+									
+									<!-- Scrollable Grid Body -->
+									<div class="tubebay-modal-body" id="tubebay-modal-video-grid">
+										<p class="tubebay-loading-text"><?php esc_html_e( 'Loading videos...', 'tubebay' ); ?></p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-					<p id="tubebay_video_title_display" class="tubebay-video-title">
-						<?php echo esc_html( $video_title ); ?>
-					</p>
 				</div>
-			</div>
-
-			<?php if ( $is_connected ) : ?>
-			<div id="tubebay-add-video-container" class="<?php echo ! empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<button type="button" class="button button-primary" id="tubebay_select_video_btn">
-					<?php esc_html_e( 'Select Video from Library', 'tubebay' ); ?>
-				</button>
-			</div>
-			<?php else : ?>
-				<?php if ( empty( $video_id ) ) : ?>
-			<p class="description" style="margin-top: 8px; color: #b91c1c;">
-					<?php esc_html_e( 'Connect your YouTube account in TubeBay Settings to select videos.', 'tubebay' ); ?>
-			</p>
-			<?php else : ?>
-			<p class="description" style="margin-top: 8px; color: #b91c1c;">
-				<?php esc_html_e( 'Reconnect your YouTube account in TubeBay Settings to change or add videos.', 'tubebay' ); ?>
-			</p>
-			<?php endif; ?>
-			<?php endif; ?>
-
-			<div id="tubebay-autoplay-setting" class="<?php echo empty( $video_id ) ? 'tubebay-hidden' : ''; ?>">
-				<hr />
-				<div class="tubebay-setting-row">
-					<div class="tubebay-setting-label">
-						<strong>
-							<?php esc_html_e( 'Muted Autoplay', 'tubebay' ); ?>
-						</strong>
-						<p class="description">
-							<?php esc_html_e( 'Video plays automatically without sound', 'tubebay' ); ?>
-						</p>
-					</div>
-					<div class="tubebay-setting-control">
-						<label class="tubebay-switch">
-							<input type="checkbox" name="tubebay_muted_autoplay" value="1" <?php checked( $muted_autoplay, '1' ); ?> />
-							<span class="tubebay-slider tubebay-round"></span>
-						</label>
-					</div>
-				</div>
-			</div>
-
-			<?php if ( $is_connected ) : ?>
-			<!-- Modal (Hidden by default) -->
-			<div id="tubebay-video-modal" style="display:none;">
-				<div class="tubebay-modal-overlay"></div>
-				<div class="tubebay-modal-content">
-					<div class="tubebay-modal-header">
-						<h2>
-							<?php esc_html_e( 'Select a Video', 'tubebay' ); ?>
-						</h2>
-						<span class="tubebay-modal-close">&times;</span>
-					</div>
-
-					<!-- Filter Toolbar -->
-					<div class="tubebay-modal-toolbar">
-						<input type="text" id="tubebay-modal-search" placeholder="<?php esc_attr_e( 'Search videos...', 'tubebay' ); ?>" />
-						<select id="tubebay-modal-sort">
-							<option value="date_desc"><?php esc_html_e( 'Recently Added', 'tubebay' ); ?></option>
-							<option value="date_asc"><?php esc_html_e( 'Oldest First', 'tubebay' ); ?></option>
-							<option value="title_asc"><?php esc_html_e( 'Title (A-Z)', 'tubebay' ); ?></option>
-							<option value="title_desc"><?php esc_html_e( 'Title (Z-A)', 'tubebay' ); ?></option>
-							<option value="view_count"><?php esc_html_e( 'Most Viewed', 'tubebay' ); ?></option>
-						</select>
-					</div>
-
-					<div class="tubebay-modal-body" id="tubebay-modal-video-grid">
-						<p class="tubebay-loading-text">
-							<?php esc_html_e( 'Loading videos...', 'tubebay' ); ?>
-						</p>
-					</div>
-					
-					<div class="tubebay-modal-footer" id="tubebay-modal-footer" style="display:none;">
-						<button type="button" class="button" id="tubebay-modal-load-more"><?php esc_html_e( 'Load More', 'tubebay' ); ?></button>
-					</div>
-				</div>
+				<div class="media-modal-backdrop" id="tubebay-modal-backdrop"></div>
 			</div>
 			<?php endif; ?>
 		</div>
@@ -327,36 +353,56 @@ class ProductMetabox {
 			}
 		}
 
-		// Santize and save Video ID.
-		if ( isset( $_POST['tubebay_video_id'] ) ) {
-			$video_id = sanitize_text_field( wp_unslash( $_POST['tubebay_video_id'] ) );
-			update_post_meta( $post_id, '_tubebay_video_id', $video_id );
+		// Save multiple videos array
+		if ( isset( $_POST['tubebay_video_ids'] ) ) {
+			$video_ids_json = wp_unslash( $_POST['tubebay_video_ids'] );
+			$video_ids = json_decode( $video_ids_json, true ) ?: array();
 
-			// If video ID is cleared, clear other video data too.
-			if ( empty( $video_id ) ) {
-				tubebay_log( 'ProductMetabox: Cleared video assignment for product ID ' . $post_id, 'info' );
+			// Sanitize array elements
+			$sanitized_ids = array();
+			foreach ( $video_ids as $video ) {
+				if ( is_array( $video ) && isset( $video['id'] ) ) {
+					$sanitized_ids[] = array(
+						'id' => sanitize_text_field( $video['id'] ),
+						'type' => sanitize_text_field( $video['type'] ?? 'youtube' ),
+						'title' => sanitize_text_field( $video['title'] ?? '' ),
+						'thumbnail' => esc_url_raw( $video['thumbnail'] ?? '' )
+					);
+				}
+			}
+
+			update_post_meta( $post_id, '_tubebay_video_ids', wp_json_encode( $sanitized_ids ) );
+
+			// Maintain backward compatibility with the single ID for legacy fallback
+			if ( ! empty( $sanitized_ids ) ) {
+				update_post_meta( $post_id, '_tubebay_video_id', $sanitized_ids[0]['id'] );
+				update_post_meta( $post_id, '_tubebay_video_title', $sanitized_ids[0]['title'] );
+				update_post_meta( $post_id, '_tubebay_video_thumbnail', $sanitized_ids[0]['thumbnail'] );
+			} else {
+				delete_post_meta( $post_id, '_tubebay_video_id' );
 				delete_post_meta( $post_id, '_tubebay_video_title' );
 				delete_post_meta( $post_id, '_tubebay_video_thumbnail' );
-			} else {
-				tubebay_log( 'ProductMetabox: Saved video assignment ' . $video_id . ' for product ID ' . $post_id, 'info' );
-				if ( isset( $_POST['tubebay_video_title'] ) ) {
-					update_post_meta( $post_id, '_tubebay_video_title', sanitize_text_field( wp_unslash( $_POST['tubebay_video_title'] ) ) );
-				}
-				if ( isset( $_POST['tubebay_video_thumbnail'] ) ) {
-					update_post_meta( $post_id, '_tubebay_video_thumbnail', esc_url_raw( wp_unslash( $_POST['tubebay_video_thumbnail'] ) ) );
-				}
+			}
+
+			tubebay_log( 'ProductMetabox: Saved ' . count($sanitized_ids) . ' videos for product ID ' . $post_id, 'info' );
+		}
+
+		// Save gallery settings
+		$settings_keys = array(
+			'tubebay_max_videos' => '_tubebay_max_videos',
+			'tubebay_video_position' => '_tubebay_video_position',
+			'tubebay_autoplay_first' => '_tubebay_autoplay_first',
+			'tubebay_show_duration' => '_tubebay_show_duration',
+		);
+
+		foreach ( $settings_keys as $post_key => $meta_key ) {
+			if ( isset( $_POST[$post_key] ) ) {
+				update_post_meta( $post_id, $meta_key, sanitize_text_field( wp_unslash( $_POST[$post_key] ) ) );
 			}
 		}
 
-		// Display Location (hidden field for now).
-		if ( isset( $_POST['tubebay_display_location'] ) ) {
-			update_post_meta( $post_id, '_tubebay_display_location', sanitize_text_field( wp_unslash( $_POST['tubebay_display_location'] ) ) );
-		}
-
-		// Muted Autoplay Toggle (checkboxes only exist in $_POST if checked).
-		$muted_autoplay = isset( $_POST['tubebay_muted_autoplay'] ) ? '1' : '0';
-		update_post_meta( $post_id, '_tubebay_muted_autoplay', $muted_autoplay );
-		tubebay_log( 'ProductMetabox: Saved muted_autoplay=' . $muted_autoplay . ' for product ID ' . $post_id, 'debug' );
+		// Clear cached mapping of videos to products.
+		wp_cache_delete( 'tubebay_product_video_map', 'tubebay' );
 
 		return $post_id;
 	}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Button from "./Button";
 
 interface ConfirmationModalProps {
@@ -9,6 +9,7 @@ interface ConfirmationModalProps {
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
+  autoFocus?: "confirm" | "cancel";
   classNames?: {
     overlay?: string;
     content?: string;
@@ -33,8 +34,22 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onCancel,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  autoFocus = "confirm",
   classNames = {},
 }) => {
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (autoFocus === "cancel") {
+        cancelRef.current?.focus();
+      } else {
+        confirmRef.current?.focus();
+      }
+    }
+  }, [isOpen, autoFocus]);
+
   if (!isOpen) return null;
 
   return (
@@ -68,6 +83,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           }`}
         >
           <Button
+            ref={cancelRef}
             className={classNames.button?.cancelClassName || ""}
             variant={classNames.button?.cancelVariant || "ghost"}
             color={classNames.button?.cancelColor || "secondary"}
@@ -76,6 +92,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             {cancelLabel}
           </Button>
           <Button
+            ref={confirmRef}
             className={classNames.button?.confirmClassName || ""}
             variant={classNames.button?.confirmVariant || "solid"}
             color={classNames.button?.confirmColor || "primary"}

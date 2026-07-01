@@ -328,6 +328,28 @@ class SettingsController extends ApiController
 			Settings::set('show_controls', (bool) $body['show_controls']);
 		}
 
+
+
+		if (isset($body['max_videos'])) {
+			Settings::set('max_videos', absint($body['max_videos']));
+		}
+
+		if (isset($body['video_position'])) {
+			Settings::set('video_position', sanitize_text_field($body['video_position']));
+		}
+
+		if (isset($body['autoplay_first'])) {
+			Settings::set('autoplay_first', (bool) $body['autoplay_first']);
+		}
+
+		if (isset($body['show_duration'])) {
+			Settings::set('show_duration', (bool) $body['show_duration']);
+		}
+
+		if (isset($body['privacy_mode'])) {
+			Settings::set('privacy_mode', (bool) $body['privacy_mode']);
+		}
+
 		if (isset($body['is_onboarding_completed'])) {
 			Settings::set('is_onboarding_completed', (bool) $body['is_onboarding_completed']);
 		}
@@ -336,7 +358,13 @@ class SettingsController extends ApiController
 			Settings::set('advanced_deleteAllOnUninstall', (bool) $body['advanced_deleteAllOnUninstall']);
 		}
 
-		if (!$creds_changed && isset($body['connection_status'])) {
+		$channel = new Channel();
+		if (!$channel->is_configured()) {
+			Settings::set('connection_status', 'disconnected');
+			Settings::set('channel_name', '');
+			Settings::set('thumbnails_default', '');
+			Settings::set('thumbnails_medium', '');
+		} elseif (!$creds_changed && isset($body['connection_status'])) {
 			Settings::set('connection_status', sanitize_text_field($body['connection_status']));
 		}
 

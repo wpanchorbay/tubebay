@@ -46,6 +46,12 @@ export interface PluginSettings {
     is_onboarding_completed: boolean;
     connection_method: "oauth" | "api";
     refresh_token: string;
+
+    max_videos: number;
+    video_position: string;
+    autoplay_first: boolean;
+    show_duration: boolean;
+    privacy_mode: boolean;
 }
 
 export interface SyncPlacementSettings {
@@ -71,4 +77,6 @@ export interface BoilerplateStore {
     wpSettings: WpSettings;
     plugin_settings: PluginSettings;
     products_url: string;
+    settings_url: string;
+    context: string;
 }

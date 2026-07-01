@@ -1,4 +1,4 @@
-export const borderClasses = "!tubebay-border-[#e5e7eb] !tubebay-border-[2px] disabled:tubebay-border-[#f8f8f8]";
+export const borderClasses = "tubebay-border-[#949494] tubebay-border-[1px] disabled:tubebay-border-[#f8f8f8]";
 export const hoverBorderClasses = "tubebay-border-[#3858e9] ";
 
 export const hoverClasses = "focus:!tubebay-ring-[#3858e9] focus:!tubebay-ring-1 hover:!tubebay-border-[#3858e9] focus:!tubebay-border-[#3858e9]";

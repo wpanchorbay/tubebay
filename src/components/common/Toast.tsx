@@ -6,107 +6,57 @@ import { close, Icon } from "@wordpress/icons";
 interface ToastProps {
   toast: ToastType;
   onDismiss: (id: number) => void;
-  index: number;
-  isStackHovered: boolean;
-  totalCount: number;
 }
-export const Toast: FC<ToastProps> = ({
-  toast,
-  onDismiss,
-  index,
-  isStackHovered,
-  totalCount,
-}) => {
+export const Toast: FC<ToastProps> = ({ toast, onDismiss }) => {
   const [isClosing, setIsClosing] = useState<boolean>(false);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    // Small delay to ensure the browser has painted the initial state
-    const timer = setTimeout(() => setMounted(true), 10);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleDismiss = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDismiss = () => {
     setIsClosing(true);
     setTimeout(() => {
       onDismiss(toast.id);
-    }, 300);
+    }, 300); // 300ms animation
   };
 
   useEffect(() => {
-    // Only auto-dismiss the newest toast if it's the only one,
-    // or keep top 3 toasts but dismiss after 5s
-    if (index === 0) {
-      const timer = setTimeout(() => {
-        handleDismiss({ stopPropagation: () => {} } as React.MouseEvent);
-      }, 5000);
-      return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      handleDismiss();
+    }, 5000); // 5 seconds
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [toast.id]);
+
+  const getToastTypeClasses = () => {
+    switch (toast.type) {
+      case "success":
+        return "tubebay-bg-[#f0fff4] tubebay-border-l-[#228b22] tubebay-text-[#1a472a]";
+      case "error":
+        return "tubebay-bg-[#fff5f5] tubebay-border-l-[#cc0000] tubebay-text-[#5c2121]";
+      case "info":
+      default:
+        return "tubebay-bg-white tubebay-border-l-[#2271b1] tubebay-text-[#1d2327]";
     }
-  }, [toast.id, index]);
+  };
 
-  // Stack calculation logic
-  const topToastIndex = 0; // index from top (newest is 0)
-  const stackLimit = 3;
-  const isStacked = !isStackHovered && index >= 1;
-  const isHiddenByStack = !isStackHovered && index >= stackLimit;
-
-  let style: React.CSSProperties = {};
-
-  if (!isStackHovered) {
-    // When stacked, we layer them peeking out from the top
-    const offset = index * 4;
-    const scale = 1 - index * 0.04;
-
-    style = {
-      transform: mounted
-        ? `translateY(${-offset}px) scale(${scale})`
-        : "translateY(20px) scale(0.95)",
-      transformOrigin: "bottom center",
-      zIndex: totalCount - index,
-      opacity: mounted ? (isHiddenByStack ? 0 : 1) : 0,
-      position: index === 0 ? "relative" : "absolute",
-      bottom: 0,
-      right: 0,
-    };
-  } else {
-    // When hovered, expand naturally
-    style = {
-      transform: mounted
-        ? "translateY(0) scale(1)"
-        : "translateY(20px) scale(0.95)",
-      zIndex: totalCount - index,
-      opacity: mounted ? 1 : 0,
-      position: "relative",
-    };
-  }
-
-  const toastClasses = `toast toast--${toast.type} ${
-    isClosing ? "toast--closing" : ""
-  } ${isStacked ? "toast--stacked" : ""}`;
+  const toastClasses = `
+    tubebay-relative tubebay-p-5 tubebay-rounded-[4px] tubebay-shadow-[0_4px_12px_rgba(0,0,0,0.15)] 
+    tubebay-flex tubebay-items-center tubebay-justify-between tubebay-gap-[15px] 
+    tubebay-border-l-[5px] tubebay-backdrop-blur-[3px]
+    ${isClosing ? "tubebay-animate-slide-out" : "tubebay-animate-slide-in"}
+    ${getToastTypeClasses()}
+  `;
 
   return (
-    <div
-      className={toastClasses}
-      style={{
-        ...style,
-        transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-        width: "100%",
-      }}
-    >
-      <div className="tubebay-flex-1 tubebay-pr-[10px]">
-        <p className="tubebay-m-0 tubebay-text-[14px] tubebay-font-medium tubebay-leading-[20px]">
-          {toast.message}
-        </p>
-      </div>
+    <div className={toastClasses}>
+      <p className="tubebay-m-0 tubebay-text-[14px] tubebay-leading-[1.5] tubebay-flex-1 ">
+        {toast.message}
+      </p>
       <button
-        className="tubebay-bg-transparent tubebay-border-none tubebay-text-inherit tubebay-opacity-40 hover:tubebay-opacity-100 tubebay-cursor-pointer tubebay-p-[4px] tubebay-rounded-md hover:tubebay-bg-black/5 tubebay-transition-all"
+        className="tubebay-bg-none tubebay-border-none tubebay-text-inherit tubebay-opacity-60 hover:tubebay-opacity-100 tubebay-cursor-pointer tubebay-text-[20px] tubebay-leading-none tubebay-px-[5px] tubebay-self-start -tubebay-mt-[5px] -tubebay-mr-[5px] -tubebay-mb-[5px] tubebay-ml-0"
         onClick={handleDismiss}
         aria-label="Dismiss"
       >
-        <span className="tubebay-flex tubebay-items-center tubebay-justify-center">
-          <Icon icon={close} size={20} />
-        </span>
+        <Icon icon={close} />
       </button>
     </div>
   );

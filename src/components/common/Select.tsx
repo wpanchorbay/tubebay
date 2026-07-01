@@ -69,7 +69,6 @@ const Hourglass = ({ className }: { className?: string }) => (
 export interface SelectOption {
   value: string | number;
   label: string;
-  labelNode?: React.ReactNode;
   /**
    * Optional custom classes for this specific option.
    * Useful for multi-color dropdowns (e.g., badges, status colors).
@@ -165,6 +164,13 @@ export interface SelectProps {
     search?: string;
     error?: string;
   };
+
+  /**
+   * Custom render function for option display.
+   * Receives the option object and returns a ReactNode.
+   * Used for both the selected display and the dropdown list.
+   */
+  renderOption?: (option: SelectOption) => React.ReactNode;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -189,6 +195,7 @@ const Select: React.FC<SelectProps> = ({
   hideIcon = false,
   isCompact = false,
   classNames = {} as NonNullable<SelectProps["classNames"]>,
+  renderOption,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -519,7 +526,9 @@ const Select: React.FC<SelectProps> = ({
                 <span
                   className={`tubebay-flex tubebay-items-center tubebay-gap-2 `}
                 >
-                  {selectedOption?.labelNode || selectedOption?.label}
+                  {renderOption && selectedOption
+                    ? renderOption(selectedOption)
+                    : selectedOption?.label}
                 </span>
               ) : (
                 placeholder
@@ -543,16 +552,9 @@ const Select: React.FC<SelectProps> = ({
       {/* Dropdown Panel */}
       {isOpen && (
         <div
-          className={`tubebay-absolute tubebay-z-50  tubebay-bg-white tubebay-border tubebay-border-gray-200 tubebay-rounded-b-lg ${
+          className={`tubebay-absolute tubebay-z-[50000] tubebay-bg-white tubebay-border tubebay-border-gray-200 tubebay-rounded-[12px] tubebay-shadow-[0_2px_2px_rgba(0,0,0,0.3)] -tubebay-mt-[1px] tubebay-p-1 ${
             differentDropdownWidth ? "" : "tubebay-w-full"
           } ${classNames.dropdown || ""}`}
-          style={{
-            zIndex: 50000,
-            boxShadow: "0px 2px 2px rgba(0, 0, 0, 0.3)",
-            marginTop: "-1px",
-            borderRadius: "12px",
-            padding: "4px",
-          }}
         >
           {/* Options List */}
           <ul
@@ -628,7 +630,7 @@ const Select: React.FC<SelectProps> = ({
                             : "tubebay-font-normal"
                         }`}
                       >
-                        {option.labelNode || option.label}
+                        {renderOption ? renderOption(option) : option.label}
                       </span>
 
                       {/* Lock Icon for Buy Pro */}

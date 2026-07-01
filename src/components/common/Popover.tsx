@@ -68,7 +68,8 @@ export const Popover: React.FC<PopoverProps> = ({
       originClass = "tubebay-origin-bottom-left";
       break;
     case "top-right":
-      positionClasses = "tubebay-bottom-full tubebay-mb-2 tubebay-right-0";
+      positionClasses =
+        "tubebay-bottom-full tubebay-mb-2 tubebay-right-0";
       originClass = "tubebay-origin-bottom-right";
       break;
     case "bottom":

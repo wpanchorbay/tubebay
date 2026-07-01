@@ -31,7 +31,9 @@ export const Stepper: React.FC<StepperProps> = ({
   );
 
   return (
-    <div className={`tubebay-w-full tubebay-py-6 ${classNames?.root || ""}`}>
+    <div
+      className={`tubebay-w-full tubebay-py-6 ${classNames?.root || ""}`}
+    >
       <div
         className={`tubebay-flex tubebay-justify-between tubebay-items-start tubebay-relative ${
           classNames?.container || ""

@@ -75,6 +75,32 @@ class YouTubeController extends ApiController {
 			)
 		);
 
+		// Route to bulk assign videos to products.
+		register_rest_route(
+			$namespace,
+			'/products/bulk-assign',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'bulk_assign_videos' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+			)
+		);
+
+		// Route to save video order.
+		register_rest_route(
+			$namespace,
+			'/products/video-order',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'save_video_order' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+			)
+		);
+
 		// Route to manually sync/refresh the library.
 		register_rest_route(
 			$namespace,
@@ -218,9 +244,14 @@ class YouTubeController extends ApiController {
 		\TubeBay\Helper\Settings::set( 'connection_status', 'connected' );
 
 		// Send back an array of the newly fetched videos.
+		$product_map = $this->get_product_video_map();
 		$response_videos = array();
 		foreach ( $videos as $video ) {
-			$response_videos[] = $video->to_array();
+			$arr = $video->to_array();
+			$arr['products'] = $product_map[ $video->id ] ?? array();
+			$arr['is_assigned'] = !empty($arr['products']);
+			$arr['assigned_count'] = count($arr['products']);
+			$response_videos[] = $arr;
 		}
 
 		return new WP_REST_Response(
@@ -325,9 +356,14 @@ class YouTubeController extends ApiController {
 			return new \WP_Error( 'fetch_failed', $videos->get_error_message(), array( 'status' => 400 ) );
 		}
 
+		$product_map = $this->get_product_video_map();
 		$response_videos = array();
 		foreach ( $videos as $video ) {
-			$response_videos[] = $video->to_array();
+			$arr = $video->to_array();
+			$arr['products'] = $product_map[ $video->id ] ?? array();
+			$arr['is_assigned'] = !empty($arr['products']);
+			$arr['assigned_count'] = count($arr['products']);
+			$response_videos[] = $arr;
 		}
 
 		return new WP_REST_Response(
@@ -415,7 +451,192 @@ class YouTubeController extends ApiController {
 
 		tubebay_log( 'Redirecting user to OAuth proxy: ' . $redirect_url );
 		tubebay_log( '_______________', $redirect_url );
-		wp_safe_redirect( $redirect_url );
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Bulk assign videos to products.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function bulk_assign_videos( $request ) {
+		$params = $request->get_json_params();
+		$product_ids = isset($params['product_ids']) ? array_map('intval', (array) $params['product_ids']) : array();
+		$video_ids = isset($params['video_ids']) ? (array) $params['video_ids'] : array();
+		$action = isset($params['action']) ? sanitize_text_field($params['action']) : 'assign'; // 'assign' or 'remove'
+
+		if (empty($product_ids)) {
+			return new \WP_Error('invalid_data', __('No products specified.', 'tubebay'), array('status' => 400));
+		}
+
+		foreach ($product_ids as $product_id) {
+			$existing_videos_json = get_post_meta($product_id, '_tubebay_video_ids', true);
+			$existing_videos = empty($existing_videos_json) ? array() : json_decode($existing_videos_json, true);
+
+			if (!is_array($existing_videos)) {
+				// Migrate single video if needed
+				$legacy_video = get_post_meta($product_id, '_tubebay_video_id', true);
+				$existing_videos = !empty($legacy_video) ? array(array('id' => $legacy_video, 'type' => 'youtube')) : array();
+			}
+
+			if ($action === 'assign') {
+				foreach ($video_ids as $video) {
+					$vid_id = is_array($video) ? $video['id'] : $video;
+					$vid_type = is_array($video) ? $video['type'] : 'youtube';
+					$vid_title = is_array($video) && isset($video['title']) ? $video['title'] : '';
+					$vid_thumb = is_array($video) && isset($video['thumbnail']) ? $video['thumbnail'] : '';
+
+					// Check if already exists
+					$exists = false;
+					foreach ($existing_videos as $ev) {
+						if (is_array($ev) && $ev['id'] === $vid_id) {
+							$exists = true;
+							break;
+						}
+					}
+
+					if (!$exists) {
+						$existing_videos[] = array(
+							'id' => $vid_id,
+							'type' => $vid_type,
+							'title' => $vid_title,
+							'thumbnail' => $vid_thumb
+						);
+					}
+				}
+			} elseif ($action === 'remove') {
+				foreach ($video_ids as $video) {
+					$vid_id = is_array($video) ? $video['id'] : $video;
+					$existing_videos = array_filter($existing_videos, function($ev) use ($vid_id) {
+						return (is_array($ev) ? $ev['id'] : $ev) !== $vid_id;
+					});
+				}
+				$existing_videos = array_values($existing_videos);
+			}
+
+			// Update the post meta
+			update_post_meta($product_id, '_tubebay_video_ids', wp_json_encode($existing_videos));
+
+			// Update backward compatibility single ID
+			if (!empty($existing_videos)) {
+				$first_video = $existing_videos[0];
+				update_post_meta($product_id, '_tubebay_video_id', is_array($first_video) ? $first_video['id'] : $first_video);
+			} else {
+				delete_post_meta($product_id, '_tubebay_video_id');
+			}
+		}
+
+		wp_cache_delete('tubebay_product_video_map', 'tubebay');
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __('Products updated successfully.', 'tubebay')
+			),
+			200
+		);
+	}
+
+	/**
+	 * Save video order for a product.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function save_video_order( $request ) {
+		$params = $request->get_json_params();
+		$product_id = isset($params['product_id']) ? intval($params['product_id']) : 0;
+		$video_order = isset($params['video_order']) ? (array) $params['video_order'] : array();
+
+		if (!$product_id || empty($video_order)) {
+			return new \WP_Error('invalid_data', __('Invalid product ID or empty order.', 'tubebay'), array('status' => 400));
+		}
+
+		update_post_meta($product_id, '_tubebay_video_order', wp_json_encode($video_order));
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __('Video order saved successfully.', 'tubebay')
+			),
+			200
+		);
+	}
+
+	/**
+	 * Get mapping of video IDs to products.
+	 *
+	 * @return array Map of video_id => list of array('id' => product_id, 'name' => product_title)
+	 */
+	private function get_product_video_map() {
+		$cache_key   = 'tubebay_product_video_map';
+		$cache_group = 'tubebay';
+		$product_map = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false !== $product_map ) {
+			return $product_map;
+		}
+
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results(
+			"SELECT pm.meta_value AS video_id, p.ID AS product_id, p.post_title AS product_name 
+			 FROM {$wpdb->postmeta} pm
+			 JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+			 WHERE pm.meta_key = '_tubebay_video_id' AND p.post_status = 'publish'"
+		);
+
+		$product_map = array();
+		if ( ! empty( $results ) ) {
+			foreach ( $results as $row ) {
+				$product_map[ $row->video_id ][] = array(
+					'id'   => (int) $row->product_id,
+					'name' => $row->product_name,
+				);
+			}
+		}
+
+		// Also scan _tubebay_video_ids for a more complete map
+		$results_json = $wpdb->get_results(
+			"SELECT pm.meta_value AS video_ids_json, p.ID AS product_id, p.post_title AS product_name
+			 FROM {$wpdb->postmeta} pm
+			 JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+			 WHERE pm.meta_key = '_tubebay_video_ids' AND p.post_status = 'publish'"
+		);
+
+		if ( ! empty( $results_json ) ) {
+			foreach ( $results_json as $row ) {
+				$video_ids = json_decode( $row->video_ids_json, true );
+				if ( is_array( $video_ids ) ) {
+					foreach ( $video_ids as $video ) {
+						$vid_id = is_array( $video ) ? $video['id'] : $video;
+						// Avoid duplicates if already added from _tubebay_video_id
+						$already_added = false;
+						if ( isset( $product_map[ $vid_id ] ) ) {
+							foreach ( $product_map[ $vid_id ] as $existing ) {
+								if ( $existing['id'] === (int) $row->product_id ) {
+									$already_added = true;
+									break;
+								}
+							}
+						}
+
+						if ( ! $already_added ) {
+							$product_map[ $vid_id ][] = array(
+								'id'   => (int) $row->product_id,
+								'name' => $row->product_name,
+							);
+						}
+					}
+				}
+			}
+		}
+
+		wp_cache_set( $cache_key, $product_map, $cache_group, 300 );
+
+		return $product_map;
 	}
 }

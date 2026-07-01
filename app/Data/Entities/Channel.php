@@ -173,7 +173,7 @@ class Channel {
 		tubebay_log( 'get_access_token: Token expired or missing, requesting new one from connector', 'info' );
 
 		// Request new access token from the connector server
-		$connector_url = 'https://wpanchorbay.com/oauth';
+		$connector_url = 'https://wpanchorbay.com/oauth/index.php';
 		$response      = wp_remote_post(
 			$connector_url,
 			array(
@@ -190,10 +190,12 @@ class Channel {
 			return false;
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		$raw_body = wp_remote_retrieve_body( $response );
+		$body = json_decode( $raw_body, true );
 
 		if ( empty( $body['success'] ) || empty( $body['data']['access_token'] ) ) {
-			tubebay_log( 'get_access_token: Connector returned error or invalid data - ' . wp_json_encode( $body ), 'error' );
+			$response_code = wp_remote_retrieve_response_code( $response );
+			tubebay_log( "get_access_token: Connector request failed. Response code: {$response_code}. Raw body: " . substr($raw_body, 0, 1000), 'error' );
 			return false;
 		}
 

@@ -17,7 +17,6 @@ interface TooltipProps {
     arrow?: string;
   };
   docLink?: string;
-  color?: "dark" | "light";
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
@@ -29,7 +28,6 @@ export const Tooltip: React.FC<TooltipProps> = ({
   disabled = false,
   classNames,
   docLink,
-  color = "dark",
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -135,18 +133,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
   }, []);
 
   const arrowClasses = {
-    top: `${
-      color === "dark" ? "tubebay-border-t-gray-900" : "tubebay-border-t-gray-100"
-    } tubebay-top-full tubebay-left-1/2 tubebay--translate-x-1/2 `,
-    bottom: `${
-      color === "dark" ? "tubebay-border-b-gray-900" : "tubebay-border-b-gray-100"
-    } tubebay-bottom-full tubebay-left-1/2 tubebay--translate-x-1/2 `,
-    left: `${
-      color === "dark" ? "tubebay-border-l-gray-900" : "tubebay-border-l-gray-100"
-    } tubebay-left-full tubebay-top-1/2 tubebay--translate-y-1/2 `,
-    right: `${
-      color === "dark" ? "tubebay-border-r-gray-900" : "tubebay-border-r-gray-100"
-    } tubebay-right-full tubebay-top-1/2 tubebay--translate-y-1/2 `,
+    top: "tubebay-top-full tubebay-left-1/2 tubebay--translate-x-1/2 tubebay-border-t-gray-900",
+    bottom:
+      "tubebay-bottom-full tubebay-left-1/2 tubebay--translate-x-1/2 tubebay-border-b-gray-900",
+    left: "tubebay-left-full tubebay-top-1/2 tubebay--translate-y-1/2 tubebay-border-l-gray-900",
+    right:
+      "tubebay-right-full tubebay-top-1/2 tubebay--translate-y-1/2 tubebay-border-r-gray-900",
   }[position];
 
   return (
@@ -168,8 +160,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             className={`
-            tubebay-fixed tubebay-z-[60]
-            tubebay-max-w-[300px]
+            tubebay-fixed tubebay-z-[60] tubebay-max-w-[300px]
             ${className}
             ${classNames?.root || ""}
           `}
@@ -179,11 +170,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             }}
           >
             <div
-              className={`tubebay-animate-tooltip tubebay-relative tubebay-px-2.5 tubebay-py-1.5 ${
-                color === "dark"
-                  ? "tubebay-bg-gray-900 tubebay-text-white"
-                  : "tubebay-bg-gray-100 tubebay-text-black"
-              }  tubebay-text-xs tubebay-rounded tubebay-shadow-lg ${
+              className={`tubebay-animate-tooltip tubebay-relative tubebay-px-2.5 tubebay-py-1.5 tubebay-bg-gray-900 tubebay-text-white tubebay-text-xs tubebay-rounded tubebay-shadow-lg ${
                 classNames?.content || ""
               }`}
             >

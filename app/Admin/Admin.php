@@ -92,70 +92,29 @@ class Admin {
 		tubebay_log( 'Admin: Registering TubeBay admin menu', 'info' );
 		$plugin_data = $this->get_plugin_data();
 
-		// Define menu items.
-		$menu_items = array(
-			array(
-				'page_title' => $plugin_data['plugin_name'],
-				'menu_title' => $plugin_data['menu_label'],
-				'menu_slug'  => TUBEBAY_PLUGIN_NAME,
-				'icon_url'   => $plugin_data['custom_icon'],
-				'position'   => $plugin_data['position'],
-				'callback'   => array( $this, 'add_setting_root_div' ),
-				'submenu'    => array(
-					array(
-						'menu_title' => esc_html__( 'Channel Library', 'tubebay' ),
-						'menu_slug'  => TUBEBAY_PLUGIN_NAME,
-						'callback'   => array( $this, 'add_setting_root_div' ),
-					),
-					array(
-						'menu_title' => esc_html__( 'Settings', 'tubebay' ),
-						'menu_slug'  => TUBEBAY_PLUGIN_NAME . '#/settings',
-						'callback'   => array( $this, 'add_setting_root_div' ),
-					),
-				),
-			),
+		// Add Videos submenu under Products (Legacy/Alias for Library)
+		add_submenu_page(
+			'edit.php?post_type=product',
+			esc_html__( 'TubeBay Library', 'tubebay' ),
+			esc_html__( 'TubeBay Library', 'tubebay' ),
+			'manage_tubebay',
+			'tubebay-videos',
+			array( $this, 'add_setting_root_div' )
 		);
-
-		foreach ( $menu_items as $item ) {
-			tubebay_log( 'Admin: Adding menu page: ' . $item['menu_title'], 'debug' );
-			add_menu_page(
-				$item['page_title'],
-				$item['menu_title'],
-				'manage_tubebay',
-				$item['menu_slug'],
-				$item['callback'],
-				$item['icon_url'],
-				$item['position']
-			);
-
-			if ( ! empty( $item['submenu'] ) ) {
-				foreach ( $item['submenu'] as $sub ) {
-					// The first submenu item should use the same slug as add_menu_page to override the default parent name.
-					add_submenu_page(
-						$item['menu_slug'], // Parent slug.
-						$item['page_title'] . ' - ' . $sub['menu_title'], // Page title.
-						$sub['menu_title'],
-						'manage_tubebay',
-						$sub['menu_slug'],
-						$sub['callback']
-					);
-				}
-			}
-		}
+		
+		// Add TubeBay menu under WooCommerce or main menu (using Products -> TubeBay Manager as requested, we'll put it under TubeBay if it existed, otherwise Products)
+		add_submenu_page(
+			'edit.php?post_type=product',
+			esc_html__( 'TubeBay Manager', 'tubebay' ),
+			esc_html__( 'TubeBay Manager', 'tubebay' ),
+			'manage_tubebay',
+			'tubebay-manager',
+			array( $this, 'add_setting_root_div_manager' )
+		);
 
 		// Store menu info for other methods.
 		$this->menu_info = array(
-			'menu_slug' => TUBEBAY_PLUGIN_NAME,
-		);
-
-		// Add Videos submenu under Products.
-		add_submenu_page(
-			'edit.php?post_type=product',
-			esc_html__( 'Videos', 'tubebay' ),
-			esc_html__( 'Videos', 'tubebay' ),
-			'manage_tubebay',
-			'tubebay-videos-redirect',
-			array( $this, 'redirect_to_tubebay' )
+			'menu_slug' => 'tubebay-videos',
 		);
 	}
 
@@ -165,7 +124,7 @@ class Admin {
 	 * @return void
 	 */
 	public function redirect_to_tubebay() {
-		$redirect_url = admin_url( 'admin.php?page=' . TUBEBAY_PLUGIN_NAME );
+		$redirect_url = admin_url( 'edit.php?post_type=product&page=tubebay-videos' );
 		wp_safe_redirect( $redirect_url );
 		exit;
 	}
@@ -179,14 +138,24 @@ class Admin {
 	 */
 	public function is_menu_page() {
 		$screen              = get_current_screen();
-		$admin_scripts_bases = array(
-			'toplevel_page_' . TUBEBAY_PLUGIN_NAME,
-			'product_page_' . TUBEBAY_PLUGIN_NAME,
-		);
-		if ( ! ( isset( $screen->base ) && in_array( $screen->base, $admin_scripts_bases, true ) ) ) {
+		
+		if ( ! $screen ) {
 			return false;
 		}
-		return true;
+		
+		$base = $screen->base;
+		
+		if ( 'product_page_tubebay-videos' === $base || 'product_page_tubebay-manager' === $base ) {
+			return true;
+		}
+
+		// Check for WooCommerce Settings tab
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'woocommerce_page_wc-settings' === $base && isset( $_GET['tab'] ) && TUBEBAY_PLUGIN_NAME === $_GET['tab'] ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -220,6 +189,29 @@ class Admin {
 	}
 
 	/**
+	 * Add setting root div for manager with specific initial route hash if needed.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return void
+	 */
+	public function add_setting_root_div_manager() {
+		echo '<div id="' . esc_attr( TUBEBAY_PLUGIN_NAME ) . '">
+			<div class="tubebay-loader-container">
+				<p>' . esc_html__( 'Loading...', 'tubebay' ) . '</p>
+			</div>
+		</div>';
+		?>
+		<script>
+			// Force route to manager on load if the hash is empty or /
+			if (!window.location.hash || window.location.hash === '#/') {
+				window.location.hash = '#/manager';
+			}
+		</script>
+		<?php
+	}
+
+	/**
 	 * Enqueue admin resources.
 	 *
 	 * @return void
@@ -232,9 +224,13 @@ class Admin {
 			return;
 		}
 
-		tubebay_log( 'Admin: Enqueueing admin resources for TubeBay menu page', 'debug' );
+		$screen = get_current_screen();
+		$context = ( isset( $screen->base ) && 'woocommerce_page_wc-settings' === $screen->base ) ? 'settings' : 'admin';
+		$handle  = TUBEBAY_PLUGIN_NAME . '-' . $context;
 
-		$deps_file  = TUBEBAY_PATH . 'build/admin.asset.php';
+		tubebay_log( "Admin: Enqueueing admin resources for TubeBay menu page (context: {$context})", 'debug' );
+
+		$deps_file  = TUBEBAY_PATH . "build/{$context}.asset.php";
 		$dependency = array( 'wp-i18n' );
 		$version    = TUBEBAY_VERSION;
 		if ( file_exists( $deps_file ) ) {
@@ -250,22 +246,24 @@ class Admin {
 		 * Filters the URL of the main admin JavaScript file.
 		 *
 		 * @since 1.0.0
-		 * @hook tubebay_admin_script
-		 * @param string $script_url The URL to the admin.js file.
+		 * @hook tubebay_admin_script_{$context}
+		 * @param string $script_url The URL to the js file.
 		 */
-		$admin_script = apply_filters( 'tubebay_admin_script', TUBEBAY_URL . 'build/admin.js' );
-		wp_enqueue_script( TUBEBAY_PLUGIN_NAME, $admin_script, $dependency, $version, true );
+		$admin_script = apply_filters( "tubebay_admin_script_{$context}", TUBEBAY_URL . "build/{$context}.js" );
+		wp_enqueue_script( $handle, $admin_script, $dependency, $version, true );
+		wp_enqueue_editor();
+		wp_enqueue_media();
 
 		/**
 		 * Filters the URL of the main admin CSS file.
 		 *
 		 * @since 1.0.0
-		 * @hook tubebay_admin_css
-		 * @param string $style_url The URL to the admin.css file.
+		 * @hook tubebay_admin_css_{$context}
+		 * @param string $style_url The URL to the css file.
 		 */
-		$admin_css = apply_filters( 'tubebay_admin_css', TUBEBAY_URL . 'build/admin.css' );
-		wp_enqueue_style( TUBEBAY_PLUGIN_NAME, $admin_css, array(), $version );
-		wp_style_add_data( TUBEBAY_PLUGIN_NAME, 'rtl', 'replace' );
+		$admin_css = apply_filters( "tubebay_admin_css_{$context}", TUBEBAY_URL . "build/{$context}.css" );
+		wp_enqueue_style( $handle, $admin_css, array(), $version );
+		wp_style_add_data( $handle, 'rtl', 'replace' );
 
 		/**
 		 * Filters the data passed from PHP to the main admin JavaScript application.
@@ -290,14 +288,16 @@ class Admin {
 				),
 				'plugin_settings' => Settings::get_all(),
 				'products_url'    => admin_url( 'edit.php?post_type=product' ),
+				'settings_url'    => admin_url( 'admin.php?page=wc-settings&tab=' . TUBEBAY_PLUGIN_NAME ),
+				'context'         => $context,
 			)
 		);
 
-		wp_localize_script( TUBEBAY_PLUGIN_NAME, 'tubebay_Localize', $localize );
+		wp_localize_script( $handle, 'tubebay_Localize', $localize );
 
 		$path_to_check = TUBEBAY_PATH . 'languages';
 		wp_set_script_translations(
-			TUBEBAY_PLUGIN_NAME,
+			$handle,
 			'tubebay',
 			$path_to_check
 		);
@@ -315,9 +315,155 @@ class Admin {
 	 * @return array
 	 */
 	public function add_plugin_action_links( $actions, $plugin_file, $plugin_data, $context ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$actions[] = '<a href="' . esc_url( menu_page_url( $this->menu_info['menu_slug'], false ) ) . '">' . esc_html__( 'Settings', 'tubebay' ) . '</a>';
+		$actions[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=' . TUBEBAY_PLUGIN_NAME ) ) . '">' . esc_html__( 'Settings', 'tubebay' ) . '</a>';
 		return $actions;
 	}
+	
+	/**
+	 * Add to WooCommerce settings pages.
+	 *
+	 * @since 1.0.0
+	 * @param array $settings The settings pages.
+	 * @return array
+	 */
+	public function add_wc_settings_tab( $settings ) {
+		$settings[] = new WCSettingsTab();
+		return $settings;
+	}
+
+	/**
+	 * Dismiss onboarding notice action.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function handle_dismiss_onboarding() {
+		if ( isset( $_GET['tubebay_dismiss_onboarding'] ) && check_admin_referer( 'tubebay_dismiss_onboarding' ) ) {
+			Settings::set( 'is_onboarding_completed', true );
+			wp_safe_redirect( remove_query_arg( array( 'tubebay_dismiss_onboarding', '_wpnonce' ) ) );
+			exit;
+		}
+	}
+
+	/**
+	 * Display onboarding notice on WooCommerce pages.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function display_onboarding_notice() {
+		if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		$is_wc_page = false;
+		if ( strpos( $screen->id, 'woocommerce' ) !== false || strpos( $screen->id, 'wc-' ) !== false || 'dashboard' === $screen->id || 'edit-product' === $screen->id || 'product' === $screen->id ) {
+			$is_wc_page = true;
+		}
+
+		if ( ! $is_wc_page ) {
+			return;
+		}
+
+		if ( Settings::get( 'is_onboarding_completed' ) ) {
+			return;
+		}
+
+		if ( $this->is_menu_page() ) {
+			return;
+		}
+
+		$setup_url   = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
+		$dismiss_url = wp_nonce_url( add_query_arg( 'tubebay_dismiss_onboarding', '1' ), 'tubebay_dismiss_onboarding' );
+		?>
+		<style type="text/css">
+			/* WooCommerce Admin SPA stylesheet hides standard notices under #wpbody-content. We force ours to show. */
+			#wpbody-content .tubebay-onboarding-notice,
+			.woocommerce-layout__notice-list-wrapper .tubebay-onboarding-notice,
+			.tubebay-onboarding-notice {
+				display: block !important;
+				visibility: visible !important;
+				opacity: 1 !important;
+				margin: 20px 20px 10px 2px !important;
+			}
+		</style>
+		<div class="notice notice-info is-dismissible tubebay-onboarding-notice" style="padding: 15px 20px; border-left-color: #2271b1; position: relative; display: block !important;">
+			<h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;"><?php esc_html_e( 'Welcome to TubeBay!', 'tubebay' ); ?></h3>
+			<p style="margin: 0 0 12px 0; font-size: 13px; line-height: 1.5; color: #4c4c4c;">
+				<?php esc_html_e( 'Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store.', 'tubebay' ); ?>
+			</p>
+			<p style="margin: 0;">
+				<a href="<?php echo esc_url( $setup_url ); ?>" class="button button-primary" style="margin-right: 10px;"><?php esc_html_e( 'Start Setup Wizard', 'tubebay' ); ?></a>
+				<a href="<?php echo esc_url( $dismiss_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Skip Setup', 'tubebay' ); ?></a>
+			</p>
+		</div>
+		<script type="text/javascript">
+			jQuery(document).on('click', '.tubebay-onboarding-notice .notice-dismiss', function() {
+				window.location.href = '<?php echo esc_url_raw( $dismiss_url ); ?>';
+			});
+		</script>
+		<?php
+	}
+
+	/**
+	 * Register or update the WooCommerce Admin Inbox Note for onboarding.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function manage_woocommerce_inbox_note() {
+		if ( ! class_exists( 'Automattic\WooCommerce\Admin\Notes\Note' ) || ! class_exists( 'Automattic\WooCommerce\Admin\Notes\Notes' ) ) {
+			return;
+		}
+
+		$note_name = 'tubebay-onboarding-setup';
+
+		// If onboarding is completed, delete the note
+		if ( Settings::get( 'is_onboarding_completed' ) ) {
+			try {
+				\Automattic\WooCommerce\Admin\Notes\Notes::delete_notes_with_name( $note_name );
+			} catch ( \Exception $e ) {
+				// Ignore errors
+			}
+			return;
+		}
+
+		try {
+			$note_exists = \Automattic\WooCommerce\Admin\Notes\Notes::get_note_by_name( $note_name );
+			if ( $note_exists ) {
+				return;
+			}
+
+			$note = new \Automattic\WooCommerce\Admin\Notes\Note();
+			$note->set_title( __( 'Ready to get started with TubeBay?', 'tubebay' ) );
+			$note->set_content( __( 'Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store.', 'tubebay' ) );
+			$note->set_content_data( (object) array() );
+			$note->set_type( \Automattic\WooCommerce\Admin\Notes\Note::E_WC_ADMIN_NOTE_INFORMATIONAL );
+			$note->set_name( $note_name );
+			$note->set_source( 'tubebay' );
+
+			$setup_url   = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
+
+			// Start Setup (Primary action)
+			$note->add_action(
+				'start-setup',
+				__( 'Start Setup Wizard', 'tubebay' ),
+				$setup_url,
+				'actioned',
+				true
+			);
+
+			$note->save();
+		} catch ( \Exception $e ) {
+			// Ignore database errors
+		}
+	}
+
 	/**
 	 * Register the hooks for the admin area.
 	 *
@@ -329,8 +475,12 @@ class Admin {
 		$loader = $plugin->get_loader();
 		$loader->add_filter( 'all_plugins', $plugin, 'change_plugin_display_name' );
 		$loader->add_action( 'admin_menu', $this, 'add_admin_menu' );
+		$loader->add_filter( 'woocommerce_get_settings_pages', $this, 'add_wc_settings_tab' );
 		$loader->add_filter( 'admin_body_class', $this, 'add_has_sticky_header' );
 		$loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_resources' );
+		$loader->add_action( 'admin_notices', $this, 'display_onboarding_notice' );
+		$loader->add_action( 'admin_init', $this, 'handle_dismiss_onboarding' );
+		$loader->add_action( 'admin_init', $this, 'manage_woocommerce_inbox_note' );
 
 		$plugin_basename = plugin_basename( TUBEBAY_PATH . 'tubebay.php' );
 		$loader->add_filter( 'plugin_action_links_' . $plugin_basename, $this, 'add_plugin_action_links', 10, 4 );

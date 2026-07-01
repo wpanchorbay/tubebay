@@ -1,0 +1,49 @@
+<<<<<<< SEARCH
+    function openLightbox(htmlContent) {
+        createLightbox();
+        lightboxContent.innerHTML = htmlContent;
+
+        // Ensure auto-play triggers correctly on mobile if applicable
+        const videoEl = lightboxContent.querySelector('video');
+        if (videoEl) {
+            videoEl.play().catch(e => console.log('Lightbox auto-play prevented', e));
+        }
+
+        lightboxOverlay.classList.add('tubebay-active');
+        document.body.style.overflow = 'hidden'; // prevent bg scroll
+    }
+=======
+    function openLightbox(htmlContent) {
+        createLightbox();
+        lightboxContent.innerHTML = htmlContent;
+
+        // Ensure auto-play triggers correctly on mobile if applicable
+        const videoEl = lightboxContent.querySelector('video');
+        if (videoEl) {
+            videoEl.play().catch(e => console.log('Lightbox auto-play prevented', e));
+        }
+
+        lightboxOverlay.classList.add('tubebay-active');
+        document.body.style.overflow = 'hidden'; // prevent bg scroll
+
+        // Add swipe support for mobile
+        let touchstartY = 0;
+        let touchendY = 0;
+
+        lightboxOverlay.addEventListener('touchstart', function(e) {
+            touchstartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        lightboxOverlay.addEventListener('touchend', function(e) {
+            touchendY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            // If swiped down or up more than 50px, close
+            if (Math.abs(touchendY - touchstartY) > 50) {
+                closeLightbox();
+            }
+        }
+    }
+>>>>>>> REPLACE

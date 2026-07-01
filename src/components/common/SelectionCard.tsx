@@ -118,7 +118,11 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
         <div
           className={`
             tubebay-w-5 tubebay-h-5 tubebay-rounded-full tubebay-border-2 tubebay-flex tubebay-items-center tubebay-justify-center
-            ${isDisabled ? "tubebay-border-gray-300 tubebay-bg-gray-100" : ""}
+            ${
+              isDisabled
+                ? "tubebay-border-gray-300 tubebay-bg-gray-100"
+                : ""
+            }
             ${
               !isDisabled && selected
                 ? "tubebay-border-white"

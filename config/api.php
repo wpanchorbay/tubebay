@@ -16,9 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use TubeBay\Api\LogController;
+use TubeBay\Api\ProductController;
 
 return array(
 	\TubeBay\Api\SettingsController::class,
 	\TubeBay\Api\YouTubeController::class,
+	ProductController::class,
 	LogController::class,
 );

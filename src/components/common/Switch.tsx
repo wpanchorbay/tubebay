@@ -39,6 +39,7 @@ export const Switch: React.FC<SwitchProps> = ({
   };
 
   const currentSize = sizeConfig[size];
+  
 
   return (
     <button
@@ -50,15 +51,7 @@ export const Switch: React.FC<SwitchProps> = ({
       className={`
         tubebay-group tubebay-relative tubebay-inline-flex tubebay-shrink-0 tubebay-cursor-pointer tubebay-items-center tubebay-rounded-full tubebay-border-2 tubebay-border-transparent tubebay-transition-colors tubebay-duration-200 tubebay-ease-in-out focus:tubebay-outline-none focus:tubebay-ring-2 focus:tubebay-ring-primary focus:tubebay-ring-offset-2
         ${currentSize.switch}
-        ${
-          checked
-            ? className.includes("tubebay-bg-")
-              ? ""
-              : "tubebay-bg-primary"
-            : className.includes("tubebay-bg-")
-            ? ""
-            : "tubebay-bg-gray-200"
-        }
+        ${checked ? "tubebay-bg-green-500" : "tubebay-bg-black"}
         ${disabled ? "tubebay-opacity-50 tubebay-cursor-not-allowed" : ""}
         ${className}
         ${classNames?.root || ""}

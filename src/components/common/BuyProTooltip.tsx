@@ -82,7 +82,7 @@ export const BuyProTooltip: React.FC<BuyProTooltipProps> = ({
             onMouseLeave={handleTooltipMouseLeave}
           >
             <span className="tubebay-font-medium tubebay-whitespace-nowrap">
-              {__("Upgrade to unlock", "tubebay")}
+              {__("Upgrade to unlock", "tubebay-boilerplate")}
             </span>
             <a
               href={store.pluginData?.support_uri || "#"}
@@ -90,7 +90,7 @@ export const BuyProTooltip: React.FC<BuyProTooltipProps> = ({
               rel="noopener noreferrer"
               className="tubebay-w-full tubebay-bg-[#f02a74] hover:!tubebay-bg-[#e71161] tubebay-text-white hover:!tubebay-text-white tubebay-font-bold tubebay-py-1.5 tubebay-px-3 tubebay-transition-colors focus:tubebay-outline-none focus:tubebay-ring-0 tubebay-cursor-pointer tubebay-text-center tubebay-no-underline"
             >
-              {__("Buy Pro", "tubebay")}
+              {__("Buy Pro", "tubebay-boilerplate")}
             </a>
             {/* Tooltip Arrow */}
             <div className="tubebay-absolute tubebay-top-full tubebay-left-1/2 -tubebay-translate-x-1/2 tubebay-border-4 tubebay-border-transparent tubebay-border-t-gray-900"></div>

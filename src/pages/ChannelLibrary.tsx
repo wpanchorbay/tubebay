@@ -1,26 +1,11 @@
 import { useState, useEffect } from "react";
 import apiFetch from "@wordpress/api-fetch";
 import { useToast } from "../store/toast/use-toast";
-import { Input } from "../components/common/Input";
-import Button from "../components/common/Button";
-import Page from "../components/common/Page";
+import { ClassicInput, ClassicButton, ClassicSelect } from "../components/classics";
+import { Youtube, Copy } from "lucide-react";
 import CustomModal from "../components/common/CustomModal";
-import {
-  RefreshIcon,
-  CheckIcon,
-  ListIcon,
-  LayoutGridIcon,
-  EyeIcon,
-  CalendarIcon,
-  YouTubeFilledIcon,
-} from "../components/common/Icons";
-import Select from "../components/common/Select";
-import { VideoGridSkeleton } from "../components/loading/VideoGridSkeleton";
 import { useWpabStore, useWpabStoreActions } from "../store/wpabStore";
 import { timeDiff } from "../utils/Dates";
-import { Toggler } from "../components/common/Toggler";
-import { Copy } from "lucide-react";
-import Skeleton from "../components/common/Skeleton";
 
 interface VideoData {
   id: string;
@@ -28,6 +13,7 @@ interface VideoData {
   thumbnail_url: string;
   published_at: string;
   description: string;
+  products?: { id: number; name: string }[];
 }
 
 export default function ChannelLibrary() {
@@ -44,18 +30,22 @@ export default function ChannelLibrary() {
   const [searchInput, setSearchInput] = useState("");
   const [serverSearchQuery, setServerSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("date_desc");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
+  const [copiedVideoId, setCopiedVideoId] = useState<string | null>(null);
+
+  const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState("");
+  const [expandedProductVideoId, setExpandedProductVideoId] = useState<string | null>(null);
   const { plugin_settings } = useWpabStore();
 
   const isConnected = plugin_settings?.connection_status === "connected";
 
   const SORT_OPTIONS = [
-    { value: "date_desc", label: "Recently Added" },
-    { value: "date_asc", label: "Oldest First" },
-    { value: "title_asc", label: "Title (A-Z)" },
-    { value: "title_desc", label: "Title (Z-A)" },
-    { value: "view_count", label: "Most Viewed" },
+    { value: "date_desc", label: "Sort by Date (Newest)" },
+    { value: "date_asc", label: "Sort by Date (Oldest)" },
+    { value: "title_asc", label: "Sort by Title (A-Z)" },
+    { value: "title_desc", label: "Sort by Title (Z-A)" },
+    { value: "view_count", label: "Sort by Views" },
   ];
 
   const fetchVideos = async (page_token: string = "", isLoadMore = false) => {
@@ -103,12 +93,11 @@ export default function ChannelLibrary() {
         path: "/tubebay/v1/youtube/sync-library",
       });
       if (response.success) {
-        // Reset filters when forced sync occurs to see the freshest items
         setSearchInput("");
         setServerSearchQuery("");
         setSortBy("date_desc");
         setVideos(response.videos);
-        // sync with context
+
         const updateData: any = {};
         if (response.last_sync_time)
           updateData.last_sync_time = Number(response.last_sync_time);
@@ -139,12 +128,10 @@ export default function ChannelLibrary() {
     }
   };
 
-  // Effect to trigger initial load and re-fetch when search/sort changes
   useEffect(() => {
     fetchVideos();
   }, [serverSearchQuery, sortBy]);
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setServerSearchQuery(searchInput);
@@ -161,284 +148,316 @@ export default function ChannelLibrary() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const handleCopyShortcode = (videoId: string) => {
+    navigator.clipboard.writeText(`[tubebay_video id="${videoId}"]`);
+    addToast("Shortcode copied to clipboard", "success");
+    setCopiedVideoId(videoId);
+    setTimeout(() => {
+      setCopiedVideoId(null);
+    }, 2000);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedVideos.length === videos.length) {
+      setSelectedVideos([]);
+    } else {
+      setSelectedVideos(videos.map((v) => v.id));
+    }
+  };
+
+  const toggleSelectVideo = (id: string) => {
+    setSelectedVideos((prev) =>
+      prev.includes(id) ? prev.filter((vId) => vId !== id) : [...prev, id]
+    );
+  };
+
+  const handleApplyBulkAction = () => {
+    if (selectedVideos.length === 0 || !bulkAction) return;
+
+    if (bulkAction === 'assign') {
+      window.location.hash = `/manager?action=assign&videos=${selectedVideos.join(',')}`;
+    }
+
+    // reset
+    setBulkAction("");
+  };
+
   if (!isConnected) {
     return (
-      <Page>
-        <div className="tubebay-flex tubebay-flex-col tubebay-items-center tubebay-justify-center tubebay-min-h-[500px] tubebay-text-center tubebay-bg-white tubebay-rounded-[16px] tubebay-border tubebay-border-dashed tubebay-border-gray-300 tubebay-p-[48px]">
-          <div className="tubebay-w-[80px] tubebay-h-[80px] tubebay-bg-red-50 tubebay-rounded-full tubebay-flex tubebay-items-center tubebay-justify-center tubebay-mb-[24px]">
-            <YouTubeFilledIcon size={40} className="tubebay-text-red-600" />
-          </div>
-          <h2 className="tubebay-t-2 tubebay-text-color-default tubebay-mb-[12px]">
-            Connect Your YouTube Channel
-          </h2>
-          <p className="tubebay-t-4 tubebay-text-[#4b5563] tubebay-max-w-[420px] tubebay-mb-[32px]">
-            Your YouTube library is currently disconnected. Connect your account
-            in settings to sync your videos and manage them here.
+      <div className="wrap tubebay-wrap">
+        <h1 className="tubebay-ignore-preflight">Channel Library</h1>
+        <p className="description" style={{ marginBottom: '15px' }}>
+          Browse, search, and manage your synced YouTube videos.
+        </p>
+        <div className="notice notice-error inline">
+          <p>
+            <strong>Your YouTube library is currently disconnected.</strong> Please complete the onboarding setup or connect your account in the Settings to sync videos.
           </p>
-          <Button
-            color="primary"
-            size="large"
-            className="tubebay-px-[32px]"
-            onClick={() => (window.location.hash = "/settings")}
-          >
-            Go to Settings
-          </Button>
+          <p>
+            <ClassicButton variant="primary" onClick={() => (window.location.hash = "/onboarding")}>
+              Go to Setup
+            </ClassicButton>
+          </p>
         </div>
-      </Page>
+      </div>
     );
   }
 
   return (
-    <Page>
-      {/* Header */}
-      <div className="tubebay-flex tubebay-flex-col md:tubebay-flex-row md:tubebay-justify-between md:tubebay-items-end  tubebay-gap-[24px]">
-        <div>
-          <h1 className="tubebay-t-1 tubebay-text-color-default">
-            Channel Library
-          </h1>
-          <p className="tubebay-t-4 tubebay-text-[#4b5563]">
-            Manage and preview your synced YouTube videos
-          </p>
-        </div>
-        <Button
-          onClick={handleSyncNow}
-          disabled={syncing}
-          color="primary"
-          className="tubebay-whitespace-nowrap tubebay-px-[24px] tubebay-t-5"
-        >
-          {syncing ? (
-            "Syncing..."
-          ) : (
-            <>
-              <RefreshIcon size={16} className="tubebay-mr-[8px]" />
-              Sync Now
-            </>
-          )}
-        </Button>
-      </div>
+    <div className="wrap tubebay-wrap">
+      <h1 className="tubebay-ignore-preflight">Channel Library</h1>
 
-      {/* Status Banner */}
-      {loading ? (
-        <div className="tubebay-bg-gray-100 tubebay-border tubebay-border-gray-200 tubebay-rounded-[12px] tubebay-p-[24px] tubebay-flex tubebay-flex-col md:tubebay-flex-row md:tubebay-items-center md:tubebay-justify-between">
-          <div className="tubebay-flex tubebay-items-center tubebay-gap-[16px]">
-            <Skeleton
-              width="10"
-              height="10"
-              borderRadius="full"
-              className="tubebay-flex-shrink-0"
-            />
-            <div>
-              <Skeleton width="48" height="4" className="tubebay-mb-2" />
-              <Skeleton width="64" height="3" />
-            </div>
-          </div>
-          <div className="tubebay-mt-[16px] md:tubebay-mt-0">
-            <Skeleton width="32" height="4" />
-          </div>
-        </div>
-      ) : (
-        <div className="tubebay-bg-green-50 tubebay-border tubebay-border-green-200 tubebay-rounded-[12px] tubebay-p-[24px]  tubebay-flex tubebay-flex-col md:tubebay-flex-row md:tubebay-items-center md:tubebay-justify-between">
-          <div className="tubebay-flex tubebay-items-center tubebay-gap-[16px]">
-            <div className="tubebay-bg-green-500 tubebay-text-white tubebay-rounded-full tubebay-p-[8px] tubebay-flex tubebay-items-center tubebay-justify-center">
-              <CheckIcon size={24} />
-            </div>
-            <div>
-              <h3 className="tubebay-text-[16px] tubebay-font-bold tubebay-text-gray-900">
-                {videos.length > 0 ? "All Videos Synced" : "No Videos YET"}
-              </h3>
-              <p className="tubebay-text-[14px] tubebay-text-gray-600">
-                {videos.length} videos from your YouTube channel are available
-              </p>
-            </div>
-          </div>
-          <div className="tubebay-text-right tubebay-mt-[16px] md:tubebay-mt-0">
-            <p className="tubebay-text-[14px] tubebay-font-medium tubebay-text-gray-900">
-              Last sync:{" "}
-              {isConnected
-                ? timeDiff(Number(plugin_settings.last_sync_time))
-                : "Never"}
-            </p>
-            {/* <p className="tubebay-text-[12px] tubebay-text-gray-500">
-            Cache is active
-          </p> */}
-          </div>
-        </div>
-      )}
+      <hr className="wp-header-end" />
+
+      <p className="description" style={{ marginBottom: '15px' }}>
+        Browse, search, and manage your synced YouTube videos.
+      </p>
 
       {/* Toolbar */}
-      <div className="tubebay-flex tubebay-flex-col md:tubebay-flex-row tubebay-gap-[16px] tubebay-p-[24px] tubebay-bg-white tubebay-rounded-[16px] tubebay-border tubebay-shadow-sm ">
-        <div className="tubebay-flex-1">
-          <Input
-            type="text"
-            placeholder="Search videos by title..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            classNames={{ input: "tubebay-bg-white" }}
+      <div className="tablenav top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+        <div className="alignleft actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <ClassicSelect
+            value={bulkAction}
+            onChange={(val) => setBulkAction(val as string)}
+            options={[
+              { label: "Bulk Actions", value: "" },
+              { label: "Assign to Products", value: "assign" },
+            ]}
           />
-        </div>
-        <div className="tubebay-w-full md:tubebay-w-[200px]">
-          <Select
+          <ClassicButton variant="secondary" onClick={handleApplyBulkAction} disabled={!bulkAction || selectedVideos.length === 0} style={{ margin: 0 }}>
+            Apply
+          </ClassicButton>
+          <span style={{ color: '#c3c4c7', margin: '0 5px' }}>|</span>
+          <ClassicSelect
             value={sortBy}
             onChange={(val) => setSortBy(val as string)}
             options={SORT_OPTIONS}
-            fontSize={13}
-            className="tubebay-bg-white tubebay-h-[42px]"
           />
+          <p className="search-box" style={{ margin: 0, float: 'none' }}>
+            <label className="screen-reader-text" htmlFor="video-search-input">Search videos:</label>
+            <ClassicInput
+              type="search"
+              id="video-search-input"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search by title..."
+            />
+          </p>
         </div>
-        <div className="tubebay-flex tubebay-items-center tubebay-gap-[8px]">
-          <Toggler
-            options={[
-              { label: <LayoutGridIcon size={18} />, value: "grid" },
-              { label: <ListIcon size={18} />, value: "list" },
-            ]}
-            value={viewMode}
-            onChange={(val) => setViewMode(val as "grid" | "list")}
-            classNames={{
-              button: "!tubebay-px-2",
-            }}
-          />
+        <div className="alignright" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <ClassicButton
+            variant="secondary"
+            onClick={handleSyncNow}
+            disabled={syncing}
+            style={{ margin: 0 }}
+          >
+            {syncing ? "Syncing..." : "Sync Now"}
+          </ClassicButton>
         </div>
       </div>
 
-      {loading ? (
-        <VideoGridSkeleton viewMode={viewMode} />
-      ) : videos.length === 0 ? (
-        <div className="tubebay-text-center tubebay-py-[48px] tubebay-text-gray-500">
-          No videos found. Try syncing or adjusting your search.
-        </div>
-      ) : (
-        <div
-          className={
-            viewMode === "grid"
-              ? "tubebay-grid tubebay-grid-cols-1 md:tubebay-grid-cols-2 lg:tubebay-grid-cols-3 xl:tubebay-grid-cols-4 tubebay-gap-[24px]"
-              : "tubebay-flex tubebay-flex-col tubebay-gap-[16px]"
-          }
-        >
-          {videos.map((video) => (
-            <div
-              key={video.id}
-              className={`tubebay-bg-white tubebay-border tubebay-border-gray-200 tubebay-rounded-[12px] tubebay-overflow-hidden tubebay-shadow-sm hover:tubebay-shadow-md tubebay-transition-shadow ${
-                viewMode === "list"
-                  ? "tubebay-flex tubebay-flex-col sm:tubebay-flex-row"
-                  : ""
-              }`}
-            >
-              {/* Thumbnail */}
-              <div
-                className={`tubebay-relative tubebay-bg-gray-100 ${
-                  viewMode === "list"
-                    ? "sm:tubebay-w-[240px] tubebay-shrink-0"
-                    : "tubebay-aspect-video"
-                }`}
-              >
-                <img
-                  src={video.thumbnail_url}
-                  alt={video.title}
-                  className="tubebay-w-full tubebay-h-full tubebay-object-cover tubebay-aspect-video"
-                />
-                <div className="tubebay-absolute tubebay-bottom-[8px] tubebay-right-[8px] tubebay-bg-black/80 tubebay-text-white tubebay-text-[11px] tubebay-font-medium tubebay-px-[6px] tubebay-py-[2px] tubebay-rounded-[4px]">
-                  Video
-                </div>
-              </div>
+      <div className="notice notice-info inline" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+        <p>
+          {videos.length > 0 ? (
+            <strong>{videos.length} videos available.</strong>
+          ) : (
+            "No Videos YET."
+          )}
+        </p>
+        <p>
+          <span style={{ color: '#646970' }}>Last sync: </span>
+          <strong>{timeDiff(Number(plugin_settings.last_sync_time))}</strong>
+        </p>
+      </div>
 
-              {/* Content */}
-              <div className="tubebay-p-[16px] tubebay-flex tubebay-flex-col tubebay-justify-between tubebay-flex-1">
-                <div>
-                  <h4
-                    className="tubebay-text-[15px] tubebay-font-bold tubebay-text-gray-900 tubebay-tracking-tight tubebay-line-clamp-2 tubebay-mb-[8px] tubebay-leading-tight"
-                    title={video.title}
-                  >
-                    {video.title}
-                  </h4>
-                  {viewMode === "list" && video.description && (
-                    <p className="tubebay-text-[13px] tubebay-text-gray-600 tubebay-line-clamp-2 tubebay-mb-[12px]">
-                      {video.description}
-                    </p>
-                  )}
-                  <div className="tubebay-flex tubebay-items-center tubebay-text-[13px] tubebay-text-gray-500 tubebay-mb-[16px] tubebay-gap-[8px]">
-                    <span className="tubebay-flex tubebay-items-center tubebay-gap-[4px]">
-                      <EyeIcon size={14} />
-                      YT Video
+      {loading ? (
+        <>
+          <style type="text/css">{`
+            @keyframes tubebay-pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: .4; }
+            }
+            .tubebay-skeleton-bar {
+              height: 14px;
+              background-color: #e2e8f0;
+              border-radius: 4px;
+              animation: tubebay-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .tubebay-skeleton-thumbnail {
+              width: 120px;
+              height: 68px;
+              background-color: #e2e8f0;
+              border-radius: 4px;
+              animation: tubebay-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+          `}</style>
+          <table className="wp-list-table widefat fixed striped table-view-list">
+            <thead>
+              <tr>
+                <th scope="col" style={{ width: '160px' }}>Thumbnail</th>
+                <th scope="col" className="column-primary">Title</th>
+                <th scope="col" style={{ width: '200px' }}>Products</th>
+                <th scope="col" style={{ width: '150px' }}>Published</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i}>
+                  <td>
+                    <div className="tubebay-skeleton-thumbnail" />
+                  </td>
+                  <td className="column-primary" style={{ verticalAlign: 'middle' }}>
+                    <div className="tubebay-skeleton-bar" style={{ width: '75%', marginBottom: '8px' }} />
+                    <div className="tubebay-skeleton-bar" style={{ width: '40%' }} />
+                  </td>
+                  <td style={{ verticalAlign: 'middle' }}>
+                    <div className="tubebay-skeleton-bar" style={{ width: '60%' }} />
+                  </td>
+                  <td style={{ verticalAlign: 'middle' }}>
+                    <div className="tubebay-skeleton-bar" style={{ width: '70%' }} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      ) : videos.length === 0 ? (
+        <p className="description">No videos found. Try syncing or adjusting your search.</p>
+      ) : (
+        <table className="wp-list-table widefat fixed striped table-view-list">
+          <thead>
+            <tr>
+              <th scope="col" id="cb" className="manage-column column-cb check-column" style={{ width: '2.2em' }}>
+                <label className="screen-reader-text" htmlFor="cb-select-all-1">Select All</label>
+                <input
+                  id="cb-select-all-1"
+                  type="checkbox"
+                  checked={videos.length > 0 && selectedVideos.length === videos.length}
+                  onChange={toggleSelectAll}
+                />
+              </th>
+              <th scope="col" id="thumbnail" className="manage-column" style={{ width: '160px' }}>Thumbnail</th>
+              <th scope="col" id="title" className="manage-column column-primary">Title</th>
+              <th scope="col" id="products" className="manage-column" style={{ width: '200px' }}>Products</th>
+              <th scope="col" id="date" className="manage-column" style={{ width: '150px' }}>Published</th>
+            </tr>
+          </thead>
+          <tbody>
+            {videos.map((video) => (
+              <tr key={video.id} className={selectedVideos.includes(video.id) ? 'active' : ''}>
+                <th scope="row" className="check-column">
+                  <label className="screen-reader-text" htmlFor={`cb-select-${video.id}`}>Select {video.title}</label>
+                  <input
+                    id={`cb-select-${video.id}`}
+                    type="checkbox"
+                    checked={selectedVideos.includes(video.id)}
+                    onChange={() => toggleSelectVideo(video.id)}
+                  />
+                </th>
+                <td className="thumbnail column-thumbnail">
+                  <div style={{ width: '120px', height: '68px', backgroundColor: '#f0f0f1', overflow: 'hidden', position: 'relative' }}>
+                    <img
+                      src={video.thumbnail_url}
+                      alt={video.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                </td>
+                <td className="title column-title has-row-actions column-primary">
+                  <strong>{video.title}</strong>
+                  <div className="row-actions">
+                    <span className="view">
+                      <button
+                        type="button"
+                        className="button-link"
+                        onClick={() => setPreviewVideoId(video.id)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Youtube size={12} />
+                        View on YouTube
+                      </button>
+                      {" | "}
                     </span>
-                    <span>•</span>
-                    <span className="tubebay-flex tubebay-items-center tubebay-gap-[4px]">
-                      <CalendarIcon size={14} />
-                      {formatDate(video.published_at)}
+                    <span className="copy">
+                      <button
+                        type="button"
+                        className="button-link"
+                        onClick={() => handleCopyShortcode(video.id)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Copy size={12} />
+                        {copiedVideoId === video.id ? "Copied!" : "Copy Shortcode"}
+                      </button>
                     </span>
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div
-                  className={`tubebay-flex tubebay-gap-[8px] ${
-                    viewMode === "list"
-                      ? "sm:tubebay-justify-end sm:tubebay-mt-auto"
-                      : ""
-                  }`}
-                >
-                  <Button
-                    className={viewMode === "list" ? "" : "tubebay-flex-1"}
-                    color="primary"
-                    onClick={() => setPreviewVideoId(video.id)}
-                  >
-                    <EyeIcon size={16} className="tubebay-mr-[6px]" />
-                    Preview
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="!tubebay-px-[12px] tubebay-text-gray-700 tubebay-border-gray-300 "
-                    title="Copy Shortcode"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `[tubebay_video id="${video.id}"]`,
-                      );
-                      addToast("Shortcode copied to clipboard", "success");
-                    }}
-                  >
-                    <Copy size={16} />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                </td>
+                <td className="products column-products" style={{ verticalAlign: 'middle' }}>
+                  {video.is_assigned ? (
+                    <div>
+                      <span
+                        className="awaiting-mod count"
+                        style={{ cursor: 'pointer', display: 'inline-block', marginBottom: expandedProductVideoId === video.id ? '5px' : '0' }}
+                        onClick={() => setExpandedProductVideoId(expandedProductVideoId === video.id ? null : video.id)}
+                      >
+                        <span className="pending-count" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          Assigned to {video.assigned_count} {video.assigned_count === 1 ? 'product' : 'products'}
+                          <span className={`dashicons dashicons-arrow-${expandedProductVideoId === video.id ? 'up' : 'down'}-alt2`} style={{ fontSize: '14px', width: '14px', height: '14px' }}></span>
+                        </span>
+                      </span>
+                      {expandedProductVideoId === video.id && (
+                        <div style={{ marginTop: '5px', fontSize: '12px' }}>
+                          {video.products.map((p, idx) => (
+                            <div key={p.id} style={{ marginBottom: '3px' }}>
+                              <a href={`post.php?post=${p.id}&action=edit`} title={`Edit ${p.name}`}>{p.name}</a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span style={{ color: '#c3c4c7' }}>—</span>
+                  )}
+                </td>
+                <td className="date column-date" style={{ verticalAlign: 'middle' }}>
+                  {formatDate(video.published_at)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
       {!loading && nextPageToken && (
-        <div className="tubebay-mt-[32px] tubebay-text-center">
-          <Button
-            variant="outline"
+        <div className="tablenav bottom" style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          <ClassicButton
+            variant="secondary"
             onClick={() => fetchVideos(nextPageToken, true)}
             disabled={loadingMore}
-            className="tubebay-w-full md:tubebay-w-[200px] tubebay-py-[12px] tubebay-font-bold tubebay-text-gray-700"
           >
             {loadingMore ? "Loading..." : "Load More Videos"}
-          </Button>
+          </ClassicButton>
         </div>
       )}
+
       {/* Video Preview Modal */}
       {previewVideoId && (
         <CustomModal
           isOpen={!!previewVideoId}
           onClose={() => setPreviewVideoId(null)}
-          title={
-            videos.find((v) => v.id === previewVideoId)?.title ||
-            "Video Preview"
-          }
+          title={videos.find((v) => v.id === previewVideoId)?.title || "Video Preview"}
           maxWidth="tubebay-max-w-3xl"
         >
-          <div className="tubebay-aspect-video tubebay-w-full tubebay-rounded-lg tubebay-overflow-hidden tubebay-bg-black">
+          <div style={{ aspectRatio: '16/9', width: '100%', backgroundColor: '#000', borderRadius: '4px', overflow: 'hidden' }}>
             <iframe
-              className="tubebay-w-full tubebay-h-full"
+              style={{ width: '100%', height: '100%', border: 'none' }}
               src={`https://www.youtube.com/embed/${previewVideoId}?autoplay=1&rel=0`}
               title="Video Preview"
-              frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
         </CustomModal>
       )}
-    </Page>
+    </div>
   );
 }
