@@ -92,16 +92,26 @@ class Admin {
 		tubebay_log( 'Admin: Registering TubeBay admin menu', 'info' );
 		$plugin_data = $this->get_plugin_data();
 
-		// Add Videos submenu under Products.
+		// Add Videos submenu under Products (Legacy/Alias for Library)
 		add_submenu_page(
 			'edit.php?post_type=product',
-			esc_html__( 'Videos', 'tubebay' ),
-			esc_html__( 'Videos', 'tubebay' ),
+			esc_html__( 'TubeBay Library', 'tubebay' ),
+			esc_html__( 'TubeBay Library', 'tubebay' ),
 			'manage_tubebay',
 			'tubebay-videos',
 			array( $this, 'add_setting_root_div' )
 		);
 		
+		// Add TubeBay menu under WooCommerce or main menu (using Products -> TubeBay Manager as requested, we'll put it under TubeBay if it existed, otherwise Products)
+		add_submenu_page(
+			'edit.php?post_type=product',
+			esc_html__( 'TubeBay Manager', 'tubebay' ),
+			esc_html__( 'TubeBay Manager', 'tubebay' ),
+			'manage_tubebay',
+			'tubebay-manager',
+			array( $this, 'add_setting_root_div_manager' )
+		);
+
 		// Store menu info for other methods.
 		$this->menu_info = array(
 			'menu_slug' => 'tubebay-videos',
@@ -135,7 +145,7 @@ class Admin {
 		
 		$base = $screen->base;
 		
-		if ( 'product_page_tubebay-videos' === $base ) {
+		if ( 'product_page_tubebay-videos' === $base || 'product_page_tubebay-manager' === $base ) {
 			return true;
 		}
 
@@ -176,6 +186,29 @@ class Admin {
 				<p>' . esc_html__( 'Loading...', 'tubebay' ) . '</p>
 			</div>
 		</div>';
+	}
+
+	/**
+	 * Add setting root div for manager with specific initial route hash if needed.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return void
+	 */
+	public function add_setting_root_div_manager() {
+		echo '<div id="' . esc_attr( TUBEBAY_PLUGIN_NAME ) . '">
+			<div class="tubebay-loader-container">
+				<p>' . esc_html__( 'Loading...', 'tubebay' ) . '</p>
+			</div>
+		</div>';
+		?>
+		<script>
+			// Force route to manager on load if the hash is empty or /
+			if (!window.location.hash || window.location.hash === '#/') {
+				window.location.hash = '#/manager';
+			}
+		</script>
+		<?php
 	}
 
 	/**

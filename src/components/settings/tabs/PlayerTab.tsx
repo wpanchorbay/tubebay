@@ -14,37 +14,85 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
         title="Video Player Settings"
         description="Configure how YouTube videos are displayed on your product pages."
         fields={[
+
           {
-            id: "video_placement",
-            label: "Video Placement",
+            id: "max_videos",
+            label: "Max Videos Per Product",
             render: () => (
               <>
-                <ClassicSelect
-                  id="video_placement"
-                  value={settings.video_placement || "add_to_gallery_last"}
-                  onChange={(val) => updateLocalSetting("video_placement", val)}
-                  options={[
-                    { label: "Inside Product Gallery (Last Slide)", value: "add_to_gallery_last" },
-                    { label: "Inside Product Gallery (First Slide)", value: "replace_main_image" },
-                    { label: "Below Product Gallery", value: "woocommerce_product_thumbnails" },
-                  ]}
+                <input
+                  type="number"
+                  id="max_videos"
+                  value={settings.max_videos ?? 0}
+                  onChange={(e) => updateLocalSetting("max_videos", parseInt(e.target.value) || 0)}
+                  min="0"
+                  step="1"
                 />
-                <p className="description">Choose where the synced videos should appear on the product page.</p>
+                <p className="description">Maximum number of videos to show in the gallery (0 = unlimited).</p>
               </>
             ),
           },
           {
-            id: "muted_autoplay",
-            label: "Muted Autoplay",
+            id: "video_position",
+            label: "Video Position in Gallery",
+            render: () => (
+              <>
+                <ClassicSelect
+                  id="video_position"
+                  value={settings.video_position || "first"}
+                  onChange={(val) => updateLocalSetting("video_position", val)}
+                  options={[
+                    { label: "First (Before images)", value: "first" },
+                    { label: "Last (After images)", value: "last" },
+                    { label: "Mixed (Based on drag/drop order)", value: "mixed" },
+                  ]}
+                />
+                <p className="description">Where videos should appear relative to product images.</p>
+              </>
+            ),
+          },
+          {
+            id: "autoplay_first",
+            label: "Autoplay First Video",
             render: () => (
               <>
                 <ClassicCheckbox
-                  id="muted_autoplay"
-                  checked={settings.muted_autoplay ?? true}
-                  onChange={(checked) => updateLocalSetting("muted_autoplay", checked)}
-                  label="Autoplay videos on mute"
+                  id="autoplay_first"
+                  checked={settings.autoplay_first ?? false}
+                  onChange={(checked) => updateLocalSetting("autoplay_first", checked)}
+                  label="Autoplay the first video (muted)"
                 />
-                <p className="description">If enabled, videos will start playing automatically without sound when the user scrolls them into view.</p>
+                <p className="description">If enabled, the first video in the gallery will start playing automatically without sound. Subsequent videos will not autoplay.</p>
+              </>
+            )
+          },
+          {
+            id: "show_duration",
+            label: "Show Duration Badge",
+            render: () => (
+              <>
+                <ClassicCheckbox
+                  id="show_duration"
+                  checked={settings.show_duration ?? true}
+                  onChange={(checked) => updateLocalSetting("show_duration", checked)}
+                  label="Show video duration on thumbnails"
+                />
+                <p className="description">Display the length of the video in the bottom-right corner of the thumbnail.</p>
+              </>
+            )
+          },
+          {
+            id: "privacy_mode",
+            label: "Privacy/GDPR Mode",
+            render: () => (
+              <>
+                <ClassicCheckbox
+                  id="privacy_mode"
+                  checked={settings.privacy_mode ?? false}
+                  onChange={(checked) => updateLocalSetting("privacy_mode", checked)}
+                  label="Enable YouTube Privacy-Enhanced Mode"
+                />
+                <p className="description">Use youtube-nocookie.com to embed YouTube videos, which won't store information about visitors unless they play the video.</p>
               </>
             )
           },
