@@ -232,25 +232,6 @@ class ProductMetabox {
 			<div class="tubebay-gallery-settings" style="display: none; padding-left: 5px;">
 
 				<p>
-					<label for="tubebay_max_videos"><?php esc_html_e('Max Videos:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;">
-						<option value="" <?php selected($max_videos, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<?php for($i=1; $i<=10; $i++): ?>
-							<option value="<?php echo $i; ?>" <?php selected($max_videos, (string)$i); ?>><?php echo $i; ?></option>
-						<?php endfor; ?>
-						<option value="0" <?php selected($max_videos, '0'); ?>><?php esc_html_e('Unlimited', 'tubebay'); ?></option>
-					</select>
-				</p>
-				<p>
-					<label for="tubebay_video_position"><?php esc_html_e('Video Position:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_video_position" id="tubebay_video_position" style="width: 100%;">
-						<option value="" <?php selected($video_position, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<option value="first" <?php selected($video_position, 'first'); ?>><?php esc_html_e('First (Before Images)', 'tubebay'); ?></option>
-						<option value="last" <?php selected($video_position, 'last'); ?>><?php esc_html_e('Last (After Images)', 'tubebay'); ?></option>
-						<option value="mixed" <?php selected($video_position, 'mixed'); ?>><?php esc_html_e('Mixed (Drag/Drop Order)', 'tubebay'); ?></option>
-					</select>
-				</p>
-				<p>
 					<label for="tubebay_autoplay_first"><?php esc_html_e('Autoplay First Video:', 'tubebay'); ?></label><br/>
 					<select name="tubebay_autoplay_first" id="tubebay_autoplay_first" style="width: 100%;">
 						<option value="" <?php selected($autoplay_first, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
@@ -258,14 +239,15 @@ class ProductMetabox {
 						<option value="no" <?php selected($autoplay_first, 'no'); ?>><?php esc_html_e('No', 'tubebay'); ?></option>
 					</select>
 				</p>
-				<p>
-					<label for="tubebay_show_duration"><?php esc_html_e('Show Duration Badge:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_show_duration" id="tubebay_show_duration" style="width: 100%;">
-						<option value="" <?php selected($show_duration, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<option value="yes" <?php selected($show_duration, 'yes'); ?>><?php esc_html_e('Yes', 'tubebay'); ?></option>
-						<option value="no" <?php selected($show_duration, 'no'); ?>><?php esc_html_e('No', 'tubebay'); ?></option>
-					</select>
-				</p>
+				
+				<?php 
+				/**
+				 * Hook to add additional settings to the TubeBay product meta box.
+				 *
+				 * @param \WP_Post $post The post object.
+				 */
+				do_action( 'tubebay_product_metabox_settings', $post ); 
+				?>
 			</div>
 
 			<?php if ( $is_connected ) : ?>

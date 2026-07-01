@@ -17,37 +17,34 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
 
           {
             id: "max_videos",
-            label: "Max Videos Per Product",
+            label: "Max Videos Per Product (PRO)",
             render: () => (
               <>
                 <input
                   type="number"
                   id="max_videos"
-                  value={settings.max_videos ?? 0}
-                  onChange={(e) => updateLocalSetting("max_videos", parseInt(e.target.value) || 0)}
-                  min="0"
-                  step="1"
+                  value={0}
+                  disabled
                 />
-                <p className="description">Maximum number of videos to show in the gallery (0 = unlimited).</p>
+                <p className="description">Maximum number of videos to show in the gallery (0 = unlimited). <a href="https://wpanchorbay.com/products/tubebay-pro" target="_blank">Upgrade to Pro</a> to unlock.</p>
               </>
             ),
           },
           {
             id: "video_position",
-            label: "Video Position in Gallery",
+            label: "Video Position in Gallery (PRO)",
             render: () => (
               <>
                 <ClassicSelect
                   id="video_position"
-                  value={settings.video_position || "first"}
-                  onChange={(val) => updateLocalSetting("video_position", val)}
+                  value="first"
+                  onChange={() => {}}
                   options={[
-                    { label: "First (Before images)", value: "first" },
-                    { label: "Last (After images)", value: "last" },
-                    { label: "Mixed (Based on drag/drop order)", value: "mixed" },
+                    { label: "First (Before images)", value: "first" }
                   ]}
+                  disabled
                 />
-                <p className="description">Where videos should appear relative to product images.</p>
+                <p className="description">Where videos should appear relative to product images. <a href="https://wpanchorbay.com/products/tubebay-pro" target="_blank">Upgrade to Pro</a> to unlock more positions.</p>
               </>
             ),
           },
@@ -68,18 +65,19 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
           },
           {
             id: "show_duration",
-            label: "Show Duration Badge",
+            label: "Show Duration Badge (PRO)",
             render: () => (
               <>
                 <ClassicCheckbox
                   id="show_duration"
-                  checked={settings.show_duration ?? true}
-                  onChange={(checked) => updateLocalSetting("show_duration", checked)}
+                  checked={false}
+                  onChange={() => {}}
                   label="Show video duration on thumbnails"
+                  disabled
                 />
-                <p className="description">Display the length of the video in the bottom-right corner of the thumbnail.</p>
+                <p className="description">Display the length of the video in the bottom-right corner of the thumbnail. <a href="https://wpanchorbay.com/products/tubebay-pro" target="_blank">Upgrade to Pro</a> to unlock.</p>
               </>
-            )
+            ),
           },
           {
             id: "privacy_mode",
