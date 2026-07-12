@@ -55,6 +55,13 @@ class YouTubeController extends ApiController {
 	public function register_routes() {
 		$namespace = $this->namespace . $this->version;
 
+		add_filter( 'allowed_redirect_hosts', function( $hosts, $host ) {
+			if ( 'wpanchorbay.com' === $host ) {
+				$hosts[] = 'wpanchorbay.com';
+			}
+			return $hosts;
+		}, 10, 2 );
+
 		// Route to test YouTube Connection.
 		register_rest_route(
 			$namespace,
@@ -147,7 +154,7 @@ class YouTubeController extends ApiController {
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'disconnect' ),
-					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 				),
 			)
 		);
@@ -159,9 +166,7 @@ class YouTubeController extends ApiController {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'oauth_connect' ),
-					'permission_callback' => function () {
-						return true;
-					},
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 				),
 			)
 		);
@@ -176,10 +181,10 @@ class YouTubeController extends ApiController {
 	 */
 	public function test_connection( $request ) {
 		$params            = $request->get_params();
-		$api_key           = $params['api_key'];
-		$channel_id        = $params['channel_id'];
-		$refresh_token     = $params['refresh_token'];
-		$connection_method = $params['connection_method'];
+		$api_key           = isset($params['api_key']) ? sanitize_text_field($params['api_key']) : '';
+		$channel_id        = isset($params['channel_id']) ? sanitize_text_field($params['channel_id']) : '';
+		$refresh_token     = isset($params['refresh_token']) ? sanitize_text_field($params['refresh_token']) : '';
+		$connection_method = isset($params['connection_method']) ? sanitize_text_field($params['connection_method']) : 'api';
 
 		tubebay_log( "Testing connection for Channel ID: {$channel_id}", 'debug' );
 
@@ -254,6 +259,23 @@ class YouTubeController extends ApiController {
 			$response_videos[] = $arr;
 		}
 
+		/**
+		 * Filter the synced videos response array.
+		 *
+		 * @since 1.1.0
+		 * @param array $response_videos The video array.
+		 * @param Video[] $videos The raw Video objects.
+		 */
+		$response_videos = apply_filters( 'tubebay_synced_videos', $response_videos, $videos );
+
+		/**
+		 * Fires after the library sync completes successfully.
+		 *
+		 * @since 1.1.0
+		 * @param Video[] $videos The fetched Video objects.
+		 */
+		do_action( 'tubebay_after_sync_library', $videos );
+
 		return new WP_REST_Response(
 			array(
 				'success'            => true,
@@ -295,8 +317,6 @@ class YouTubeController extends ApiController {
 
 		\TubeBay\Helper\Settings::set( 'connection_status', 'connected' );
 		tubebay_log( 'Library sync_status successful, fetched ' . count( $videos ) . ' videos', 'info' );
-
-		\TubeBay\Helper\Settings::set( 'connection_status', 'connected' );
 
 		return new WP_REST_Response(
 			array(
@@ -437,7 +457,7 @@ class YouTubeController extends ApiController {
 	 * @return void
 	 */
 	public function oauth_connect( $request ) {
-		tubebay_log( '+++++++++++++++++++++++++++++++++++++++++' );
+		tubebay_log( 'Redirecting user to OAuth proxy', 'info' );
 		$domain    = home_url();
 		$proxy_url = 'https://wpanchorbay.com/oauth/index.php';
 
@@ -449,10 +469,7 @@ class YouTubeController extends ApiController {
 			$proxy_url
 		);
 
-		tubebay_log( 'Redirecting user to OAuth proxy: ' . $redirect_url );
-		tubebay_log( '_______________', $redirect_url );
-		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-		wp_redirect( $redirect_url );
+		wp_safe_redirect( $redirect_url );
 		exit;
 	}
 
@@ -473,21 +490,27 @@ class YouTubeController extends ApiController {
 		}
 
 		foreach ($product_ids as $product_id) {
+			// Verify the target is a product and the user can edit it.
+			if (get_post_type($product_id) !== 'product' || !current_user_can('edit_post', $product_id)) {
+				tubebay_log('bulk_assign_videos: Skipping product ID ' . $product_id . ' — not a product or lacks edit_post cap', 'error');
+				continue;
+			}
+
 			$existing_videos_json = get_post_meta($product_id, '_tubebay_video_ids', true);
 			$existing_videos = empty($existing_videos_json) ? array() : json_decode($existing_videos_json, true);
 
 			if (!is_array($existing_videos)) {
 				// Migrate single video if needed
 				$legacy_video = get_post_meta($product_id, '_tubebay_video_id', true);
-				$existing_videos = !empty($legacy_video) ? array(array('id' => $legacy_video, 'type' => 'youtube')) : array();
+				$existing_videos = !empty($legacy_video) ? array(array('id' => sanitize_text_field($legacy_video), 'type' => 'youtube')) : array();
 			}
 
 			if ($action === 'assign') {
 				foreach ($video_ids as $video) {
-					$vid_id = is_array($video) ? $video['id'] : $video;
-					$vid_type = is_array($video) ? $video['type'] : 'youtube';
-					$vid_title = is_array($video) && isset($video['title']) ? $video['title'] : '';
-					$vid_thumb = is_array($video) && isset($video['thumbnail']) ? $video['thumbnail'] : '';
+					$vid_id = is_array($video) ? sanitize_text_field($video['id']) : sanitize_text_field($video);
+					$vid_type = is_array($video) && isset($video['type']) ? sanitize_text_field($video['type']) : 'youtube';
+					$vid_title = is_array($video) && isset($video['title']) ? sanitize_text_field($video['title']) : '';
+					$vid_thumb = is_array($video) && isset($video['thumbnail']) ? esc_url_raw($video['thumbnail']) : '';
 
 					// Check if already exists
 					$exists = false;
@@ -509,7 +532,7 @@ class YouTubeController extends ApiController {
 				}
 			} elseif ($action === 'remove') {
 				foreach ($video_ids as $video) {
-					$vid_id = is_array($video) ? $video['id'] : $video;
+					$vid_id = is_array($video) ? sanitize_text_field($video['id']) : sanitize_text_field($video);
 					$existing_videos = array_filter($existing_videos, function($ev) use ($vid_id) {
 						return (is_array($ev) ? $ev['id'] : $ev) !== $vid_id;
 					});
@@ -523,13 +546,23 @@ class YouTubeController extends ApiController {
 			// Update backward compatibility single ID
 			if (!empty($existing_videos)) {
 				$first_video = $existing_videos[0];
-				update_post_meta($product_id, '_tubebay_video_id', is_array($first_video) ? $first_video['id'] : $first_video);
+				update_post_meta($product_id, '_tubebay_video_id', is_array($first_video) ? sanitize_text_field($first_video['id']) : sanitize_text_field($first_video));
 			} else {
 				delete_post_meta($product_id, '_tubebay_video_id');
 			}
 		}
 
 		wp_cache_delete('tubebay_product_video_map', 'tubebay');
+
+		/**
+		 * Fires after videos have been assigned/removed from products.
+		 *
+		 * @since 1.1.0
+		 * @param array  $product_ids The affected product IDs.
+		 * @param array  $video_ids   The video IDs in the operation.
+		 * @param string $action      The action ('assign' or 'remove').
+		 */
+		do_action('tubebay_videos_assigned', $product_ids, $video_ids, $action);
 
 		return new WP_REST_Response(
 			array(
@@ -555,7 +588,26 @@ class YouTubeController extends ApiController {
 			return new \WP_Error('invalid_data', __('Invalid product ID or empty order.', 'tubebay'), array('status' => 400));
 		}
 
-		update_post_meta($product_id, '_tubebay_video_order', wp_json_encode($video_order));
+		// Verify the target is a product and the user can edit it.
+		if (get_post_type($product_id) !== 'product' || !current_user_can('edit_post', $product_id)) {
+			return new \WP_Error('forbidden', __('You do not have permission to edit this product.', 'tubebay'), array('status' => 403));
+		}
+
+		// Sanitize order elements.
+		$sanitized_order = array();
+		foreach ($video_order as $item) {
+			if (is_array($item)) {
+				$sanitized_item = array();
+				foreach ($item as $k => $v) {
+					$sanitized_item[sanitize_text_field($k)] = sanitize_text_field($v);
+				}
+				$sanitized_order[] = $sanitized_item;
+			} else {
+				$sanitized_order[] = sanitize_text_field($item);
+			}
+		}
+
+		update_post_meta($product_id, '_tubebay_video_order', wp_json_encode($sanitized_order));
 
 		return new WP_REST_Response(
 			array(

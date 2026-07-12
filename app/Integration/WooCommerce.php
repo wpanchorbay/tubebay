@@ -71,62 +71,6 @@ class WooCommerce {
 		wp_enqueue_style( 'tubebay-gallery-css', TUBEBAY_URL . 'assets/css/frontend/tubebay-gallery.css', array(), $version );
 	}
 	/**
-	 * Render the video iframe if a video is attached to the current product.
-	 *
-	 * @return void
-	 * @since 1.0.0
-	 */
-	public function render_product_video() {
-		global $product;
-
-		if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
-			tubebay_log( 'WooCommerce: render_product_video called but no valid WC_Product found', 'debug' );
-			return;
-		}
-
-		$video_id = get_post_meta( $product->get_id(), '_tubebay_video_id', true );
-
-		if ( empty( $video_id ) ) {
-			tubebay_log( 'WooCommerce: No video assigned to product ID ' . $product->get_id(), 'debug' );
-			return;
-		}
-
-		tubebay_log( 'WooCommerce: Rendering video ' . $video_id . ' for product ID ' . $product->get_id(), 'info' );
-
-		$muted_autoplay = get_post_meta( $product->get_id(), '_tubebay_muted_autoplay', true );
-
-		// Fallback to global defaults if product meta is missing
-		if ( $muted_autoplay === '' ) {
-			$muted_autoplay = Settings::get( 'muted_autoplay', true ) ? '1' : '0';
-		}
-
-		// Show player controls only uses global setting
-		$show_controls = Settings::get( 'show_controls', true ) ? '1' : '0';
-
-		// Build the YouTube embed URL
-		$embed_url = 'https://www.youtube.com/embed/' . esc_attr( $video_id ) . '?rel=0';
-
-		if ( '1' === $muted_autoplay ) {
-			$embed_url .= '&autoplay=1&mute=1';
-		}
-		if ( '0' === $show_controls ) {
-			$embed_url .= '&controls=0';
-		}
-
-		?>
-		<div class="tubebay-product-video-wrapper">
-			<div class="tubebay-responsive-iframe-container">
-				<iframe width="560" height="315" src="<?php echo esc_url( $embed_url ); ?>"
-					title="<?php esc_attr_e( 'TubeBay Product Video', 'tubebay' ); ?>" frameborder="0"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-					allowfullscreen>
-				</iframe>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Inject the videos into the WooCommerce product gallery.
 	 *
 	 * @param string $html              The original image HTML.
@@ -169,6 +113,20 @@ class WooCommerce {
 			return $html;
 		}
 
+		/**
+		 * Filter the gallery videos before rendering.
+		 * Pro can add/remove/reorder videos (e.g. inject Vimeo/HLS entries).
+		 *
+		 * @since 1.1.0
+		 * @param array       $videos The video array.
+		 * @param \WP_Post    $post   The current product post.
+		 */
+		$videos = apply_filters( 'tubebay_gallery_videos', $videos, $post );
+
+		if ( empty( $videos ) ) {
+			return $html;
+		}
+
 		// 2. Get global + per-product settings
 		$max_videos = get_post_meta( $post->ID, '_tubebay_max_videos', true );
 		$max_videos = ( $max_videos !== '' ) ? intval($max_videos) : intval(Settings::get( 'max_videos', 0 ));
@@ -203,6 +161,15 @@ class WooCommerce {
 		$main_image_id = get_post_thumbnail_id( $post->ID );
 
 		$videos_html = '';
+
+		/**
+		 * Fires before the gallery video loop starts.
+		 * Pro can use this to enqueue per-product scripts or inject markup.
+		 *
+		 * @since 1.1.0
+		 * @param \WP_Post $post The current product post.
+		 */
+		do_action( 'tubebay_gallery_before_videos', $post );
 
 		foreach ( $videos as $index => $video ) {
 			$vid_id = $video['id'];
@@ -268,90 +235,23 @@ class WooCommerce {
 		if ( $post_thumbnail_id == $main_image_id || empty( $main_image_id ) ) {
 			$injected = true;
 			if ( $placement === 'first' ) {
-				return $videos_html . $html;
+				$output = $videos_html . $html;
 			} else {
 				// We append to the HTML, but frontend JS will move it to the end or mixed if needed.
-				return $html . $videos_html;
+				$output = $html . $videos_html;
 			}
+
+			/**
+			 * Filter the final gallery HTML output.
+			 *
+			 * @since 1.1.0
+			 * @param string $output    The combined HTML.
+			 * @param array  $videos    The video array.
+			 * @param string $placement  The placement setting ('first'|'last'|'mixed').
+			 */
+			return apply_filters( 'tubebay_gallery_html', $output, $videos, $placement );
 		}
 
 		return $html;
-	}
-
-	/**
-	 * Hook into the WooCommerce Shop Loop image generation.
-	 *
-	 * @param string      $html
-	 * @param \WC_Product $product
-	 * @param string      $size
-	 * @param array       $attr
-	 * @param bool        $placeholder
-	 * @return string
-	 */
-	public function tubebay_video_on_shop_page( $html, $product, $size, $attr, $placeholder ) {
-		// 1. DO NOT run this on the single product page (we already handle that), Cart, or Checkout pages.
-		if ( is_singular( 'product' ) || is_cart() || is_checkout() ) {
-			return $html;
-		}
-
-		// 2. Get the video ID and placement setting from the product object
-		$video_id = $product->get_meta( '_tubebay_video_id' );
-
-		// 3. If no video, show normal image
-		if ( empty( $video_id ) ) {
-			return $html;
-		}
-
-		// 4. Check for Autoplay (respect product override with global fallback)
-		$is_autoplay = $product->get_meta( '_tubebay_muted_autoplay' );
-		if ( $is_autoplay === '' ) {
-			$is_autoplay = Settings::get( 'muted_autoplay' );
-		}
-		$is_autoplay = filter_var( $is_autoplay, FILTER_VALIDATE_BOOLEAN );
-
-		// 5. Get the YouTube Thumbnail
-		$yt_thumb = 'https://i.ytimg.com/vi/' . esc_attr( $video_id ) . '/hqdefault.jpg';
-
-		tubebay_log( 'WooCommerce: Processing shop page image for product ID ' . $product->get_id() . ( $is_autoplay ? ' (Autoplay ON)' : ' (Lazy Load ON)' ), 'info' );
-
-		// 6. Build the HTML
-		ob_start();
-		?>
-		<div class="tubebay-video-wrapper"
-			style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; background: #000; border-radius: 8px; margin-bottom: 10px;">
-
-			<?php if ( $is_autoplay ) : ?>
-				<!-- OPTION A: MUTED AUTOPLAY (Immediate Iframe) -->
-				<iframe
-					src="https://www.youtube.com/embed/<?php echo esc_attr( $video_id ); ?>?autoplay=1&mute=1&loop=1&playlist=<?php echo esc_attr( $video_id ); ?>&rel=0&controls=0"
-					style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-					allowfullscreen>
-				</iframe>
-			<?php else : ?>
-				<!-- OPTION B: LAZY LOAD (Image Facade) -->
-				<div class="tubebay-video-facade" data-video-id="<?php echo esc_attr( $video_id ); ?>"
-					style="cursor: pointer; height: 100%; width: 100%; position: absolute; top: 0; left: 0;">
-					<img src="<?php echo esc_url( $yt_thumb ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?> Video"
-						style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; margin: 0;" />
-
-					<!-- The SVG Play Button -->
-					<div class="tubebay-play-button"
-						style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 35px; transition: all 0.2s ease-in-out;">
-						<svg viewBox="0 0 68 48" version="1.1" xmlns="http://www.w3.org/2000/svg">
-							<path class="tubebay-play-bg"
-								d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"
-								fill="#212121" fill-opacity="0.8"></path>
-							<path d="M 45,24 27,14 27,34" fill="#fff"></path>
-						</svg>
-					</div>
-				</div>
-			<?php endif; ?>
-
-		</div>
-		<?php
-
-		// Return our video block INSTEAD of the normal WooCommerce image
-		return ob_get_clean();
 	}
 }

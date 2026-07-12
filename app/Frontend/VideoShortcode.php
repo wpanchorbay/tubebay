@@ -75,6 +75,17 @@ class VideoShortcode {
 			'tubebay_video'
 		);
 
+		/**
+		 * Filter the shortcode attributes before processing.
+		 * Pro can inject or override attributes here.
+		 *
+		 * @since 1.1.0
+		 * @param array       $atts The shortcode attributes.
+		 * @param \WP_Post|null $post The current post.
+		 */
+		global $post;
+		$atts = apply_filters( 'tubebay_shortcode_atts', $atts, $post );
+
 		$video_id = sanitize_text_field( $atts['id'] );
 		$video_type = 'youtube';
 
@@ -101,6 +112,16 @@ class VideoShortcode {
 		}
 
 		tubebay_log( 'VideoShortcode: Rendering video ID ' . $video_id, 'info' );
+
+		/**
+		 * Filter the video type before rendering.
+		 * Pro can return 'vimeo', 'hls', etc. to use a different renderer.
+		 *
+		 * @since 1.1.0
+		 * @param string $video_type The video type ('youtube' or 'self_hosted').
+		 * @param string $video_id   The video ID.
+		 */
+		$video_type = apply_filters( 'tubebay_video_type', $video_type, $video_id );
 
 		// Resolve settings: shortcode attrs override globals.
 		$muted_autoplay = null !== $atts['autoplay']
@@ -137,9 +158,11 @@ class VideoShortcode {
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 						allowfullscreen>
 					</iframe>
-				<?php else :
-					// Self-hosted WP attachment
-					$attachment_url = wp_get_attachment_url( $video_id );
+<?php else :
+				// Allow pro to handle non-youtube video types (Vimeo, HLS, etc.).
+				do_action( 'tubebay_video_type_unknown', $video_id, $video_type );
+				// Self-hosted WP attachment fallback
+				$attachment_url = wp_get_attachment_url( $video_id );
 					if ( $attachment_url ) :
 				?>
 					<video
@@ -159,6 +182,16 @@ class VideoShortcode {
 			</div>
 		</div>
 		<?php
-		return ob_get_clean();
+		$html = ob_get_clean();
+
+		/**
+		 * Filter the rendered shortcode video HTML.
+		 *
+		 * @since 1.1.0
+		 * @param string $html      The rendered HTML.
+		 * @param array  $atts      The shortcode attributes.
+		 * @param string $video_id  The resolved video ID.
+		 */
+		return apply_filters( 'tubebay_shortcode_video_html', $html, $atts, $video_id );
 	}
 }

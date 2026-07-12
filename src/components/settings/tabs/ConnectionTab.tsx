@@ -199,7 +199,7 @@ export const ConnectionTab: FC<ConnectionTabProps> = ({
               <p>No authentication token found. Please sign in.</p>
             )}
             <a
-              href={`${restUrl}tubebay/v1/youtube/oauth-connect`}
+              href={`${restUrl}tubebay/v1/youtube/oauth-connect?_wpnonce=${store.nonce}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setShowTokenInput(true)}

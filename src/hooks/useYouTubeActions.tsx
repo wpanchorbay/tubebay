@@ -54,7 +54,6 @@ export const useYouTubeActions = () => {
   };
 
   const syncLibrary = async () => {
-    console.log("Syncing library...");
     try {
       addToast("Syncing library...", "info");
       const response = await apiFetch<{

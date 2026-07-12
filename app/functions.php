@@ -44,6 +44,9 @@ if ( ! function_exists( 'tubebay_log' ) ) {
 			$formatted_message = $message;
 		}
 
+		// Redact secrets before writing to log file so tokens never reach the log.
+		$formatted_message = tubebay_redact_secrets( $formatted_message );
+
 		$log_level = is_string( $level ) ? strtoupper( $level ) : ( is_array( $level ) || is_object( $level ) ? print_r( $level, true ) : '' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		$log_entry = sprintf(
 			"[%s] [%s]: %s\n",
@@ -53,6 +56,42 @@ if ( ! function_exists( 'tubebay_log' ) ) {
 		);
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
+	}
+}
+
+if ( ! function_exists( 'tubebay_redact_secrets' ) ) {
+	/**
+	 * Redact secret-bearing values from a log message string.
+	 *
+	 * Masks values of sensitive keys in JSON blobs and URL query parameters,
+	 * so OAuth tokens and API keys never reach the log file regardless of what
+	 * a caller passes to tubebay_log().
+	 *
+	 * @since 1.0.4
+	 * @param string $message The formatted log message.
+	 * @return string The message with secrets replaced by [REDACTED].
+	 */
+	function tubebay_redact_secrets( $message ) {
+		if ( ! is_string( $message ) || '' === $message ) {
+			return $message;
+		}
+
+		// 1. JSON key-value pairs: "access_token":"ya29.xxx" → "access_token":"[REDACTED]"
+		$message = preg_replace(
+			'/"(access_token|refresh_token|api_key|secret|password|token)"\s*:\s*"[^"]*"/i',
+			'"$1":"[REDACTED]"',
+			$message
+		);
+
+		// 2. URL query params: key=AIzaXxx& → key=[REDACTED]&
+		//    'key' is the YouTube API key param; 'access_token'/'refresh_token'/'api_key' are also matched.
+		$message = preg_replace(
+			'/(api_key|access_token|refresh_token|key|token)=([^&"\s]+)/i',
+			'$1=[REDACTED]',
+			$message
+		);
+
+		return $message;
 	}
 }
 

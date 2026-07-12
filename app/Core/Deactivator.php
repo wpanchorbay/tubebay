@@ -34,6 +34,19 @@ class Deactivator {
 	public static function deactivate() {
 		tubebay_log( 'Running Deactivator sequence', 'info' );
 		self::remove_custom_capabilities();
+		self::clear_cron_events();
+	}
+
+	/**
+	 * Unschedule any pending cron events.
+	 *
+	 * @since 1.0.4
+	 * @access private
+	 * @return void
+	 */
+	private static function clear_cron_events() {
+		wp_clear_scheduled_hook( 'tubebay_daily_sync_event' );
+		tubebay_log( 'Deactivator: Cleared scheduled cron events', 'debug' );
 	}
 
 	/**

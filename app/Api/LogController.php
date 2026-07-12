@@ -2,7 +2,7 @@
 /**
  * LogController class.
  *
- * Handles API endpoints for retrieving plugin logs.
+ * Handles API endpoints for clearing plugin logs.
  *
  * @since      1.0.0
  * @package    TubeBay
@@ -62,6 +62,10 @@ class LogController extends ApiController {
 	/**
 	 * Register the routes for the objects of the controller.
 	 *
+	 * Only the DELETE route is exposed. The GET route that returned raw log
+	 * file contents (which could contain redacted-but-sensitive context) was
+	 * removed in 1.0.4. Logs should be inspected on the filesystem directly.
+	 *
 	 * @return void
 	 * @since 1.0.0
 	 */
@@ -70,20 +74,7 @@ class LogController extends ApiController {
 
 		$namespace = $this->namespace . $this->version;
 
-		// GET endpoint: Retrieve sample data.
-		register_rest_route(
-			$namespace,
-			'/logs',
-			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				),
-			)
-		);
-
-		// POST endpoint: Create/update sample data.
+		// DELETE endpoint: Clear all log files.
 		register_rest_route(
 			$namespace,
 			'/logs',
@@ -98,58 +89,16 @@ class LogController extends ApiController {
 	}
 
 	/**
-	 * Check if a given request has access to get items.
-	 *
-	 * @param \WP_REST_Request $request Full data about the request.
-	 * @return bool True if permitted, false otherwise.
-	 * @since 1.0.0
-	 */
-	public function get_items_permissions_check( $request ) {
-		return current_user_can( 'manage_options' );
-	}
-
-	/**
 	 * Check if a given request has access to delete items.
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
-	 * @return bool True if permitted, false otherwise.
-	 * @since 1.0.0
-	 */
-	public function update_items_permissions_check( $request ) {
-		return current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Get logs from file.
+	 * Uses manage_tubebay for consistency with the rest of the API.
 	 *
 	 * @param \WP_REST_Request $request Full data about the request.
-	 * @return \WP_REST_Response|\WP_Error
-	 * @since 1.0.0
+	 * @return bool True if permitted, false otherwise.
+	 * @since 1.0.4
 	 */
-	public function get_items( $request ) {
-		tubebay_log( 'LogController: Handling GET /logs request', 'debug' );
-		$upload_dir = wp_upload_dir();
-		$log_dir    = $upload_dir['basedir'] . '/' . TUBEBAY_TEXT_DOMAIN . '-logs/';
-
-		// Find the most recent log file.
-		$files = glob( $log_dir . 'plugin-log-*.log' );
-		if ( empty( $files ) ) {
-			tubebay_log( 'LogController: No log files found in ' . $log_dir, 'debug' );
-			return rest_ensure_response( array( 'content' => '' ) );
-		}
-
-		// Sort by name desc (dates will sort correctly).
-		rsort( $files );
-		$log_file = $files[0];
-
-		if ( ! file_exists( $log_file ) ) {
-			tubebay_log( 'LogController: Most recent log file does not exist: ' . $log_file, 'debug' );
-			return rest_ensure_response( array( 'content' => '' ) );
-		}
-
-		tubebay_log( 'LogController: Returning content from log file: ' . basename( $log_file ), 'debug' );
-		$content = file_get_contents( $log_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		return rest_ensure_response( array( 'content' => $content ) );
+	public function update_items_permissions_check( $request ) {
+		return current_user_can( 'manage_tubebay' );
 	}
 
 	/**
@@ -170,14 +119,10 @@ class LogController extends ApiController {
 			foreach ( $files as $file ) {
 				if ( file_exists( $file ) ) {
 					wp_delete_file( $file );
-					tubebay_log( 'LogController: Deleted log file: ' . basename( $file ), 'debug' );
 				}
 			}
-		} else {
-			tubebay_log( 'LogController: No log files found to delete', 'debug' );
 		}
 
-		tubebay_log( 'LogController: Log clear complete', 'info' );
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 }

@@ -303,59 +303,43 @@ class SettingsController extends ApiController
 			}
 		}
 
-		if (isset($body['cache_duration'])) {
-			Settings::set('cache_duration', absint($body['cache_duration']));
+		// --- Filterable saveable-keys loop ---
+		// Pro can register additional keys via add_filter('tubebay_settings_saveable_keys', ...).
+		$simple_settings = array(
+			'cache_duration'                => 'absint',
+			'video_placement'               => 'sanitize_text_field',
+			'debug_enableMode'              => 'bool',
+			'muted_autoplay'                 => 'bool',
+			'show_controls'                 => 'bool',
+			'max_videos'                     => 'absint',
+			'video_position'                => 'sanitize_text_field',
+			'autoplay_first'                => 'bool',
+			'show_duration'                 => 'bool',
+			'privacy_mode'                  => 'bool',
+			'is_onboarding_completed'       => 'bool',
+			'advanced_deleteAllOnUninstall'  => 'bool',
+		);
+
+		$simple_settings = apply_filters('tubebay_settings_saveable_keys', $simple_settings);
+
+		foreach ($simple_settings as $key => $sanitizer) {
+			if (isset($body[$key])) {
+				$value = $body[$key];
+				if ('bool' === $sanitizer) {
+					$value = (bool) $value;
+				} elseif ('absint' === $sanitizer) {
+					$value = absint($value);
+				} else {
+					$value = call_user_func($sanitizer, $value);
+				}
+				Settings::set($key, $value);
+			}
 		}
 
+		// auto_sync has a side effect (cron reschedule) so handle it outside the loop.
 		if (isset($body['auto_sync'])) {
 			Settings::set('auto_sync', (bool) $body['auto_sync']);
 			Cron::get_instance()->check_and_schedule();
-		}
-
-		if (isset($body['video_placement'])) {
-			Settings::set('video_placement', sanitize_text_field($body['video_placement']));
-		}
-
-		if (isset($body['debug_enableMode'])) {
-			Settings::set('debug_enableMode', (bool) $body['debug_enableMode']);
-		}
-
-		if (isset($body['muted_autoplay'])) {
-			Settings::set('muted_autoplay', (bool) $body['muted_autoplay']);
-		}
-
-		if (isset($body['show_controls'])) {
-			Settings::set('show_controls', (bool) $body['show_controls']);
-		}
-
-
-
-		if (isset($body['max_videos'])) {
-			Settings::set('max_videos', absint($body['max_videos']));
-		}
-
-		if (isset($body['video_position'])) {
-			Settings::set('video_position', sanitize_text_field($body['video_position']));
-		}
-
-		if (isset($body['autoplay_first'])) {
-			Settings::set('autoplay_first', (bool) $body['autoplay_first']);
-		}
-
-		if (isset($body['show_duration'])) {
-			Settings::set('show_duration', (bool) $body['show_duration']);
-		}
-
-		if (isset($body['privacy_mode'])) {
-			Settings::set('privacy_mode', (bool) $body['privacy_mode']);
-		}
-
-		if (isset($body['is_onboarding_completed'])) {
-			Settings::set('is_onboarding_completed', (bool) $body['is_onboarding_completed']);
-		}
-
-		if (isset($body['advanced_deleteAllOnUninstall'])) {
-			Settings::set('advanced_deleteAllOnUninstall', (bool) $body['advanced_deleteAllOnUninstall']);
 		}
 
 		$channel = new Channel();
@@ -367,6 +351,16 @@ class SettingsController extends ApiController
 		} elseif (!$creds_changed && isset($body['connection_status'])) {
 			Settings::set('connection_status', sanitize_text_field($body['connection_status']));
 		}
+
+		/**
+		 * Fires after all saveable settings have been persisted.
+		 * Pro hooks this to persist its own keys (license_key, license_status, ...)
+		 * that it registered via tubebay_settings_saveable_keys.
+		 *
+		 * @since 1.1.0
+		 * @param array $body The raw request body.
+		 */
+		do_action('tubebay_settings_saved', $body);
 
 		tubebay_log('Settings updated successfully', 'info');
 
@@ -394,12 +388,7 @@ class SettingsController extends ApiController
 
 		tubebay_log('Delete All Data: Starting complete data wipe', 'info');
 
-		// 1. Drop custom tables
-		$table_name = $wpdb->prefix . 'tubebay_items';
-		$wpdb->query("DROP TABLE IF EXISTS {$table_name}"); // phpcs:ignore
-		tubebay_log('Delete All Data: Dropped table ' . $table_name, 'debug');
-
-		// 2. Delete all tubebay_ options
+		// 1. Delete all tubebay_ options (sweeps pro's shared keys too).
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
@@ -410,13 +399,15 @@ class SettingsController extends ApiController
 		delete_option('tubebay');
 		tubebay_log('Delete All Data: Deleted all plugin options', 'debug');
 
-		// 3. Delete all product meta
+		// 2. Delete all product meta (free + premium keys).
 		$meta_keys = array(
 			'_tubebay_video_id',
 			'_tubebay_video_title',
 			'_tubebay_video_thumbnail',
 			'_tubebay_display_location',
 			'_tubebay_muted_autoplay',
+			'_tubebay_video_ids',
+			'_tubebay_video_order',
 		);
 		foreach ($meta_keys as $key) {
 			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -428,7 +419,7 @@ class SettingsController extends ApiController
 		}
 		tubebay_log('Delete All Data: Deleted all product meta', 'debug');
 
-		// 4. Delete transients
+		// 3. Delete transients
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
@@ -438,18 +429,11 @@ class SettingsController extends ApiController
 		);
 		tubebay_log('Delete All Data: Deleted all transients', 'debug');
 
-		// 5. Unschedule cron
-		$timestamp = wp_next_scheduled('tubebay_daily_sync_event');
-		if ($timestamp) {
-			wp_unschedule_event($timestamp, 'tubebay_daily_sync_event');
-		}
+		// 4. Unschedule cron
+		wp_clear_scheduled_hook('tubebay_daily_sync_event');
 		tubebay_log('Delete All Data: Unscheduled cron events', 'debug');
 
-		// 6. Re-create the table and re-initialize defaults
-		$db_manager = \TubeBay\Data\DbManager::get_instance();
-		$db_manager->create_tables();
-
-		// Re-set defaults so the plugin is in a clean state.
+		// 6. Re-initialize defaults so the plugin is in a clean state.
 		$defaults = Settings::get_defaults();
 		foreach ($defaults as $key => $value) {
 			Settings::set($key, $value);

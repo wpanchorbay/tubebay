@@ -297,10 +297,14 @@ class Settings {
 	/**
 	 * Get the default settings map.
 	 *
+	 * Filterable so pro can register its keys (license_key, license_status, etc.)
+	 * into the defaults pipeline.
+	 *
+	 * @since 1.0.4 Added tubebay_settings_defaults filter.
 	 * @return array
 	 */
 	public static function get_defaults() {
-		return self::$defaults;
+		return apply_filters( 'tubebay_settings_defaults', self::$defaults );
 	}
 
 	/**
@@ -311,7 +315,7 @@ class Settings {
 	 */
 	public static function get_all() {
 		$settings = array();
-		foreach ( self::$defaults as $key => $default ) {
+		foreach ( self::get_defaults() as $key => $default ) {
 			$settings[ $key ] = get_option( self::PREFIX . $key, $default );
 		}
 		return $settings;

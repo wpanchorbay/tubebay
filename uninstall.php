@@ -72,6 +72,8 @@ function tubebay_delete_product_meta() {
 		'_tubebay_video_thumbnail',
 		'_tubebay_display_location',
 		'_tubebay_muted_autoplay',
+		'_tubebay_video_ids',
+		'_tubebay_video_order',
 	);
 
 	foreach ( $meta_keys as $key ) {
@@ -126,8 +128,5 @@ function tubebay_remove_capabilities() {
  * @return void
  */
 function tubebay_unschedule_cron() {
-	$timestamp = wp_next_scheduled( 'tubebay_daily_sync_event' );
-	if ( $timestamp ) {
-		wp_unschedule_event( $timestamp, 'tubebay_daily_sync_event' );
-	}
+	wp_clear_scheduled_hook( 'tubebay_daily_sync_event' );
 }

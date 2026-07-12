@@ -290,6 +290,9 @@ class Admin {
 				'products_url'    => admin_url( 'edit.php?post_type=product' ),
 				'settings_url'    => admin_url( 'admin.php?page=wc-settings&tab=' . TUBEBAY_PLUGIN_NAME ),
 				'context'         => $context,
+				'is_pro'          => false,
+				'license_status'  => Settings::get( 'license_status', 'inactive' ),
+				'pro_version'     => '',
 			)
 		);
 

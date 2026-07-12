@@ -174,6 +174,10 @@ class ProductMetabox {
 		$video_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
 
 		$is_connected = ( Settings::get( 'connection_status', 'inactive' ) === 'connected' );
+		$is_pro = defined( 'TUBEBAY_PRO_VERSION' );
+		$pro_attr = $is_pro ? '' : ' disabled';
+		$pro_style = $is_pro ? '' : 'opacity:0.5;';
+		$pro_badge = $is_pro ? '' : ' <span style="display:inline-block;background:#6c5ce7;color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;margin-left:4px;" title="' . esc_attr__( 'TubeBay Pro feature', 'tubebay' ) . '">PRO</span>';
 
 		// 1. Get existing legacy single video ID and convert if needed, or get new array
 		$video_ids_json = get_post_meta( $post->ID, '_tubebay_video_ids', true );
@@ -194,11 +198,11 @@ class ProductMetabox {
 			$video_ids = json_decode( $video_ids_json, true ) ?: array();
 		}
 
-		// Fallback for settings
-		$max_videos = get_post_meta( $post->ID, '_tubebay_max_videos', true );
+		// Per-product gallery overrides — read for display; saved by pro via 'tubebay_metabox_saved'.
+		$max_videos     = get_post_meta( $post->ID, '_tubebay_max_videos', true );
 		$video_position = get_post_meta( $post->ID, '_tubebay_video_position', true );
 		$autoplay_first = get_post_meta( $post->ID, '_tubebay_autoplay_first', true );
-		$show_duration = get_post_meta( $post->ID, '_tubebay_show_duration', true );
+		$show_duration  = get_post_meta( $post->ID, '_tubebay_show_duration', true );
 
 		?>
 		<div class="tubebay-metabox-wrapper">
@@ -229,44 +233,58 @@ class ProductMetabox {
 				<span class="dashicons dashicons-arrow-down-alt2" style="font-size: 16px; margin-top: 2px;"></span> <?php esc_html_e('Video Gallery Settings', 'tubebay'); ?>
 			</div>
 
-			<div class="tubebay-gallery-settings" style="display: none; padding-left: 5px;">
+<div class="tubebay-gallery-settings" style="display: none; padding-left: 5px;">
 
-				<p>
-					<label for="tubebay_max_videos"><?php esc_html_e('Max Videos:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;">
-						<option value="" <?php selected($max_videos, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<?php for($i=1; $i<=10; $i++): ?>
-							<option value="<?php echo $i; ?>" <?php selected($max_videos, (string)$i); ?>><?php echo $i; ?></option>
-						<?php endfor; ?>
-						<option value="0" <?php selected($max_videos, '0'); ?>><?php esc_html_e('Unlimited', 'tubebay'); ?></option>
-					</select>
-				</p>
-				<p>
-					<label for="tubebay_video_position"><?php esc_html_e('Video Position:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_video_position" id="tubebay_video_position" style="width: 100%;">
-						<option value="" <?php selected($video_position, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<option value="first" <?php selected($video_position, 'first'); ?>><?php esc_html_e('First (Before Images)', 'tubebay'); ?></option>
-						<option value="last" <?php selected($video_position, 'last'); ?>><?php esc_html_e('Last (After Images)', 'tubebay'); ?></option>
-						<option value="mixed" <?php selected($video_position, 'mixed'); ?>><?php esc_html_e('Mixed (Drag/Drop Order)', 'tubebay'); ?></option>
-					</select>
-				</p>
-				<p>
-					<label for="tubebay_autoplay_first"><?php esc_html_e('Autoplay First Video:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_autoplay_first" id="tubebay_autoplay_first" style="width: 100%;">
-						<option value="" <?php selected($autoplay_first, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<option value="yes" <?php selected($autoplay_first, 'yes'); ?>><?php esc_html_e('Yes', 'tubebay'); ?></option>
-						<option value="no" <?php selected($autoplay_first, 'no'); ?>><?php esc_html_e('No', 'tubebay'); ?></option>
-					</select>
-				</p>
-				<p>
-					<label for="tubebay_show_duration"><?php esc_html_e('Show Duration Badge:', 'tubebay'); ?></label><br/>
-					<select name="tubebay_show_duration" id="tubebay_show_duration" style="width: 100%;">
-						<option value="" <?php selected($show_duration, ''); ?>><?php esc_html_e('Inherit (Global)', 'tubebay'); ?></option>
-						<option value="yes" <?php selected($show_duration, 'yes'); ?>><?php esc_html_e('Yes', 'tubebay'); ?></option>
-						<option value="no" <?php selected($show_duration, 'no'); ?>><?php esc_html_e('No', 'tubebay'); ?></option>
-					</select>
-				</p>
-			</div>
+			<?php if ( ! $is_pro ) : ?>
+			<p>
+				<label for="tubebay_max_videos"><?php esc_html_e( 'Max Videos:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
+				<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+					<option value="" <?php selected( $max_videos, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
+					<?php for ( $i = 1; $i <= 10; $i++ ) : ?>
+						<option value="<?php echo $i; ?>" <?php selected( $max_videos, (string) $i ); ?>><?php echo $i; ?></option>
+					<?php endfor; ?>
+					<option value="0" <?php selected( $max_videos, '0' ); ?>><?php esc_html_e( 'Unlimited', 'tubebay' ); ?></option>
+				</select>
+			</p>
+			<p>
+				<label for="tubebay_video_position"><?php esc_html_e( 'Video Position:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
+				<select name="tubebay_video_position" id="tubebay_video_position" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+					<option value="" <?php selected( $video_position, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
+					<option value="first" <?php selected( $video_position, 'first' ); ?>><?php esc_html_e( 'First (Before Images)', 'tubebay' ); ?></option>
+					<option value="last" <?php selected( $video_position, 'last' ); ?>><?php esc_html_e( 'Last (After Images)', 'tubebay' ); ?></option>
+					<option value="mixed" <?php selected( $video_position, 'mixed' ); ?>><?php esc_html_e( 'Mixed (Drag/Drop Order)', 'tubebay' ); ?></option>
+				</select>
+			</p>
+			<p>
+				<label for="tubebay_autoplay_first"><?php esc_html_e( 'Autoplay First Video:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
+				<select name="tubebay_autoplay_first" id="tubebay_autoplay_first" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+					<option value="" <?php selected( $autoplay_first, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
+					<option value="yes" <?php selected( $autoplay_first, 'yes' ); ?>><?php esc_html_e( 'Yes', 'tubebay' ); ?></option>
+					<option value="no" <?php selected( $autoplay_first, 'no' ); ?>><?php esc_html_e( 'No', 'tubebay' ); ?></option>
+				</select>
+			</p>
+			<p>
+				<label for="tubebay_show_duration"><?php esc_html_e( 'Show Duration Badge:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
+				<select name="tubebay_show_duration" id="tubebay_show_duration" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+					<option value="" <?php selected( $show_duration, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
+					<option value="yes" <?php selected( $show_duration, 'yes' ); ?>><?php esc_html_e( 'Yes', 'tubebay' ); ?></option>
+					<option value="no" <?php selected( $show_duration, 'no' ); ?>"><?php esc_html_e( 'No', 'tubebay' ); ?></option>
+				</select>
+			</p>
+			<?php endif; ?>
+
+			<?php
+			/**
+			 * Fires inside the gallery settings panel of the product metabox.
+			 * Pro hooks 'tubebay_product_metabox_settings' here to render
+			 * the editable versions of the per-product gallery overrides.
+			 *
+			 * @since 1.2.0
+			 * @param \WP_Post $post The current product post.
+			 */
+			do_action( 'tubebay_product_metabox_settings', $post );
+			?>
+		</div>
 
 			<?php if ( $is_connected ) : ?>
 			<!-- Video Selection Modal (WordPress media-modal pattern) -->
@@ -387,22 +405,21 @@ class ProductMetabox {
 			tubebay_log( 'ProductMetabox: Saved ' . count($sanitized_ids) . ' videos for product ID ' . $post_id, 'info' );
 		}
 
-		// Save gallery settings
-		$settings_keys = array(
-			'tubebay_max_videos' => '_tubebay_max_videos',
-			'tubebay_video_position' => '_tubebay_video_position',
-			'tubebay_autoplay_first' => '_tubebay_autoplay_first',
-			'tubebay_show_duration' => '_tubebay_show_duration',
-		);
-
-		foreach ( $settings_keys as $post_key => $meta_key ) {
-			if ( isset( $_POST[$post_key] ) ) {
-				update_post_meta( $post_id, $meta_key, sanitize_text_field( wp_unslash( $_POST[$post_key] ) ) );
-			}
-		}
+		// Save gallery settings — handled by pro via 'tubebay_metabox_saved' hook.
 
 		// Clear cached mapping of videos to products.
 		wp_cache_delete( 'tubebay_product_video_map', 'tubebay' );
+
+		/**
+		 * Fires after the metabox data has been saved.
+		 * Pro hooks 'tubebay_metabox_saved' here to persist per-product
+		 * premium settings on the same save pass.
+		 *
+		 * @since 1.1.0
+		 * @param int   $post_id       The product post ID.
+		 * @param array $sanitized_ids The sanitized video IDs array.
+		 */
+		do_action( 'tubebay_metabox_saved', $post_id, $sanitized_ids );
 
 		return $post_id;
 	}

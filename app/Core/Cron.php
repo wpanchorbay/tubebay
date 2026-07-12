@@ -94,15 +94,28 @@ class Cron {
 					$timestamp += DAY_IN_SECONDS;
 				}
 
-				wp_schedule_event( $timestamp, 'daily', self::HOOK_NAME );
+				/**
+				 * Filter the cron start timestamp.
+				 *
+				 * @since 1.1.0
+				 * @param int $timestamp Unix timestamp for the first run.
+				 */
+				$timestamp = apply_filters( 'tubebay_cron_start', $timestamp );
+
+				/**
+				 * Filter the cron recurrence interval.
+				 *
+				 * @since 1.1.0
+				 * @param string $recurrence The recurrence ('daily', 'hourly', 'twicedaily', etc.).
+				 */
+				$recurrence = apply_filters( 'tubebay_cron_recurrence', 'daily' );
+
+				wp_schedule_event( $timestamp, $recurrence, self::HOOK_NAME );
 			}
 		} else {
 			// Unschedule if auto_sync is disabled.
-			$timestamp = wp_next_scheduled( self::HOOK_NAME );
-			if ( $timestamp ) {
-				tubebay_log( 'Unscheduling daily sync event', 'debug' );
-				wp_unschedule_event( $timestamp, self::HOOK_NAME );
-			}
+			tubebay_log( 'Unscheduling daily sync event', 'debug' );
+			wp_clear_scheduled_hook( self::HOOK_NAME );
 		}
 	}
 
@@ -121,7 +134,25 @@ class Cron {
 			return;
 		}
 
+		/**
+		 * Fires before the daily sync runs.
+		 * Pro can use this to prepare/flush caches or enqueue background work.
+		 *
+		 * @since 1.1.0
+		 * @param Channel $channel The channel entity.
+		 */
+		do_action( 'tubebay_daily_sync', $channel );
+
 		// Force refresh from API.
-		$channel->get_latest_videos( true );
+		$videos = $channel->get_latest_videos( true );
+
+		/**
+		 * Fires after the daily sync completes.
+		 *
+		 * @since 1.1.0
+		 * @param Video[]|\WP_Error $videos The fetched videos (or error).
+		 * @param Channel           $channel The channel entity.
+		 */
+		do_action( 'tubebay_daily_sync_complete', $videos, $channel );
 	}
 }

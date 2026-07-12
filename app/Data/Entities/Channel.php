@@ -172,8 +172,8 @@ class Channel {
 
 		tubebay_log( 'get_access_token: Token expired or missing, requesting new one from connector', 'info' );
 
-		// Request new access token from the connector server
-		$connector_url = 'https://wpanchorbay.com/oauth/index.php';
+		// Request new access token from the connector server.
+		$connector_url = apply_filters( 'tubebay_oauth_proxy_url', 'https://wpanchorbay.com/oauth/index.php' );
 		$response      = wp_remote_post(
 			$connector_url,
 			array(
@@ -195,7 +195,8 @@ class Channel {
 
 		if ( empty( $body['success'] ) || empty( $body['data']['access_token'] ) ) {
 			$response_code = wp_remote_retrieve_response_code( $response );
-			tubebay_log( "get_access_token: Connector request failed. Response code: {$response_code}. Raw body: " . substr($raw_body, 0, 1000), 'error' );
+			$error_msg = isset( $body['message'] ) ? sanitize_text_field( $body['message'] ) : 'Unknown error';
+			tubebay_log( "get_access_token: Connector request failed. Response code: {$response_code}. Error: {$error_msg}", 'error' );
 			return false;
 		}
 
@@ -227,7 +228,14 @@ class Channel {
 			}
 		}
 
-		return $args;
+		/**
+		 * Filter the YouTube API request arguments (headers, timeout, etc.).
+		 * Pro can add custom headers or modify request params.
+		 *
+		 * @since 1.1.0
+		 * @param array $args The request args.
+		 */
+		return apply_filters( 'tubebay_youtube_api_args', $args );
 	}
 
 	/**

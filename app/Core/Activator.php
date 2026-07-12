@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use TubeBay\Data\DbManager;
 use TubeBay\Helper\Settings;
 
 /**
@@ -44,10 +43,6 @@ class Activator {
 			}
 		}
 
-		// Create custom database tables.
-		tubebay_log( 'Activator: Creating custom database tables', 'debug' );
-		self::create_custom_tables();
-
 		// Flush rewrite rules.
 		tubebay_log( 'Activator: Flushing rewrite rules', 'debug' );
 		flush_rewrite_rules();
@@ -61,17 +56,6 @@ class Activator {
 		self::add_plugin_roles_and_capabilities();
 
 		tubebay_log( 'Activator: Activation sequence complete', 'info' );
-	}
-
-	/**
-	 * Instantiates the DB Manager and creates the custom tables.
-	 *
-	 * @since 1.0.0
-	 * @access private
-	 * @return void
-	 */
-	private static function create_custom_tables() {
-		DbManager::get_instance()->create_tables();
 	}
 
 	/**
@@ -92,13 +76,7 @@ class Activator {
 
 		$htaccess_file = $log_dir . '.htaccess';
 		if ( ! file_exists( $htaccess_file ) ) {
-			$htaccess_content = '
-			# Protect log files from direct access
-			<Files *.log>
-				Order allow,deny
-				Deny from all
-			</Files>
-			';
+			$htaccess_content = "# Protect log files from direct access\n<Files *.log>\n\t<IfModule mod_authz_core.c>\n\t\tRequire all denied\n\t</IfModule>\n\t<IfModule !mod_authz_core.c>\n\t\tOrder allow,deny\n\t\tDeny from all\n\t</IfModule>\n</Files>\n";
 			file_put_contents($htaccess_file, $htaccess_content); // phpcs:ignore
 			tubebay_log( 'Activator: Created .htaccess to protect log directory', 'debug' );
 		}
