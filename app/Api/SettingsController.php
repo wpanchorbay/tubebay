@@ -141,14 +141,14 @@ class SettingsController extends ApiController
 	public function handle_connect($request)
 	{
 		$params = $request->get_json_params();
-		$method = $params['connection_method'] ?? 'oauth';
-		$refresh_token = $params['refresh_token'] ?? '';
+		$method = sanitize_text_field($params['connection_method'] ?? 'oauth');
+		$refresh_token = sanitize_text_field($params['refresh_token'] ?? '');
 
 		if ('oauth' === $method) {
 			if (empty($refresh_token) && !empty($params['connection_string'])) {
 				$decoded = json_decode(base64_decode($params['connection_string']), true); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				if ($decoded && isset($decoded['refresh_token'])) {
-					$refresh_token = $decoded['refresh_token'];
+					$refresh_token = sanitize_text_field($decoded['refresh_token']);
 				}
 			}
 
@@ -161,8 +161,8 @@ class SettingsController extends ApiController
 			Settings::set('refresh_token', $refresh_token);
 		} else {
 			// Manual API Method
-			$api_key = $params['api_key'] ?? '';
-			$channel_id = $params['channel_id'] ?? '';
+			$api_key = sanitize_text_field($params['api_key'] ?? '');
+			$channel_id = sanitize_text_field($params['channel_id'] ?? '');
 
 			if (empty($api_key) || empty($channel_id)) {
 				return new \WP_Error('invalid_data', __('API Key and Channel ID are required for manual connection.', 'tubebay'));

@@ -507,6 +507,9 @@ class YouTubeController extends ApiController {
 
 			if ($action === 'assign') {
 				foreach ($video_ids as $video) {
+					if (is_array($video) && !isset($video['id'])) {
+						continue; // Malformed entry — skip rather than emit a notice.
+					}
 					$vid_id = is_array($video) ? sanitize_text_field($video['id']) : sanitize_text_field($video);
 					$vid_type = is_array($video) && isset($video['type']) ? sanitize_text_field($video['type']) : 'youtube';
 					$vid_title = is_array($video) && isset($video['title']) ? sanitize_text_field($video['title']) : '';

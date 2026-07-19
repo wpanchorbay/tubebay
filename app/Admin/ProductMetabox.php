@@ -237,18 +237,18 @@ class ProductMetabox {
 
 			<?php if ( ! $is_pro ) : ?>
 			<p>
-				<label for="tubebay_max_videos"><?php esc_html_e( 'Max Videos:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
-				<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+				<label for="tubebay_max_videos"><?php esc_html_e( 'Max Videos:', 'tubebay' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label><br/>
+				<select name="tubebay_max_videos" id="tubebay_max_videos" style="width: 100%;<?php echo esc_attr( $pro_style ); ?>"<?php echo esc_attr( $pro_attr ); ?>>
 					<option value="" <?php selected( $max_videos, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
 					<?php for ( $i = 1; $i <= 10; $i++ ) : ?>
-						<option value="<?php echo $i; ?>" <?php selected( $max_videos, (string) $i ); ?>><?php echo $i; ?></option>
+						<option value="<?php echo (int) $i; ?>" <?php selected( $max_videos, (string) $i ); ?>><?php echo (int) $i; ?></option>
 					<?php endfor; ?>
 					<option value="0" <?php selected( $max_videos, '0' ); ?>><?php esc_html_e( 'Unlimited', 'tubebay' ); ?></option>
 				</select>
 			</p>
 			<p>
-				<label for="tubebay_video_position"><?php esc_html_e( 'Video Position:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
-				<select name="tubebay_video_position" id="tubebay_video_position" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+				<label for="tubebay_video_position"><?php esc_html_e( 'Video Position:', 'tubebay' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label><br/>
+				<select name="tubebay_video_position" id="tubebay_video_position" style="width: 100%;<?php echo esc_attr( $pro_style ); ?>"<?php echo esc_attr( $pro_attr ); ?>>
 					<option value="" <?php selected( $video_position, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
 					<option value="first" <?php selected( $video_position, 'first' ); ?>><?php esc_html_e( 'First (Before Images)', 'tubebay' ); ?></option>
 					<option value="last" <?php selected( $video_position, 'last' ); ?>><?php esc_html_e( 'Last (After Images)', 'tubebay' ); ?></option>
@@ -256,19 +256,19 @@ class ProductMetabox {
 				</select>
 			</p>
 			<p>
-				<label for="tubebay_autoplay_first"><?php esc_html_e( 'Autoplay First Video:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
-				<select name="tubebay_autoplay_first" id="tubebay_autoplay_first" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+				<label for="tubebay_autoplay_first"><?php esc_html_e( 'Autoplay First Video:', 'tubebay' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label><br/>
+				<select name="tubebay_autoplay_first" id="tubebay_autoplay_first" style="width: 100%;<?php echo esc_attr( $pro_style ); ?>"<?php echo esc_attr( $pro_attr ); ?>>
 					<option value="" <?php selected( $autoplay_first, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
 					<option value="yes" <?php selected( $autoplay_first, 'yes' ); ?>><?php esc_html_e( 'Yes', 'tubebay' ); ?></option>
 					<option value="no" <?php selected( $autoplay_first, 'no' ); ?>><?php esc_html_e( 'No', 'tubebay' ); ?></option>
 				</select>
 			</p>
 			<p>
-				<label for="tubebay_show_duration"><?php esc_html_e( 'Show Duration Badge:', 'tubebay' ); ?><?php echo $pro_badge; ?></label><br/>
-				<select name="tubebay_show_duration" id="tubebay_show_duration" style="width: 100%;<?php echo $pro_style; ?>"<?php echo $pro_attr; ?>>
+				<label for="tubebay_show_duration"><?php esc_html_e( 'Show Duration Badge:', 'tubebay' ); ?><?php echo wp_kses_post( $pro_badge ); ?></label><br/>
+				<select name="tubebay_show_duration" id="tubebay_show_duration" style="width: 100%;<?php echo esc_attr( $pro_style ); ?>"<?php echo esc_attr( $pro_attr ); ?>>
 					<option value="" <?php selected( $show_duration, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
 					<option value="yes" <?php selected( $show_duration, 'yes' ); ?>><?php esc_html_e( 'Yes', 'tubebay' ); ?></option>
-					<option value="no" <?php selected( $show_duration, 'no' ); ?>"><?php esc_html_e( 'No', 'tubebay' ); ?></option>
+					<option value="no" <?php selected( $show_duration, 'no' ); ?>><?php esc_html_e( 'No', 'tubebay' ); ?></option>
 				</select>
 			</p>
 			<?php endif; ?>
@@ -372,12 +372,12 @@ class ProductMetabox {
 		}
 
 		// Save multiple videos array
+		$sanitized_ids = array();
 		if ( isset( $_POST['tubebay_video_ids'] ) ) {
 			$video_ids_json = wp_unslash( $_POST['tubebay_video_ids'] );
 			$video_ids = json_decode( $video_ids_json, true ) ?: array();
 
 			// Sanitize array elements
-			$sanitized_ids = array();
 			foreach ( $video_ids as $video ) {
 				if ( is_array( $video ) && isset( $video['id'] ) ) {
 					$sanitized_ids[] = array(

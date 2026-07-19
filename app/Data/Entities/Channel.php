@@ -417,7 +417,9 @@ class Channel {
 
 		$search_url = add_query_arg( $args, 'https://www.googleapis.com/youtube/v3/search' );
 
-		tubebay_log( 'search_videos: Querying YouTube search API. URL params: ' . wp_json_encode( $args ), 'debug' );
+		// Never log the API key; redaction is a backstop, but drop it at the source too.
+		$loggable_args = array_diff_key( $args, array( 'key' => '' ) );
+		tubebay_log( 'search_videos: Querying YouTube search API. URL params: ' . wp_json_encode( $loggable_args ), 'debug' );
 
 		$response = wp_remote_get( $search_url, $this->get_api_request_args() );
 

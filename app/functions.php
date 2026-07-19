@@ -33,6 +33,8 @@ if ( ! function_exists( 'tubebay_log' ) ) {
 
 		if ( ! is_dir( $log_dir ) ) {
 			wp_mkdir_p( $log_dir );
+			// Re-create the access guards if the directory was removed post-activation.
+			tubebay_write_log_dir_guards( $log_dir );
 		}
 
 		$log_file = $log_dir . 'plugin-log-' . gmdate( 'Y-m-d' ) . '.log';
@@ -59,6 +61,33 @@ if ( ! function_exists( 'tubebay_log' ) ) {
 	}
 }
 
+if ( ! function_exists( 'tubebay_write_log_dir_guards' ) ) {
+	/**
+	 * Write the .htaccess + index.php access guards into the log directory.
+	 *
+	 * Shared by the activator and tubebay_log() so the guards are (re)created
+	 * whenever the log directory is created, not only on plugin activation.
+	 *
+	 * @since 1.2.1
+	 * @param string $log_dir Absolute path to the log directory (trailing slash).
+	 * @return void
+	 */
+	function tubebay_write_log_dir_guards( $log_dir ) {
+		$htaccess_file = $log_dir . '.htaccess';
+		if ( ! file_exists( $htaccess_file ) ) {
+			$htaccess_content = "# Protect log files from direct access\n<Files *.log>\n\t<IfModule mod_authz_core.c>\n\t\tRequire all denied\n\t</IfModule>\n\t<IfModule !mod_authz_core.c>\n\t\tOrder allow,deny\n\t\tDeny from all\n\t</IfModule>\n</Files>\n";
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $htaccess_file, $htaccess_content );
+		}
+
+		$index_file = $log_dir . 'index.php';
+		if ( ! file_exists( $index_file ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $index_file, "<?php\n// Silence is golden.\n" );
+		}
+	}
+}
+
 if ( ! function_exists( 'tubebay_redact_secrets' ) ) {
 	/**
 	 * Redact secret-bearing values from a log message string.
@@ -76,17 +105,27 @@ if ( ! function_exists( 'tubebay_redact_secrets' ) ) {
 			return $message;
 		}
 
-		// 1. JSON key-value pairs: "access_token":"ya29.xxx" → "access_token":"[REDACTED]"
+		/*
+		 * Curated secret-key list. In the JSON branch the key name is anchored by
+		 * quotes, so matching is exact (e.g. "key" matches but "channelId"/"pageToken"
+		 * do not). This closes the two known bypasses: the YouTube 'key' param when it
+		 * is JSON-encoded, and 'connection_string' (base64 JSON carrying a refresh token).
+		 * NOTE: any NEW secret-bearing key must be added here.
+		 */
+		$secret_keys = 'access_token|refresh_token|api_key|client_secret|secret|password|connection_string|authorization|credentials?|token|key';
+
+		// JSON key-value pairs, e.g. "access_token":"ya29.xxx" -> "access_token":"[REDACTED]".
+		// Key is fully quote-anchored, so only exact secret key names match.
 		$message = preg_replace(
-			'/"(access_token|refresh_token|api_key|secret|password|token)"\s*:\s*"[^"]*"/i',
+			'/"(' . $secret_keys . ')"\s*:\s*"[^"]*"/i',
 			'"$1":"[REDACTED]"',
 			$message
 		);
 
-		// 2. URL query params: key=AIzaXxx& → key=[REDACTED]&
-		//    'key' is the YouTube API key param; 'access_token'/'refresh_token'/'api_key' are also matched.
+		// URL query params, e.g. key=AIzaXxx& -> key=[REDACTED]&.
+		// 'key' is the YouTube API key param; the rest cover OAuth/connection secrets.
 		$message = preg_replace(
-			'/(api_key|access_token|refresh_token|key|token)=([^&"\s]+)/i',
+			'/(' . $secret_keys . ')=([^&"\s]+)/i',
 			'$1=[REDACTED]',
 			$message
 		);

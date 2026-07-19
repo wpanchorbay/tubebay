@@ -5,7 +5,7 @@ Requires at least: 6.8
 Tested up to: 6.9
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.0.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -179,11 +179,28 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 
 == Changelog ==
 
+= 1.2.0 =
+
+- Security: redact secrets (API keys, OAuth tokens) from debug log output.
+- Added settings and engine extension hooks for add-ons.
+- Per-product gallery override controls moved to TubeBay Pro.
+- Hardening and stability fixes across the REST API and sync engine.
+
+= 1.1.0 =
+
+- Added support for multiple videos per product and gallery display.
+- Added object caching for product-to-video mappings.
+- Added a "No videos found" message when a video search returns empty.
+- Aligned the product metabox UI with the classic WordPress dashboard styling.
+
 = 1.0.0 =
 
 - Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Security and stability update: secrets are now redacted from logs and per-product controls moved to Pro.
 
 = 1.0.0 =
 Initial release of TubeBay for WooCommerce.

@@ -74,19 +74,8 @@ class Activator {
 			tubebay_log( 'Activator: Created log directory at ' . $log_dir, 'debug' );
 		}
 
-		$htaccess_file = $log_dir . '.htaccess';
-		if ( ! file_exists( $htaccess_file ) ) {
-			$htaccess_content = "# Protect log files from direct access\n<Files *.log>\n\t<IfModule mod_authz_core.c>\n\t\tRequire all denied\n\t</IfModule>\n\t<IfModule !mod_authz_core.c>\n\t\tOrder allow,deny\n\t\tDeny from all\n\t</IfModule>\n</Files>\n";
-			file_put_contents($htaccess_file, $htaccess_content); // phpcs:ignore
-			tubebay_log( 'Activator: Created .htaccess to protect log directory', 'debug' );
-		}
-
-		$index_file = $log_dir . 'index.php';
-		if ( ! file_exists( $index_file ) ) {
-			$index_content = "<?php\n// Silence is golden.\n";
-			file_put_contents($index_file, $index_content); // phpcs:ignore
-			tubebay_log( 'Activator: Created index.php in log directory', 'debug' );
-		}
+		// Shared helper writes the .htaccess + index.php access guards.
+		tubebay_write_log_dir_guards( $log_dir );
 	}
 
 	/**

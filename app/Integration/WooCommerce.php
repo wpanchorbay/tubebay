@@ -172,6 +172,10 @@ class WooCommerce {
 		do_action( 'tubebay_gallery_before_videos', $post );
 
 		foreach ( $videos as $index => $video ) {
+			// Guard against legacy/malformed entries (e.g. plain-string video IDs).
+			if ( ! is_array( $video ) || ! isset( $video['id'] ) ) {
+				continue;
+			}
 			$vid_id = $video['id'];
 			$vid_type = isset($video['type']) ? $video['type'] : 'youtube';
 			$vid_thumb = isset($video['thumbnail']) ? $video['thumbnail'] : '';

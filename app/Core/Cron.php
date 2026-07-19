@@ -86,10 +86,12 @@ class Cron {
 		if ( $auto_sync ) {
 			if ( ! wp_next_scheduled( self::HOOK_NAME ) ) {
 				tubebay_log( 'Scheduling daily sync event', 'debug' );
-				// Schedule to start at 3:00 AM local time or soon after.
+				// Anchor the daily run to 03:00. WordPress runs PHP in UTC, so this
+				// is 03:00 UTC (not the site's configured timezone) — an off-peak
+				// window chosen to avoid quota spikes, exact local hour is not important.
 				$timestamp = strtotime( '03:00:00' );
 
-				// If 3:00 AM today has already passed, start tomorrow.
+				// If 03:00 today has already passed, start tomorrow.
 				if ( $timestamp < time() ) {
 					$timestamp += DAY_IN_SECONDS;
 				}

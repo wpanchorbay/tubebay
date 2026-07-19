@@ -52,6 +52,9 @@ export interface PluginSettings {
     autoplay_first: boolean;
     show_duration: boolean;
     privacy_mode: boolean;
+
+    license_key: string;
+    license_status: string;
 }
 
 export interface SyncPlacementSettings {
@@ -79,4 +82,6 @@ export interface BoilerplateStore {
     products_url: string;
     settings_url: string;
     context: string;
+    is_pro?: boolean;
+    pro_version?: string;
 }
