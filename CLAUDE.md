@@ -80,3 +80,13 @@ Namespace `tubebay/v1` (`ApiController::$namespace`/`$version`). Controllers reg
 
 - OAuth tokens, API keys, and other secrets flow through `Settings` (`access_token`, `refresh_token`, `api_key` keys) — any new code path that logs request/response data must go through `tubebay_log()` so redaction applies; don't `error_log()`/`file_put_contents()` raw payloads directly.
 - The OAuth proxy URL and YouTube API request args are filterable — if modifying the OAuth or YouTube API flow, check `Channel.php` for the existing filter points before adding new ones.
+
+## Release process
+
+Triggers: "make a zip", "make a release zip", "update the version", "is it ready to release".
+
+- **Version bump:** fetch `https://api.wordpress.org/plugins/info/1.0/tubebay.json`, take its `"version"`, bump the patch number by 1. Compare to the version already in `tubebay.php`'s header — use whichever is higher, never decrease.
+- **Update the version** in: `tubebay.php` `Version:` header, `define('TUBEBAY_VERSION', ...)`, `package.json` `"version"`, `readme.txt` `Stable tag:`, `languages/tubebay.pot` `Project-Id-Version`.
+- **Changelog / Upgrade Notice:** draft new `== Changelog ==` and `== Upgrade Notice ==` entries in `readme.txt` from what was built this session, matching the existing `- ...` hyphen-bullet style (the only plugin in this set that uses `-` instead of `*`). Confirm the draft with the user before writing it.
+- **Build & zip:** `./build.sh <version>` runs the build + makepot + license header, then `./package.sh` stages `app`/`assets`/`build`/`config`/`languages` into `dist/` and zips — run both in order.
+- **Ready to release** = version synced everywhere above, changelog/upgrade notice written, the zip builds cleanly. Mention the `wp-plugin-review` skill as an optional deeper security/WPCS check — don't run it automatically.

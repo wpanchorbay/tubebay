@@ -36,10 +36,10 @@ export default defineConfig({
 
 		nav: [
 			{
-				text: 'v1.0.0',
+				text: 'v1.2.0',
 				items: [
 					{
-						text: 'v1.0.0 (Latest)',
+						text: 'v1.2.0 (Latest)',
 						link: '/guide/introduction',
 						activeMatch: '^/(?!v\\d)',
 					},
@@ -51,6 +51,7 @@ export default defineConfig({
 			},
 			{ text: 'Guide', link: '/guide/introduction' },
 			{ text: 'Features', link: '/features/connection' },
+			{ text: 'Pro', link: '/guide/pro' },
 			{ text: 'Developer', link: '/developer/architecture' },
 			{
 				text: 'More',
@@ -99,6 +100,13 @@ export default defineConfig({
 				items: [
 					{ text: 'Global Settings', link: '/features/global-settings' },
 					{ text: 'Shortcodes', link: '/features/shortcodes' },
+				],
+			},
+			{
+				text: 'TubeBay Pro',
+				collapsed: false,
+				items: [
+					{ text: 'Overview & License', link: '/guide/pro' },
 				],
 			},
 			{

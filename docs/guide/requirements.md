@@ -6,8 +6,8 @@ Before installing TubeBay, make sure your environment meets the following requir
 
 | Requirement | Minimum Version | Recommended |
 |-------------|----------------|-------------|
-| **WordPress** | 5.8+ | Latest stable |
-| **WooCommerce** | 6.0+ | Latest stable |
+| **WordPress** | 6.8+ | Latest stable |
+| **WooCommerce** | 6.1+ | Latest stable |
 | **PHP** | 7.4+ | 8.0+ |
 
 ::: warning WooCommerce Required

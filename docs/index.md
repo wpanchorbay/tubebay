@@ -25,7 +25,7 @@ features:
     details: Keep your video library fresh. TubeBay caches synced video data for performance and runs an automatic daily sync when enabled.
   - icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11"/><path d="M6.1 11.6c.3 1.1 1.4 1.8 2.5 1.4l5.6-2c1.1-.3 1.8-1.4 1.4-2.5L14.4 3"/><path d="M22 22l-6-6"/><path d="M18 16h3.5l.5.5V20l-.5.5H18l-.5-.5V16.5l.5-.5Z"/></svg>'
     title: Smart Mapping
-    details: TubeBay stores the selected video on the WooCommerce product as product metadata. One product can have one selected video.
+    details: Attach one or more YouTube or self-hosted videos to any WooCommerce product, stored right on the product as metadata.
   - icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"/><path d="M18 10h4"/><path d="M3 10h4"/><path d="m9 10 3 3 3-3"/></svg>'
     title: Flexible Placement
     details: Display videos where they convert best. Embed players below the product gallery, after the summary, or use shortcodes for custom locations.
@@ -78,6 +78,11 @@ Ready to dive deeper? Choose a section below to find exactly what you're looking
 <div class="warning custom-block">
   <p class="custom-block-title">For Developers</p>
   <p><a href="/tubebay/developer/architecture">Architecture</a> • <a href="/tubebay/developer/hooks">Hooks & Filters</a> • <a href="/tubebay/developer/rest-api">REST API Reference</a></p>
+</div>
+
+<div class="tip custom-block">
+  <p class="custom-block-title">TubeBay Pro</p>
+  <p><a href="/tubebay/guide/pro">Per-product overrides & license activation</a> · <a href="https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing">Buy a license</a></p>
 </div>
 
 <style>

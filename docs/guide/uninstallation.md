@@ -13,9 +13,9 @@ This page explains how to properly remove TubeBay from your WordPress site and w
 
 TubeBay gives you control over what happens when the plugin is deleted:
 
-1. Go to **TubeBay > Settings** in your WordPress admin.
+1. Go to **WooCommerce → Settings → TubeBay** in your WordPress admin.
 2. Select the **Advanced** tab.
-3. Look for the **"Delete data on uninstall"** toggle.
+3. Look for the **"Clean Uninstall"** toggle ("Delete all plugin data upon uninstallation").
 4. Toggle it based on your preference:
 
 | Setting | Effect on Uninstall |
@@ -24,8 +24,10 @@ TubeBay gives you control over what happens when the plugin is deleted:
 | **Disabled** (default) | Data is preserved in the database even after the plugin is deleted. Useful if you plan to reinstall later or upgrade. |
 
 ::: danger Data Deletion Is Permanent
-When "Delete data on uninstall" is enabled, deleting the plugin will **permanently remove** all your product mappings and stored YouTube tokens. This cannot be undone.
+When "Clean Uninstall" is enabled, deleting the plugin will **permanently remove** all your product mappings and stored YouTube tokens. This cannot be undone.
 :::
+
+You can also wipe everything immediately, without uninstalling the plugin, using the **Delete All Data** button on the same Advanced tab — see [Global Settings](/features/global-settings#advanced-tab).
 
 ## What Gets Deleted
 

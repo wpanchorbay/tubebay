@@ -8,7 +8,7 @@ By integrating product videos, you can significantly increase customer engagemen
 
 TubeBay is perfect for WooCommerce store owners who create video content on YouTube and want to display it professionally on their product pages:
 - **Auto-Syncing:** No more manual embedding. Your latest videos are pulled into your dashboard automatically.
-- **Smart Mapping:** Link videos to products in seconds using our intuitive search-and-select interface.
+- **Smart Mapping:** Attach one or more YouTube (or self-hosted) videos to a product in seconds using our intuitive search-and-select interface.
 - **Flexible Playback:** Embedded players are optimized for performance and mobile responsiveness.
 - **Visual Placement:** Choose exactly where the video appears on the product page via the admin settings.
 

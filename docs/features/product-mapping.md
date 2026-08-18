@@ -1,51 +1,45 @@
 # Product Mapping
 
-Product Mapping is the core feature of TubeBay. it allows you to link specific YouTube videos to your WooCommerce products, making your store more interactive and helping customers see your products in action.
+Product Mapping is the core feature of TubeBay: it lets you attach one or more videos to a WooCommerce product, so shoppers see them right in the product image gallery.
 
 ## How it works
 
-Each video in your synced library can be "Attached" to one or more WooCommerce products. Once attached, the video will automatically appear on the single product page of your store.
+Each product can have **multiple videos** attached — a mix of synced YouTube videos and self-hosted videos from your WordPress media library. All attached videos render as extra slides in that product's image gallery (see [Visual Placement](/features/placement)).
 
-## Mapping a Video
+## Mapping Videos to a Product
 
-Unlike traditional mapping where you link from a library, TubeBay allows you to link videos directly while you are editing your products.
-
-1. Go to **Products > All Products** and edit the product you want to add a video to. Look for the **TubeBay Video** meta box in the sidebar and click **Select Video from Library**.
+1. Go to **Products → All Products** and edit the product you want to add videos to. Look for the **TubeBay Video** meta box in the sidebar.
 
 ![Step 1: Meta Box Location](/public/img/feature-mapping-step1.png)
 
-2. A modal will open displaying your entire synced YouTube library. Simply click on any video thumbnail to select it for this product.
+2. Click **Add YouTube Video** to open a modal listing your synced library — click any thumbnail to attach it. Or click **Add Self-Hosted Video** to attach a video already in your WordPress media library.
 
 ![Step 2: Video Selection Modal](/public/img/feature-mapping-step2.png)
 
-3. Once selected, you will see a preview of the video inside the meta box. You can change it at any time by clicking the edit icon or remove it entirely.
+3. Attached videos appear as a sortable list in the meta box. Drag to reorder them, or remove one by clicking its remove icon.
 
 ![Step 3: Selected Video Preview](/public/img/feature-mapping-step3.png)
 
-4. Finally, click the **Update** or **Publish** button in the WooCommerce "Publish" box to save your mapping.
+4. Optionally expand **Video Gallery Settings** to review the (Pro-gated) per-product overrides — see [TubeBay Pro](/guide/pro) or [buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+5. Click **Update** or **Publish** in the WooCommerce "Publish" box to save your changes.
 
 ![Step 4: Save Mapping](/public/img/feature-mapping-step4.png)
 
----
+## Bulk Assignment
 
-## Mapping Multiple Products
-
-Each WooCommerce product can be mapped to one YouTube video. If you want to change the video, simply click the **Select Video from Library** button again in the meta box and choose a new one.
+For attaching or removing videos across many products at once, use **Products → TubeBay Manager** instead of editing products one at a time — see [Library Management](/features/library-management).
 
 ---
 
 ## Technical Details
 
-- **Storage:** TubeBay stores the selected video on the WooCommerce product as product metadata. One product can have one selected TubeBay video. The same YouTube video can be assigned to multiple products.
-- **Performance:** TubeBay uses optimized queries to fetch mapped videos, ensuring your product pages remain fast.
-- **Auto-Sync:** If you delete a product in WooCommerce, the mapping metadata will be removed automatically.
-- **Persistent Links:** Once a video is assigned, the link remains until you manually unassign it or delete the product.
+- **Storage:** Attached videos are stored as product meta (`_tubebay_video_ids`, a JSON array), so one product can hold multiple videos of mixed type. The same YouTube video can be attached to multiple products.
+- **Performance:** TubeBay uses cached queries to fetch mapped videos, keeping product pages fast.
+- **Auto-Cleanup:** If you delete a product in WooCommerce, its video-mapping metadata is deleted along with it.
+- **Persistent Links:** An attached video stays attached until you manually remove it or delete the product.
 
-## Product Search
+## Video Search
 
-The mapping search bar utilizes the WooCommerce product search API, allowing you to find products by:
+The **Add YouTube Video** modal searches your synced library by title, and supports sorting by Recently Added, Oldest First, Title (A-Z/Z-A), or Most Viewed.
 
-- Title
-- SKU
-- ID
-
+The **TubeBay Manager** product search searches WooCommerce products by title.

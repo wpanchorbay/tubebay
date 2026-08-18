@@ -2,24 +2,21 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: TubeBay 1.0.0\n"
+"Project-Id-Version: TubeBay - YouTube Product Videos for WooCommerce 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tubebay\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-05T11:15:58+00:00\n"
+"POT-Creation-Date: 2026-08-09T17:07:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: tubebay\n"
 
 #. Plugin Name of the plugin
 #: tubebay.php
-#: app/Admin/Admin.php:71
-#: app/Admin/Admin.php:72
-#: app/Admin/Admin.php:73
-msgid "TubeBay"
+msgid "TubeBay - YouTube Product Videos for WooCommerce"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -29,7 +26,7 @@ msgstr ""
 
 #. Description of the plugin
 #: tubebay.php
-msgid "Boost your WooCommerce conversions by replacing static product images with high-performance YouTube videos."
+msgid "Connect your YouTube channel to WooCommerce and show fast, click-to-play product videos on product pages."
 msgstr ""
 
 #. Author of the plugin
@@ -42,27 +39,57 @@ msgstr ""
 msgid "https://wpanchorbay.com"
 msgstr ""
 
-#: app/Admin/Admin.php:106
-msgid "Channel Library"
+#: app/Admin/Admin.php:71
+#: app/Admin/Admin.php:72
+#: app/Admin/Admin.php:73
+#: app/Admin/WCSettingsTab.php:27
+msgid "TubeBay"
 msgstr ""
 
-#: app/Admin/Admin.php:111
-#: app/Admin/Admin.php:318
-msgid "Settings"
+#: app/Admin/Admin.php:98
+#: app/Admin/Admin.php:99
+msgid "TubeBay Library"
 msgstr ""
 
-#: app/Admin/Admin.php:154
-#: app/Admin/Admin.php:155
-msgid "Videos"
+#: app/Admin/Admin.php:108
+#: app/Admin/Admin.php:109
+msgid "TubeBay Manager"
 msgstr ""
 
-#: app/Admin/Admin.php:217
+#: app/Admin/Admin.php:186
+#: app/Admin/Admin.php:201
 #: app/Admin/ProductMetabox.php:144
 msgid "Loading..."
 msgstr ""
 
+#: app/Admin/Admin.php:320
+msgid "Settings"
+msgstr ""
+
+#: app/Admin/Admin.php:398
+msgid "Welcome to TubeBay!"
+msgstr ""
+
+#: app/Admin/Admin.php:400
+#: app/Admin/Admin.php:446
+msgid "Connect your YouTube channel once, and seamlessly sync product videos across your entire WooCommerce store."
+msgstr ""
+
+#: app/Admin/Admin.php:403
+#: app/Admin/Admin.php:457
+msgid "Start Setup Wizard"
+msgstr ""
+
+#: app/Admin/Admin.php:404
+msgid "Skip Setup"
+msgstr ""
+
+#: app/Admin/Admin.php:445
+msgid "Ready to get started with TubeBay?"
+msgstr ""
+
 #: app/Admin/ProductMetabox.php:90
-#: app/Frontend/VideoShortcode.php:123
+#: app/Frontend/VideoShortcode.php:157
 msgid "TubeBay Video"
 msgstr ""
 
@@ -71,7 +98,6 @@ msgid "Select Video"
 msgstr ""
 
 #: app/Admin/ProductMetabox.php:143
-#: app/Admin/ProductMetabox.php:208
 msgid "Remove Video"
 msgstr ""
 
@@ -80,69 +106,125 @@ msgid "Error loading videos."
 msgstr ""
 
 #: app/Admin/ProductMetabox.php:146
-#: app/Admin/ProductMetabox.php:287
-msgid "Load More"
+msgid "No videos found."
 msgstr ""
 
 #: app/Admin/ProductMetabox.php:147
-#: app/Admin/ProductMetabox.php:270
+msgid "Load More"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:148
+#: app/Admin/ProductMetabox.php:320
 msgid "Search videos..."
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:149
-#: app/Admin/ProductMetabox.php:272
+#: app/Admin/ProductMetabox.php:150
+#: app/Admin/ProductMetabox.php:311
 msgid "Recently Added"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:150
-#: app/Admin/ProductMetabox.php:273
+#: app/Admin/ProductMetabox.php:151
+#: app/Admin/ProductMetabox.php:312
 msgid "Oldest First"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:151
-#: app/Admin/ProductMetabox.php:274
+#: app/Admin/ProductMetabox.php:152
+#: app/Admin/ProductMetabox.php:313
 msgid "Title (A-Z)"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:152
-#: app/Admin/ProductMetabox.php:275
+#: app/Admin/ProductMetabox.php:153
+#: app/Admin/ProductMetabox.php:314
 msgid "Title (Z-A)"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:153
-#: app/Admin/ProductMetabox.php:276
+#: app/Admin/ProductMetabox.php:154
+#: app/Admin/ProductMetabox.php:315
 msgid "Most Viewed"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:204
-msgid "Change Video"
+#: app/Admin/ProductMetabox.php:180
+msgid "TubeBay Pro feature"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:221
-msgid "Select Video from Library"
+#: app/Admin/ProductMetabox.php:220
+msgid "Add YouTube Video"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:227
-msgid "Connect your YouTube account in TubeBay Settings to select videos."
+#: app/Admin/ProductMetabox.php:223
+msgid "Connect your YouTube account in TubeBay Settings to select YouTube videos."
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:231
-msgid "Reconnect your YouTube account in TubeBay Settings to change or add videos."
+#: app/Admin/ProductMetabox.php:226
+msgid "Add Self-Hosted Video"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:241
-msgid "Muted Autoplay"
+#: app/Admin/ProductMetabox.php:233
+msgid "Video Gallery Settings"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:244
-msgid "Video plays automatically without sound"
+#: app/Admin/ProductMetabox.php:240
+msgid "Max Videos:"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:242
+#: app/Admin/ProductMetabox.php:252
+#: app/Admin/ProductMetabox.php:261
+#: app/Admin/ProductMetabox.php:269
+msgid "Inherit (Global)"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:246
+msgid "Unlimited"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:250
+msgid "Video Position:"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:253
+msgid "First (Before Images)"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:254
+msgid "Last (After Images)"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:255
+msgid "Mixed (Drag/Drop Order)"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:259
+msgid "Autoplay First Video:"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:262
+#: app/Admin/ProductMetabox.php:270
+msgid "Yes"
 msgstr ""
 
 #: app/Admin/ProductMetabox.php:263
+#: app/Admin/ProductMetabox.php:271
+msgid "No"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:267
+msgid "Show Duration Badge:"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:295
+msgid "Close"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:301
 msgid "Select a Video"
 msgstr ""
 
-#: app/Admin/ProductMetabox.php:282
+#: app/Admin/ProductMetabox.php:319
+msgid "Search videos"
+msgstr ""
+
+#: app/Admin/ProductMetabox.php:326
 msgid "Loading videos..."
 msgstr ""
 
@@ -167,75 +249,83 @@ msgstr ""
 msgid "Invalid or missing nonce."
 msgstr ""
 
-#: app/Api/SettingsController.php:152
+#: app/Api/SettingsController.php:156
 msgid "Refresh token is missing."
 msgstr ""
 
-#: app/Api/SettingsController.php:164
+#: app/Api/SettingsController.php:168
 msgid "API Key and Channel ID are required for manual connection."
 msgstr ""
 
-#: app/Api/SettingsController.php:202
+#: app/Api/SettingsController.php:206
 msgid "Connected successfully!"
 msgstr ""
 
-#: app/Api/SettingsController.php:343
+#: app/Api/SettingsController.php:371
 msgid "Settings saved successfully."
 msgstr ""
 
-#: app/Api/SettingsController.php:430
+#: app/Api/SettingsController.php:448
 msgid "All TubeBay data has been deleted and settings reset to defaults."
 msgstr ""
 
-#: app/Api/YouTubeController.php:170
-#: app/Api/YouTubeController.php:207
-#: app/Api/YouTubeController.php:253
+#: app/Api/YouTubeController.php:201
+#: app/Api/YouTubeController.php:238
+#: app/Api/YouTubeController.php:306
 msgid "API Key or Channel ID missing."
 msgstr ""
 
-#: app/Api/YouTubeController.php:185
+#: app/Api/YouTubeController.php:216
 msgid "Connection successful!"
 msgstr ""
 
-#: app/Api/YouTubeController.php:229
-#: app/Api/YouTubeController.php:273
+#: app/Api/YouTubeController.php:282
+#: app/Api/YouTubeController.php:324
 msgid "Library synced successfully."
 msgstr ""
 
-#: app/Api/YouTubeController.php:391
+#: app/Api/YouTubeController.php:447
 msgid "Account disconnected successfully."
 msgstr ""
 
+#: app/Api/YouTubeController.php:489
+msgid "No products specified."
+msgstr ""
+
+#: app/Api/YouTubeController.php:573
+msgid "Products updated successfully."
+msgstr ""
+
+#: app/Api/YouTubeController.php:591
+msgid "Invalid product ID or empty order."
+msgstr ""
+
+#: app/Api/YouTubeController.php:596
+msgid "You do not have permission to edit this product."
+msgstr ""
+
+#: app/Api/YouTubeController.php:618
+msgid "Video order saved successfully."
+msgstr ""
+
 #: app/Data/Entities/Channel.php:117
-#: app/Data/Entities/Channel.php:366
-#: app/Data/Entities/Channel.php:484
+#: app/Data/Entities/Channel.php:376
+#: app/Data/Entities/Channel.php:496
 msgid "TubeBay API Key or Channel ID is missing."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:273
+#: app/Data/Entities/Channel.php:283
 msgid "Could not find the uploads playlist for this channel."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:521
+#: app/Data/Entities/Channel.php:533
 msgid "Could not fetch channel details."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:552
+#: app/Data/Entities/Channel.php:564
 msgid "API Key or Channel ID is missing."
 msgstr ""
 
-#: app/Data/Entities/Channel.php:579
+#: app/Data/Entities/Channel.php:591
 msgid "Failed to validate OAuth connection. Could not generate access token."
-msgstr ""
-
-#: app/Integration/WooCommerce.php:118
-msgid "TubeBay Product Video"
-msgstr ""
-
-#: build/admin.js:1
-msgid "Documentation"
-msgstr ""
-
-#: build/admin.js:1
-msgid "Support"
 msgstr ""

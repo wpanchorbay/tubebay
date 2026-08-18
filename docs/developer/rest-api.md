@@ -1,6 +1,6 @@
 # REST API
 
-TubeBay registers its own REST API endpoints under the `tubebay/v1` namespace. All endpoints require the `manage_options` capability (WordPress administrator).
+TubeBay registers its own REST API endpoints under the `tubebay/v1` namespace. TubeBay Pro adds a `tubebay-pro/v1` namespace for license management.
 
 ::: warning Internal API
 These REST API endpoints are used internally by the TubeBay admin panel and Setup Wizard. They are not intended as a public API and may change in future versions.
@@ -8,9 +8,9 @@ These REST API endpoints are used internally by the TubeBay admin panel and Setu
 
 ## Authentication
 
-All endpoints require:
+All `tubebay/v1` endpoints require:
 - The user to be **logged in** to WordPress
-- The user to have the **`manage_options`** capability
+- The user to have the **`manage_tubebay`** capability (granted to the Administrator role on activation — see [Architecture](/developer/architecture#key-components); grant it to another role with a capabilities plugin if you want Shop Managers to have access)
 - A valid **WordPress REST API nonce** (handled automatically by the admin panel)
 
 ## Base URL
@@ -23,19 +23,24 @@ All endpoints require:
 
 ### Authentication & Connection
 
-#### Handle Connect (OAuth & Manual)
+#### Connect (OAuth & Manual)
 
 ```http
 POST /wp-json/tubebay/v1/auth/connect
 ```
 
-Unified endpoint to connect a YouTube channel.
-- **connection_method**: `oauth` or `api`
-- **api_key**: (Required if method is `api`)
-- **channel_id**: (Required if method is `api`)
-- **refresh_token**: (Required if method is `oauth`)
+Saves connection credentials and tests them. Body:
+- `connection_method` (required): `oauth` or `api`
+- `api_key`, `channel_id`: required if `connection_method` is `api`
+- `refresh_token`: required if `connection_method` is `oauth`
 
----
+#### Start OAuth Flow
+
+```http
+GET /wp-json/tubebay/v1/youtube/oauth-connect
+```
+
+Redirects the browser to the WPAnchorBay OAuth proxy to begin the Google consent flow. This is the URL behind the **Sign in with YouTube** button on the Connection tab.
 
 #### Test Connection
 
@@ -43,7 +48,15 @@ Unified endpoint to connect a YouTube channel.
 POST /wp-json/tubebay/v1/youtube/test-connection
 ```
 
-Validates credentials and returns channel metadata (title, description).
+Validates credentials (without saving them) and returns channel metadata.
+
+#### Disconnect
+
+```http
+DELETE /wp-json/tubebay/v1/youtube/disconnect
+```
+
+Clears the connection status and channel name (does not delete stored credentials).
 
 ---
 
@@ -55,9 +68,7 @@ Validates credentials and returns channel metadata (title, description).
 GET /wp-json/tubebay/v1/youtube/sync-library
 ```
 
-Triggers an immediate fetch from the YouTube API, bypassing cached transients.
-
----
+Triggers an immediate fetch from the YouTube API, bypassing the cached transient.
 
 #### Sync Status
 
@@ -67,40 +78,44 @@ GET /wp-json/tubebay/v1/youtube/sync-library-status
 
 Returns the current sync status and the timestamp of the last successful update.
 
----
-
 #### Get Synced Videos
 
 ```http
 GET /wp-json/tubebay/v1/youtube/videos
 ```
 
-Fetch synced videos from the local cache with support for searching and sorting.
-- **search**: (Optional) Filter by title
-- **sort**: `date_desc`, `date_asc`, `title_asc`, `title_desc`
-- **page_token**: (Optional) For pagination
+Fetch synced videos from the local cache, with search and sort support.
+- `search` (optional): filter by title
+- `sort`: `date_desc`, `date_asc`, `title_asc`, `title_desc`, `view_count`
+- `page_token` (optional): for pagination
 
 ---
 
-### Mappings
+### Product Mapping
 
-#### Get Product Mappings
-
-```http
-GET /wp-json/tubebay/v1/mappings
-```
-
-Returns the full list of video-to-product mappings.
-
----
-
-#### Update Mapping
+#### Search Products
 
 ```http
-POST /wp-json/tubebay/v1/mappings
+GET /wp-json/tubebay/v1/products
 ```
 
-Creates or updates a mapping between a YouTube Video ID and a WooCommerce Product ID.
+Search WooCommerce products by name (used by the mapping UI). Params: `search`, `page`.
+
+#### Bulk Assign Videos
+
+```http
+POST /wp-json/tubebay/v1/products/bulk-assign
+```
+
+Assigns or removes videos across multiple products at once (used by the Manager view).
+
+#### Save Video Order
+
+```http
+POST /wp-json/tubebay/v1/products/video-order
+```
+
+Persists the drag-and-drop order of a product's assigned videos.
 
 ---
 
@@ -118,15 +133,44 @@ GET /wp-json/tubebay/v1/settings
 POST /wp-json/tubebay/v1/settings
 ```
 
----
+Accepts any of the [saveable setting keys](/features/global-settings). Changing connection credentials (`api_key`, `channel_id`, `refresh_token`, `connection_method`) automatically re-tests the connection. Add-ons can register additional saveable keys via the `tubebay_settings_saveable_keys` filter.
 
-### Products (WooCommerce Wrapper)
-
-#### Search Products
+#### Delete All Data
 
 ```http
-GET /wp-json/tubebay/v1/products
+DELETE /wp-json/tubebay/v1/settings/delete-all-data
 ```
 
-Utility endpoint used by the mapping interface to find WooCommerce products by name or SKU.
-- **search**: (Required) Search query
+Wipes every `tubebay_*` option, all TubeBay product meta, and all cached transients, then restores default settings. Used by the **Delete All Data** button on the Advanced tab.
+
+---
+
+### Logs
+
+#### Clear Debug Logs
+
+```http
+DELETE /wp-json/tubebay/v1/logs
+```
+
+Deletes all files under `wp-content/uploads/tubebay-logs/`. There is no GET endpoint for reading log contents over the API — inspect the log files directly on the filesystem.
+
+---
+
+## TubeBay Pro: License Endpoints
+
+Namespace: `tubebay-pro/v1`. Same `manage_tubebay` capability requirement.
+
+#### Activate License
+
+```http
+POST /wp-json/tubebay-pro/v1/license/activate
+```
+
+Body: `license_key`. Calls the remote license server and, on success, sets `tubebay_license_status` to `active`.
+
+#### Deactivate License
+
+```http
+POST /wp-json/tubebay-pro/v1/license/deactivate
+```

@@ -17,7 +17,7 @@ OAuth is the gold standard for secure, limited-access authentication. TubeBay us
 - **Revocable:** You can disconnect the plugin at any time from your Google account dashboard.
 - **Secure:** Your permanent Google credentials are never shared with your website.
 
-## Manual API Key Mode
+## API Key Mode (Legacy)
 
 For power users or those who wish to maintain their own API quotas and Google Cloud projects, TubeBay allows for manual credential entry.
 
@@ -29,7 +29,7 @@ For power users or those who wish to maintain their own API quotas and Google Cl
 
 ### Comparison Table
 
-| Feature | Google OAuth | Manual API |
+| Feature | Google OAuth | API Key (Legacy) |
 |---------|--------------|------------|
 | Ease of Setup | High | Moderate |
 | Security | Excellent | Good |
@@ -40,5 +40,5 @@ For power users or those who wish to maintain their own API quotas and Google Cl
 ## Connection Status & Discovery
 When you connect via either method, TubeBay automatically attempts to:
 1. **Validate Credentials:** Ensure the token or key is valid.
-2. **Discover Metadata:** Pull the Channel Name, Description, and Thumbnail to personalize your dashboard.
-3. **Establish Sync:** Create the initial mapping between your site and YouTube.
+2. **Discover Metadata:** Pull the Channel Name and Thumbnail to personalize your dashboard.
+3. **Cache the Result:** Record the connection status and last-sync time, ready for the first library sync.

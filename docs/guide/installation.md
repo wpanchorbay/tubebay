@@ -33,9 +33,9 @@ You can download the plugin in two ways:
 After activation:
 
 1. **Verify WooCommerce is active** — TubeBay requires WooCommerce. If WooCommerce is not active, you'll see a notice prompting you to activate it.
-2. **Navigate to TubeBay** — Find the **TubeBay** menu item in your WordPress admin sidebar.
+2. **Navigate to TubeBay** — Go to **Products → TubeBay Library** in your WordPress admin sidebar (TubeBay adds its pages under the existing **Products** menu, not a new top-level menu item).
 3. **Complete Onboarding** — The first time you open TubeBay, you'll see a welcome/onboarding screen where you can connect your YouTube account.
 
 ::: tip
-If you don't see the TubeBay menu item after activation, try refreshing the admin page or clearing your browser cache.
+If you don't see **TubeBay Library** under Products after activation, try refreshing the admin page or clearing your browser cache.
 :::

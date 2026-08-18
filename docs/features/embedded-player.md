@@ -1,20 +1,24 @@
 # Embedded Video Player
 
-TubeBay uses a highly optimized, responsive video player to display your YouTube content on WooCommerce product pages. The player is built on top of the YouTube IFrame API to ensure compatibility and performance.
+TubeBay uses a "Video Facade" for every video slide it adds to a product's gallery: a lightweight thumbnail with a play button loads immediately, and the real YouTube IFrame API player (or an HTML5 `<video>` element for self-hosted files) only loads once a shopper clicks it.
 
 ## Player Features
 - **Responsive Design:** Automatically adjusts to fit any screen size (desktop, tablet, mobile).
-- **SEO Optimized:** Uses standard HTML5 structures that search engines can easily index.
-- **Fast Loading:** Only loads the YouTube API when the player is needed, minimizing the impact on initial page load.
+- **Fast Loading:** The YouTube API is only requested when a shopper actually clicks to play, minimizing impact on initial page load.
+- **Two Video Sources:** Attach either a synced YouTube video, or a self-hosted video from your WordPress media library, to any product.
 
 ## Customization Options
-You can configure the player behavior in **Settings > Video Player**:
+Configure default player behavior in **WooCommerce → Settings → TubeBay → Player**:
 
-- **Autoplay:** Start the video automatically when the page loads (Note: Browsers usually require "Mute" for this to work).
-- **Mute:** Start the video with the sound off.
-- **Show Controls:** Toggle the visibility of the YouTube player controls (Play/Pause, volume, etc.).
-- **Related Videos:** Choose whether to show related videos from the same channel after the video ends.
-- **Modest Branding:** Reduces the size of the YouTube logo in the control bar.
+- **Autoplay First Video:** Automatically play the first video in a product's gallery, muted, once a shopper clicks into it.
+- **Show Player Controls:** Toggle YouTube's playback controls (play/pause, volume, fullscreen).
+- **Show Duration Badge:** Display the video length in the corner of the thumbnail.
+- **Privacy/GDPR Mode:** Embed via `youtube-nocookie.com` instead of `youtube.com`, so YouTube won't set cookies for a visitor unless they actually play the video.
+- **Max Videos Per Product:** Cap how many video slides appear in a single product's gallery (0 = unlimited).
+
+::: tip Pro: Per-Product Overrides
+[TubeBay Pro](/guide/pro) lets any individual product override these player settings instead of inheriting the global default — see [TubeBay Pro](/guide/pro#per-product-gallery-overrides). [Buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+:::
 
 ## Mobile Considerations
-On mobile devices, most browsers prevent autoplay to save data. TubeBay handles this gracefully by showing the video thumbnail with a play overlay, ensuring your users always have a clear call-to-action to watch the video.
+Most mobile browsers block autoplay to save data. Because TubeBay always shows the video thumbnail with a play overlay first, shoppers on mobile always have a clear, working call-to-action to start the video manually.
