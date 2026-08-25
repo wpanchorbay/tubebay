@@ -81,6 +81,46 @@ Namespace `tubebay/v1` (`ApiController::$namespace`/`$version`). Controllers reg
 - OAuth tokens, API keys, and other secrets flow through `Settings` (`access_token`, `refresh_token`, `api_key` keys) — any new code path that logs request/response data must go through `tubebay_log()` so redaction applies; don't `error_log()`/`file_put_contents()` raw payloads directly.
 - The OAuth proxy URL and YouTube API request args are filterable — if modifying the OAuth or YouTube API flow, check `Channel.php` for the existing filter points before adding new ones.
 
+## Known issues
+
+### `connection_status` is an exact-match sentinel with no allow-list on write
+
+Every consumer compares `connection_status` to the literal string `'connected'`:
+`src/pages/ChannelLibrary.tsx:41` (gates the whole Video Library screen),
+`src/pages/Onboarding.tsx:27`, `src/components/settings/tabs/ConnectionTab.tsx:33`,
+`src/components/settings/tabs/SyncTab.tsx:89`, and `app/Admin/ProductMetabox.php` at
+:75, :133 and :176.
+
+But `app/Api/SettingsController.php:352` persists whatever the client sent:
+
+```php
+} elseif (!$creds_changed && isset($body['connection_status'])) {
+    Settings::set('connection_status', sanitize_text_field($body['connection_status']));
+}
+```
+
+`sanitize_text_field()` is not validation — there is no allow-list, so any string
+lands in the field. The route is admin-gated (`update_item_permissions_check`), so
+this is not a privilege issue; it is a data-integrity one. A value like `'active'`
+leaves the plugin in a state where `Channel::is_configured()` is satisfied and the
+video cache is warm, yet every screen above renders its disconnected branch — the
+Library shows "Your YouTube library is currently disconnected" while holding a full
+set of videos, and the product metabox hides the picker. Nothing logs a warning.
+
+Note also that the values in play are not self-consistent as a set: the default is
+`'inactive'` (`app/Helper/Settings.php:55`), disconnect writes `'disconnected'`
+(`Channel.php:628`), failure writes `'failed'`, and only `'connected'` is ever
+tested for. Three of the four are effectively "not connected" by falling through.
+
+Fix, if touched: validate against
+`array( 'connected', 'disconnected', 'failed', 'inactive' )` on write and reject
+anything else, rather than sanitising a free string into a field used as an enum.
+
+Related: `connection_method` has the same shape — `src/utils/types.ts:47` declares
+`"oauth" | "api"`, `ConnectionTab.tsx` renders radios for exactly those two, but
+`Channel.php:79` only ever branches on `'oauth'`, so any other value silently
+behaves as `'api'` while leaving the Settings radio group with nothing selected.
+
 ## Release process
 
 Triggers: "make a zip", "make a release zip", "update the version", "is it ready to release".
