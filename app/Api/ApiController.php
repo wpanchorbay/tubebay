@@ -113,6 +113,31 @@ class ApiController extends WP_REST_Controller {
 	}
 
 	/**
+	 * Verifies the REST nonce on a request.
+	 *
+	 * Extracted so that routes needing a different capability check can still
+	 * reuse the same nonce handling rather than reimplementing it.
+	 *
+	 * @since 1.3.0
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True when the nonce is valid, WP_Error otherwise.
+	 */
+	protected function verify_rest_nonce( $request ) {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			tubebay_log( 'ApiController: Permission denied — invalid or missing nonce', 'error' );
+			return new WP_Error(
+				'rest_nonce_invalid',
+				__( 'The security token is invalid.', 'tubebay' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Checks if a given request has access to read items.
 	 *
 	 * @since 1.0.0

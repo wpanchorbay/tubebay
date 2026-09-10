@@ -1,6 +1,7 @@
 import { FC, ReactNode } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { __ } from "@wordpress/i18n";
+import { TEXT_DOMAIN } from "../../utils/textDomain";
 import { useWpabStore } from "../../store/wpabStore";
 
 const ClassicLayout: FC = () => {
@@ -10,14 +11,14 @@ const ClassicLayout: FC = () => {
   // Determine page title based on route
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path === "/logs") return __("Logs", "tubebay-boilerplate");
+    if (path === "/logs") return __("Logs", TEXT_DOMAIN);
     if (path === "/option-groups/new")
-      return __("New Option Group", "tubebay-boilerplate");
+      return __("New Option Group", TEXT_DOMAIN);
     if (path.startsWith("/option-groups/"))
-      return __("Edit Option Group", "tubebay-boilerplate");
-    if (path === "/") return __("Option Groups", "tubebay-boilerplate");
-    if (path === "/settings") return __("Settings", "tubebay-boilerplate");
-    return store.pluginData?.plugin_name || __("WPAB Boilerplate", "tubebay-boilerplate");
+      return __("Edit Option Group", TEXT_DOMAIN);
+    if (path === "/") return __("Option Groups", TEXT_DOMAIN);
+    if (path === "/settings") return __("Settings", TEXT_DOMAIN);
+    return store.pluginData?.plugin_name || __("WPAB Boilerplate", TEXT_DOMAIN);
   };
 
   const context = (window as any).wpabBoilerplate_Localize?.context || "admin";

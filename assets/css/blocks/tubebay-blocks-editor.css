@@ -1,0 +1,149 @@
+/**
+ * TubeBay blocks — block editor styles.
+ *
+ * Editor chrome only. Anything that affects how the block looks to a visitor
+ * belongs in tubebay-blocks.css, which the editor also loads via `viewStyle`.
+ */
+
+/* The editor preview is not interactive — clicking should select the block. */
+.wp-block-tubebay-video .tubebay-block-facade {
+	cursor: default;
+	pointer-events: none;
+}
+
+.tubebay-video-source {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+}
+
+.tubebay-video-source__current {
+	margin: 0;
+	word-break: break-word;
+}
+
+.tubebay-video-picker__toolbar {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 16px;
+	align-items: end;
+	margin-bottom: 12px;
+}
+
+.tubebay-video-picker__deep-search {
+	margin-bottom: 8px;
+}
+
+.tubebay-video-picker__loading {
+	display: flex;
+	justify-content: center;
+	padding: 32px 0;
+}
+
+.tubebay-video-picker__grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 180px, 1fr ) );
+	gap: 16px;
+	margin: 16px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tubebay-video-picker__item {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	width: 100%;
+	padding: 6px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	background: none;
+	cursor: pointer;
+	text-align: left;
+}
+
+.tubebay-video-picker__item:hover,
+.tubebay-video-picker__item:focus-visible {
+	border-color: var( --wp-admin-theme-color, #3858e9 );
+}
+
+.tubebay-video-picker__item img {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+.tubebay-video-picker__title {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.tubebay-video-picker__more {
+	display: flex;
+	justify-content: center;
+	margin-top: 16px;
+}
+
+.tubebay-width-control {
+	margin-bottom: 16px;
+}
+
+.tubebay-width-control__label {
+	margin: 0 0 8px;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ *
+ * Inline video link popover
+ *
+ * A Popover sizes to its content, and this one's content is a stack of
+ * narrow controls -- without an explicit width it collapses to roughly
+ * 150px and every label wraps to three lines.
+ * ------------------------------------------------------------------ */
+
+.tubebay-video-link-popover .components-popover__content {
+	width: 320px;
+	max-width: calc( 100vw - 32px );
+}
+
+.tubebay-video-link-popover__inner {
+	padding: 16px;
+}
+
+/* The picker button and the URL field should use the full width rather than
+   shrink-wrapping their text. */
+.tubebay-video-link-popover__inner .components-button.is-secondary {
+	justify-content: center;
+	width: 100%;
+}
+
+.tubebay-video-link-popover__inner .components-base-control {
+	width: 100%;
+}
+
+/* Keep the Advanced section visually subordinate to the essentials. */
+.tubebay-video-link-popover__advanced {
+	padding-top: 4px;
+	border-top: 1px solid #e0e0e0;
+}
+
+/* Remove sits left, Apply right, on one row -- not stacked. */
+.tubebay-video-link-popover__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #e0e0e0;
+}
+
+.tubebay-video-link-popover__actions .is-destructive {
+	margin-inline-end: auto;
+}

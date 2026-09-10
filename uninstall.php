@@ -45,16 +45,87 @@ function tubebay_run_uninstall() {
 function tubebay_delete_plugin_options() {
 	global $wpdb;
 
-	// Delete all options starting with our prefix.
-	$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-			$wpdb->esc_like( TUBEBAY_OPTION_PREFIX ) . '%'
-		)
-	);
+	$protected = tubebay_protected_option_names();
+
+	if ( empty( $protected ) ) {
+		// Delete all options starting with our prefix.
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$wpdb->esc_like( TUBEBAY_OPTION_PREFIX ) . '%'
+			)
+		);
+	} else {
+		/*
+		 * Read the names first, then skip the protected ones. Building a
+		 * NOT IN list would mean interpolating generated placeholders into the
+		 * query string, and delete_option() keeps the options cache correct
+		 * besides — this runs once, at uninstall, so the extra queries are free.
+		 */
+		$names = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$wpdb->esc_like( TUBEBAY_OPTION_PREFIX ) . '%'
+			)
+		);
+
+		foreach ( (array) $names as $name ) {
+			if ( in_array( $name, $protected, true ) ) {
+				continue;
+			}
+
+			delete_option( $name );
+		}
+	}
 
 	// Also delete the legacy serialized option if it exists.
 	delete_option( 'tubebay' );
+}
+
+/**
+ * Option names this uninstall must leave alone.
+ *
+ * Every TubeBay option shares the `tubebay_` prefix, add-ons included — so the
+ * blanket prefix delete above also took `tubebay_license_key` and
+ * `tubebay_license_status` with it. Uninstalling the FREE plugin with "delete
+ * all data" enabled therefore destroyed the licence of a paid add-on that was
+ * still installed and running, with no warning and no way back short of
+ * re-entering the key.
+ *
+ * An add-on is expected to clean up after itself in its own uninstall.php, so
+ * free simply steps around anything an active add-on claims here.
+ *
+ * @since  1.3.0
+ * @return string[] Fully-prefixed option names to preserve.
+ */
+function tubebay_protected_option_names() {
+	// NOTE: app/functions.php carries the same function for the runtime
+	// "Delete All Data" path. WordPress loads this file without bootstrapping
+	// the plugin, so it cannot be shared. Keep the two in step.
+	$protected = array();
+
+	// TUBEBAY_PRO_VERSION is defined only while the pro add-on is active, and
+	// active plugins are loaded during this request — so this is true exactly
+	// when there is still a licence worth protecting.
+	if ( defined( 'TUBEBAY_PRO_VERSION' ) ) {
+		$protected = array(
+			TUBEBAY_OPTION_PREFIX . 'license_key',
+			TUBEBAY_OPTION_PREFIX . 'license_status',
+		);
+	}
+
+	/**
+	 * Filter the options the free plugin's uninstall must not delete.
+	 *
+	 * Add-ons should append their own option names here rather than rely on
+	 * the hardcoded list above.
+	 *
+	 * @since 1.3.0
+	 * @param string[] $protected Fully-prefixed option names.
+	 */
+	$protected = apply_filters( 'tubebay_uninstall_protected_options', $protected );
+
+	return array_values( array_unique( array_filter( array_map( 'strval', (array) $protected ) ) ) );
 }
 
 /**

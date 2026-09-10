@@ -44,7 +44,11 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
                   options={[
                     { label: "First (Before images)", value: "first" },
                     { label: "Last (After images)", value: "last" },
-                    { label: "Mixed (Based on drag/drop order)", value: "mixed" },
+                    /* "Mixed" was removed in 1.3.0. It was never implemented:
+                       the drag/drop order it named (_tubebay_video_order) has no
+                       reader, and the gallery treated any non-"first" value as
+                       "last", so the option did nothing "Last" did not already do.
+                       Re-add it only together with real interleaving. */
                   ]}
                 />
                 <p className="description">Where videos should appear relative to product images.</p>
@@ -108,6 +112,26 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
                   label="Show YouTube player controls"
                 />
                 <p className="description">Display play, pause, volume, and fullscreen buttons on the video player.</p>
+              </>
+            )
+          },
+          {
+            id: "muted_autoplay",
+            label: "Autoplay Shortcode Videos",
+            render: () => (
+              <>
+                <ClassicCheckbox
+                  id="muted_autoplay"
+                  checked={settings.muted_autoplay ?? false}
+                  onChange={(checked) => updateLocalSetting("muted_autoplay", checked)}
+                  label="Autoplay videos embedded with the shortcode (muted)"
+                />
+                {/* This option was saveable and read by nothing: the shortcode
+                    fell back to "Autoplay First Video" above, which is a
+                    gallery setting, so changing that quietly altered every
+                    [tubebay_video] on the site. They are separate now, and this
+                    is the one the shortcode uses. */}
+                <p className="description">Applies to <code>[tubebay_video]</code> embeds only, not the product gallery. A single shortcode can still override this with <code>autoplay="1"</code> or <code>autoplay="0"</code>.</p>
               </>
             )
           }

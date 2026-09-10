@@ -2,6 +2,7 @@ import React, { useState, useRef, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { LockKeyhole } from "lucide-react";
 import { __ } from "@wordpress/i18n";
+import { TEXT_DOMAIN } from "../../utils/textDomain";
 import { useWpabStore } from "../../store/wpabStore";
 
 interface BuyProTooltipProps {
@@ -82,7 +83,7 @@ export const BuyProTooltip: React.FC<BuyProTooltipProps> = ({
             onMouseLeave={handleTooltipMouseLeave}
           >
             <span className="tubebay-font-medium tubebay-whitespace-nowrap">
-              {__("Upgrade to unlock", "tubebay")}
+              {__("Upgrade to unlock", TEXT_DOMAIN)}
             </span>
             <a
               href={store.pluginData?.support_uri || "#"}
@@ -90,7 +91,7 @@ export const BuyProTooltip: React.FC<BuyProTooltipProps> = ({
               rel="noopener noreferrer"
               className="tubebay-w-full tubebay-bg-[#f02a74] hover:!tubebay-bg-[#e71161] tubebay-text-white hover:!tubebay-text-white tubebay-font-bold tubebay-py-1.5 tubebay-px-3 tubebay-transition-colors focus:tubebay-outline-none focus:tubebay-ring-0 tubebay-cursor-pointer tubebay-text-center tubebay-no-underline"
             >
-              {__("Buy Pro", "tubebay")}
+              {__("Buy Pro", TEXT_DOMAIN)}
             </a>
             {/* Tooltip Arrow */}
             <div className="tubebay-absolute tubebay-top-full tubebay-left-1/2 -tubebay-translate-x-1/2 tubebay-border-4 tubebay-border-transparent tubebay-border-t-gray-900"></div>

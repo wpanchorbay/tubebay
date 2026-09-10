@@ -139,14 +139,19 @@ class ProductMetabox {
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'isConnected' => $is_connected,
 				'i18n'        => array(
-					'selectVideo' => __( 'Select Video', 'tubebay' ),
-					'removeVideo' => __( 'Remove Video', 'tubebay' ),
-					'loading'     => __( 'Loading...', 'tubebay' ),
-					'error'       => __( 'Error loading videos.', 'tubebay' ),
-					'noVideos'    => __( 'No videos found.', 'tubebay' ),
-					'loadMore'    => __( 'Load More', 'tubebay' ),
-					'search'      => __( 'Search videos...', 'tubebay' ),
-					'sort'        => array(
+					'selectVideo'    => __( 'Select Video', 'tubebay' ),
+					'removeVideo'    => __( 'Remove Video', 'tubebay' ),
+					'loading'        => __( 'Loading...', 'tubebay' ),
+					'error'          => __( 'Error loading videos.', 'tubebay' ),
+					'noVideos'       => __( 'No videos found.', 'tubebay' ),
+					'loadMore'       => __( 'Load More', 'tubebay' ),
+					'search'         => __( 'Search videos...', 'tubebay' ),
+
+					// Shown when the REST route answers can_search:false, i.e.
+					// the current user lacks `manage_tubebay` and is pinned to
+					// the cached playlist. Searching then filters locally.
+					'pinnedToRecent' => __( 'Showing your most recent videos. Searching your whole channel needs a TubeBay administrator.', 'tubebay' ),
+					'sort'           => array(
 						'date_desc'  => __( 'Recently Added', 'tubebay' ),
 						'date_asc'   => __( 'Oldest First', 'tubebay' ),
 						'title_asc'  => __( 'Title (A-Z)', 'tubebay' ),
@@ -174,10 +179,10 @@ class ProductMetabox {
 		$video_thumb = get_post_meta( $post->ID, '_tubebay_video_thumbnail', true );
 
 		$is_connected = ( Settings::get( 'connection_status', 'inactive' ) === 'connected' );
-		$is_pro = defined( 'TUBEBAY_PRO_VERSION' );
-		$pro_attr = $is_pro ? '' : ' disabled';
-		$pro_style = $is_pro ? '' : 'opacity:0.5;';
-		$pro_badge = $is_pro ? '' : ' <span style="display:inline-block;background:#6c5ce7;color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;margin-left:4px;" title="' . esc_attr__( 'TubeBay Pro feature', 'tubebay' ) . '">PRO</span>';
+		$is_pro       = defined( 'TUBEBAY_PRO_VERSION' );
+		$pro_attr     = $is_pro ? '' : ' disabled';
+		$pro_style    = $is_pro ? '' : 'opacity:0.5;';
+		$pro_badge    = $is_pro ? '' : ' <span style="display:inline-block;background:#6c5ce7;color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;margin-left:4px;" title="' . esc_attr__( 'TubeBay Pro feature', 'tubebay' ) . '">PRO</span>';
 
 		// 1. Get existing legacy single video ID and convert if needed, or get new array
 		$video_ids_json = get_post_meta( $post->ID, '_tubebay_video_ids', true );
@@ -185,22 +190,37 @@ class ProductMetabox {
 			if ( ! empty( $video_id ) ) {
 				$video_ids = array(
 					array(
-						'id' => $video_id,
-						'type' => 'youtube',
-						'title' => get_post_meta( $post->ID, '_tubebay_video_title', true ),
-						'thumbnail' => get_post_meta( $post->ID, '_tubebay_video_thumbnail', true )
-					)
+						'id'        => $video_id,
+						'type'      => 'youtube',
+						'title'     => get_post_meta( $post->ID, '_tubebay_video_title', true ),
+						'thumbnail' => get_post_meta( $post->ID, '_tubebay_video_thumbnail', true ),
+					),
 				);
 			} else {
 				$video_ids = array();
 			}
 		} else {
-			$video_ids = json_decode( $video_ids_json, true ) ?: array();
+			$decoded   = json_decode( $video_ids_json, true );
+			$video_ids = is_array( $decoded ) ? $decoded : array();
 		}
 
 		// Per-product gallery overrides — read for display; saved by pro via 'tubebay_metabox_saved'.
 		$max_videos     = get_post_meta( $post->ID, '_tubebay_max_videos', true );
 		$video_position = get_post_meta( $post->ID, '_tubebay_video_position', true );
+
+		/*
+		 * 'mixed' was offered here and in Settings > Player but never
+		 * implemented anywhere: the drag/drop order it claimed to follow
+		 * (_tubebay_video_order) has no reader, and the gallery treated any
+		 * non-'first' value as 'last'. The option is gone as of 1.3.0.
+		 *
+		 * Products that stored it keep working, but must not be left holding a
+		 * value the dropdown can no longer display — that would render with
+		 * nothing selected and silently reset to "Inherit" on the next save.
+		 */
+		if ( 'mixed' === $video_position ) {
+			$video_position = 'last';
+		}
 		$autoplay_first = get_post_meta( $post->ID, '_tubebay_autoplay_first', true );
 		$show_duration  = get_post_meta( $post->ID, '_tubebay_show_duration', true );
 
@@ -230,7 +250,7 @@ class ProductMetabox {
 
 			<!-- Gallery Settings (Collapsible) -->
 			<div class="tubebay-gallery-settings-toggle" style="cursor: pointer; font-weight: 600; margin-bottom: 10px;">
-				<span class="dashicons dashicons-arrow-down-alt2" style="font-size: 16px; margin-top: 2px;"></span> <?php esc_html_e('Video Gallery Settings', 'tubebay'); ?>
+				<span class="dashicons dashicons-arrow-down-alt2" style="font-size: 16px; margin-top: 2px;"></span> <?php esc_html_e( 'Video Gallery Settings', 'tubebay' ); ?>
 			</div>
 
 <div class="tubebay-gallery-settings" style="display: none; padding-left: 5px;">
@@ -252,7 +272,6 @@ class ProductMetabox {
 					<option value="" <?php selected( $video_position, '' ); ?>><?php esc_html_e( 'Inherit (Global)', 'tubebay' ); ?></option>
 					<option value="first" <?php selected( $video_position, 'first' ); ?>><?php esc_html_e( 'First (Before Images)', 'tubebay' ); ?></option>
 					<option value="last" <?php selected( $video_position, 'last' ); ?>><?php esc_html_e( 'Last (After Images)', 'tubebay' ); ?></option>
-					<option value="mixed" <?php selected( $video_position, 'mixed' ); ?>><?php esc_html_e( 'Mixed (Drag/Drop Order)', 'tubebay' ); ?></option>
 				</select>
 			</p>
 			<p>
@@ -318,6 +337,7 @@ class ProductMetabox {
 										<div class="media-toolbar-primary search-form">
 											<label for="tubebay-modal-search" class="screen-reader-text"><?php esc_html_e( 'Search videos', 'tubebay' ); ?></label>
 											<input type="search" placeholder="<?php esc_attr_e( 'Search videos...', 'tubebay' ); ?>" id="tubebay-modal-search" class="search" />
+											<p id="tubebay-modal-pinned-note" class="description" style="display:none;"></p>
 										</div>
 									</div>
 									
@@ -375,16 +395,17 @@ class ProductMetabox {
 		$sanitized_ids = array();
 		if ( isset( $_POST['tubebay_video_ids'] ) ) {
 			$video_ids_json = wp_unslash( $_POST['tubebay_video_ids'] );
-			$video_ids = json_decode( $video_ids_json, true ) ?: array();
+			$decoded        = json_decode( $video_ids_json, true );
+			$video_ids      = is_array( $decoded ) ? $decoded : array();
 
 			// Sanitize array elements
 			foreach ( $video_ids as $video ) {
 				if ( is_array( $video ) && isset( $video['id'] ) ) {
 					$sanitized_ids[] = array(
-						'id' => sanitize_text_field( $video['id'] ),
-						'type' => sanitize_text_field( $video['type'] ?? 'youtube' ),
-						'title' => sanitize_text_field( $video['title'] ?? '' ),
-						'thumbnail' => esc_url_raw( $video['thumbnail'] ?? '' )
+						'id'        => sanitize_text_field( $video['id'] ),
+						'type'      => sanitize_text_field( $video['type'] ?? 'youtube' ),
+						'title'     => sanitize_text_field( $video['title'] ?? '' ),
+						'thumbnail' => esc_url_raw( $video['thumbnail'] ?? '' ),
 					);
 				}
 			}
@@ -402,7 +423,7 @@ class ProductMetabox {
 				delete_post_meta( $post_id, '_tubebay_video_thumbnail' );
 			}
 
-			tubebay_log( 'ProductMetabox: Saved ' . count($sanitized_ids) . ' videos for product ID ' . $post_id, 'info' );
+			tubebay_log( 'ProductMetabox: Saved ' . count( $sanitized_ids ) . ' videos for product ID ' . $post_id, 'info' );
 		}
 
 		// Save gallery settings — handled by pro via 'tubebay_metabox_saved' hook.

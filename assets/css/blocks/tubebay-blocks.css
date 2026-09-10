@@ -1,0 +1,292 @@
+/**
+ * TubeBay blocks — frontend styles.
+ *
+ * Loaded only on pages containing a TubeBay block (declared as `viewStyle` in
+ * each block.json). Absorbs the former assets/css/frontend/tubebay-lightbox.css,
+ * which was orphaned in the tree and enqueued by nothing.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Video facade
+ * ------------------------------------------------------------------ */
+
+.tubebay-block-facade {
+	position: relative;
+	display: block;
+	width: 100%;
+	overflow: hidden;
+	background: #000;
+	cursor: pointer;
+	/* The product gallery hardcodes a square. Content videos are not square. */
+	aspect-ratio: var( --tubebay-ratio, 16 / 9 );
+}
+
+.tubebay-block-facade[ data-ratio='16-9' ] { --tubebay-ratio: 16 / 9; }
+.tubebay-block-facade[ data-ratio='4-3' ]  { --tubebay-ratio: 4 / 3; }
+.tubebay-block-facade[ data-ratio='1-1' ]  { --tubebay-ratio: 1 / 1; }
+.tubebay-block-facade[ data-ratio='9-16' ] { --tubebay-ratio: 9 / 16; }
+
+.tubebay-block-facade__thumb {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	margin: 0;
+}
+
+/* The play badge is drawn here, not in the saved markup.
+   The element is empty by design — see the long note in
+   src/blocks/shared/Facade.tsx. In short: an inline <svg> frozen into post
+   content is stripped by wp_kses_post() for every author without
+   `unfiltered_html`, which invalidated the block and left the badge invisible.
+   Geometry below reproduces the old 68x48 SVG exactly, so nothing about the
+   rendered result changed. */
+.tubebay-block-facade .tubebay-block-play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate( -50%, -50% );
+	display: block;
+	width: 68px;
+	height: 48px;
+	padding: 0;
+	border: 0;
+	border-radius: 12px;
+	background: rgba( 33, 33, 33, 0.8 );
+	cursor: pointer;
+	z-index: 2;
+	transition: background-color 0.2s ease-in-out;
+}
+
+/* The white triangle. Border trick rather than clip-path: no support caveats,
+   and the offsets are the SVG's own — the path ran x 27>45, y 14>34 inside the
+   68x48 box, which is an 18x20 wedge at top 14px / left 27px. */
+.tubebay-block-facade .tubebay-block-play::after {
+	content: "";
+	position: absolute;
+	top: 14px;
+	left: 27px;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 10px 0 10px 18px;
+	border-color: transparent transparent transparent #fff;
+}
+
+.tubebay-block-facade:hover .tubebay-block-play,
+.tubebay-block-play:focus-visible {
+	background: #f00;
+}
+
+.tubebay-block-play:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 4px;
+}
+
+.tubebay-block-facade.is-playing {
+	cursor: default;
+}
+
+.tubebay-block-iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.wp-block-tubebay-video {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.wp-block-tubebay-video figcaption {
+	margin-top: 0.5em;
+}
+
+/* ------------------------------------------------------------------ *
+ * Video button
+ *
+ * Core's own width rules are all scoped to `.wp-block-buttons > …`, so on a
+ * standalone block core's class names are inert. We emit them anyway because
+ * themes target them, and back them with these rules so they actually work.
+ * ------------------------------------------------------------------ */
+
+.wp-block-tubebay-video-button {
+	display: inline-block;
+	box-sizing: border-box;
+	text-align: center;
+	text-decoration: none;
+	word-break: break-word;
+}
+
+.wp-block-tubebay-video-button.wp-block-button__width-25  { width: 25%; }
+.wp-block-tubebay-video-button.wp-block-button__width-50  { width: 50%; }
+.wp-block-tubebay-video-button.wp-block-button__width-75  { width: 75%; }
+.wp-block-tubebay-video-button.wp-block-button__width-100 { width: 100%; }
+
+.wp-block-tubebay-video-button.has-custom-width {
+	max-width: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Lightbox
+ * ------------------------------------------------------------------ */
+
+.tubebay-lightbox-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba( 0, 0, 0, 0.9 );
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.tubebay-lightbox-overlay.tubebay-active {
+	opacity: 1;
+	visibility: visible;
+}
+
+.tubebay-lightbox-content {
+	position: relative;
+	width: 90%;
+	max-width: 900px;
+	aspect-ratio: 16 / 9;
+	background: #000;
+	box-shadow: 0 10px 30px rgba( 0, 0, 0, 0.5 );
+}
+
+.tubebay-lightbox-close {
+	position: absolute;
+	top: 15px;
+	right: 25px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: #fff;
+	font-size: 40px;
+	font-weight: 300;
+	cursor: pointer;
+	line-height: 1;
+	z-index: 2;
+	transition: color 0.2s;
+}
+
+.tubebay-lightbox-close:hover {
+	color: #ccc;
+}
+
+.tubebay-lightbox-close:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 4px;
+}
+
+@media ( max-width: 768px ) {
+	.tubebay-lightbox-content {
+		width: 100%;
+	}
+
+	.tubebay-lightbox-close {
+		top: 10px;
+		right: 15px;
+		font-size: 32px;
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.tubebay-lightbox-overlay,
+	.tubebay-block-facade .tubebay-block-play {
+		transition: none;
+	}
+}
+
+/* Focus guards either side of the lightbox. Must stay focusable, so they can
+   be neither display:none nor visibility:hidden. */
+.tubebay-lightbox-sentinel {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect( 0, 0, 0, 0 );
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Inline video link (the tubebay/video-link format)
+ *
+ * Styled off data-* attributes rather than extra classes on purpose. A
+ * format's className is fixed and used for matching, and there is no public
+ * setter for the extra classes that would otherwise carry these states, so a
+ * class-based toggle would be silently dropped whenever the format is
+ * re-applied from its attributes.
+ * ------------------------------------------------------------------ */
+
+.tubebay-video-link {
+	cursor: pointer;
+}
+
+/* Play icon. Kept in CSS, never in saved markup, so changing the glyph never
+   invalidates existing content. */
+.tubebay-video-link[data-play-icon="true"]::before,
+.tubebay-video-trigger[data-play-icon="true"]::before {
+	content: "";
+	display: inline-block;
+	width: 0;
+	height: 0;
+	margin-inline-end: 0.4em;
+	vertical-align: baseline;
+	border-style: solid;
+	border-width: 0.35em 0 0.35em 0.55em;
+	border-color: transparent transparent transparent currentColor;
+}
+
+/* Button appearance.
+   An inline <a>, not a <button>: a real button element cannot wrap author text
+   inside a paragraph without either freezing it into an uneditable object or
+   trapping the caret. Styling the anchor keeps the text editable and keeps the
+   href, so it still works with JavaScript off.
+
+   Themes that define button presets will override most of this through
+   --wp--preset--color--*; the fallbacks only matter on themes that do not. */
+a.tubebay-video-link[data-appearance="button"] {
+	display: inline-block;
+	padding: 0.4em 1em;
+	border-radius: var( --wp--custom--button--border-radius, 4px );
+	background: var( --wp--preset--color--primary, #1e1e1e );
+	color: var( --wp--preset--color--base, #fff );
+	line-height: 1.4;
+
+	/*
+	 * !important is deliberate and scoped to this one declaration.
+	 *
+	 * Themes underline content links with selectors like
+	 * `.hentry .entry-content a` (specificity 0-2-1), which outranks anything
+	 * a plugin can reasonably write without either guessing the theme's
+	 * wrapper class or relying on stylesheet order. An underlined button does
+	 * not read as a button, so this is not a cosmetic preference -- it is the
+	 * difference between the appearance option working and not.
+	 */
+	text-decoration: none !important;
+}
+
+a.tubebay-video-link[data-appearance="button"]:hover,
+a.tubebay-video-link[data-appearance="button"]:focus-visible {
+	opacity: 0.9;
+	color: var( --wp--preset--color--base, #fff );
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	a.tubebay-video-link[data-appearance="button"] {
+		transition: none;
+	}
+}

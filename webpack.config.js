@@ -70,6 +70,17 @@ module.exports = isLegacy
       entry: {
         admin: "./src/admin.tsx",
         settings: "./src/settings.tsx",
+        // Gutenberg blocks. Overriding `entry` defeats wp-scripts' automatic
+        // block.json discovery, so each block is listed explicitly. The
+        // block.json files themselves still get copied to build/ by the
+        // CopyPlugin already present in defaults.plugins (pattern
+        // "**/block.json", context "src").
+        "blocks/video/index": "./src/blocks/video/index.tsx",
+        "blocks/video-button/index": "./src/blocks/video-button/index.tsx",
+        // Inline formats are not blocks: they have no block.json and are
+        // enqueued on enqueue_block_editor_assets, so they must be listed here
+        // explicitly like the blocks above.
+        "formats/video-link/index": "./src/formats/video-link/index.tsx",
       },
       output: {
         ...defaults.output,

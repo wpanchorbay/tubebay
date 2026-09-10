@@ -1,0 +1,126 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "tubebay/video-button",
+	"version": "1.3.2",
+	"title": "TubeBay Video Button",
+	"category": "media",
+	"description": "A button that opens a YouTube video in a lightbox.",
+	"keywords": [
+		"youtube",
+		"video",
+		"button",
+		"tubebay",
+		"popup",
+		"lightbox"
+	],
+	"textdomain": "tubebay",
+	"icon": "controls-play",
+	"attributes": {
+		"videoId": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"thumbnailUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"text": {
+			"type": "rich-text",
+			"source": "rich-text",
+			"selector": "a",
+			"role": "content"
+		},
+		"width": {
+			"type": "number"
+		},
+		"popupWidth": {
+			"type": "string",
+			"default": ""
+		},
+		"aspectRatio": {
+			"type": "string",
+			"default": "16-9"
+		},
+		"startTime": {
+			"type": "string",
+			"default": ""
+		},
+		"playIcon": {
+			"type": "boolean",
+			"default": false
+		},
+		"newTab": {
+			"type": "boolean",
+			"default": false
+		},
+		"nofollow": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": false,
+		"reusable": false,
+		"color": {
+			"gradients": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"textAlign": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"__experimentalDefaultControls": {
+				"padding": true
+			}
+		},
+		"shadow": true,
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true,
+			"__experimentalDefaultControls": {
+				"color": true,
+				"radius": true,
+				"style": true,
+				"width": true
+			}
+		}
+	},
+	"example": {
+		"attributes": {
+			"videoId": "dQw4w9WgXcQ",
+			"text": "Watch the video"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": [
+		"tubebay-blocks",
+		"tubebay-blocks-editor"
+	],
+	"viewStyle": "tubebay-blocks",
+	"viewScript": "tubebay-blocks-view"
+}

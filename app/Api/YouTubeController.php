@@ -55,12 +55,17 @@ class YouTubeController extends ApiController {
 	public function register_routes() {
 		$namespace = $this->namespace . $this->version;
 
-		add_filter( 'allowed_redirect_hosts', function( $hosts, $host ) {
-			if ( 'wpanchorbay.com' === $host ) {
-				$hosts[] = 'wpanchorbay.com';
-			}
-			return $hosts;
-		}, 10, 2 );
+		add_filter(
+			'allowed_redirect_hosts',
+			function ( $hosts, $host ) {
+				if ( 'wpanchorbay.com' === $host ) {
+					$hosts[] = 'wpanchorbay.com';
+				}
+				return $hosts;
+			},
+			10,
+			2
+		);
 
 		// Route to test YouTube Connection.
 		register_rest_route(
@@ -142,7 +147,10 @@ class YouTubeController extends ApiController {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_videos' ),
-					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					// Intentionally NOT the shared get_item_permissions_check:
+					// the block editor's video picker must work for editors and
+					// authors, not just administrators. See below.
+					'permission_callback' => array( $this, 'get_videos_permissions_check' ),
 				),
 			)
 		);
@@ -181,10 +189,10 @@ class YouTubeController extends ApiController {
 	 */
 	public function test_connection( $request ) {
 		$params            = $request->get_params();
-		$api_key           = isset($params['api_key']) ? sanitize_text_field($params['api_key']) : '';
-		$channel_id        = isset($params['channel_id']) ? sanitize_text_field($params['channel_id']) : '';
-		$refresh_token     = isset($params['refresh_token']) ? sanitize_text_field($params['refresh_token']) : '';
-		$connection_method = isset($params['connection_method']) ? sanitize_text_field($params['connection_method']) : 'api';
+		$api_key           = isset( $params['api_key'] ) ? sanitize_text_field( $params['api_key'] ) : '';
+		$channel_id        = isset( $params['channel_id'] ) ? sanitize_text_field( $params['channel_id'] ) : '';
+		$refresh_token     = isset( $params['refresh_token'] ) ? sanitize_text_field( $params['refresh_token'] ) : '';
+		$connection_method = isset( $params['connection_method'] ) ? sanitize_text_field( $params['connection_method'] ) : 'api';
 
 		tubebay_log( "Testing connection for Channel ID: {$channel_id}", 'debug' );
 
@@ -249,14 +257,14 @@ class YouTubeController extends ApiController {
 		\TubeBay\Helper\Settings::set( 'connection_status', 'connected' );
 
 		// Send back an array of the newly fetched videos.
-		$product_map = $this->get_product_video_map();
+		$product_map     = $this->get_product_video_map();
 		$response_videos = array();
 		foreach ( $videos as $video ) {
-			$arr = $video->to_array();
-			$arr['products'] = $product_map[ $video->id ] ?? array();
-			$arr['is_assigned'] = !empty($arr['products']);
-			$arr['assigned_count'] = count($arr['products']);
-			$response_videos[] = $arr;
+			$arr                   = $video->to_array();
+			$arr['products']       = $product_map[ $video->id ] ?? array();
+			$arr['is_assigned']    = ! empty( $arr['products'] );
+			$arr['assigned_count'] = count( $arr['products'] );
+			$response_videos[]     = $arr;
 		}
 
 		/**
@@ -332,6 +340,78 @@ class YouTubeController extends ApiController {
 	}
 
 	/**
+	 * Permission check for GET /youtube/videos.
+	 *
+	 * Deliberately looser than the shared ApiController::get_item_permissions_check(),
+	 * which requires `manage_tubebay` — a capability granted only to the
+	 * administrator role at activation. The block editor's video picker is used
+	 * by whoever writes the content, so gating it on `manage_tubebay` left
+	 * editors, authors and shop managers with an empty picker.
+	 *
+	 * `edit_posts` is the canonical "can use the block editor" capability. The
+	 * nonce check is kept: relaxing the capability should not also relax CSRF
+	 * protection. This route returns public YouTube data plus the titles of
+	 * already-published products, so it carries nothing privileged — API keys
+	 * and OAuth tokens remain behind `manage_tubebay` in SettingsController.
+	 *
+	 * Only this route changes. Every other route still requires `manage_tubebay`.
+	 *
+	 * @since 1.3.0
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error True if the request may read the video library.
+	 */
+	public function get_videos_permissions_check( $request ) {
+		if ( ! current_user_can( 'manage_tubebay' ) && ! current_user_can( 'edit_posts' ) ) {
+			tubebay_log( 'YouTubeController: Permission denied — user cannot edit posts', 'error' );
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to browse the video library.', 'tubebay' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return $this->verify_rest_nonce( $request );
+	}
+
+	/**
+	 * Match the synced library against a search term.
+	 *
+	 * A plain case-insensitive substring test on the title, which is what a
+	 * person means by "search" and what the block editor's picker has always
+	 * done. YouTube's own search matches whole words only, so this is the half
+	 * that finds "WooCommerce ..." when someone types "woo".
+	 *
+	 * Never returns a WP_Error: an unreadable cache simply means no local
+	 * matches, and the caller still has the API result.
+	 *
+	 * @param \TubeBay\Data\Entities\Channel $channel The channel.
+	 * @param string                         $search  The raw search term.
+	 * @return array Video entities whose title contains the term.
+	 */
+	private function search_cached_videos( $channel, $search ) {
+		$needle = trim( (string) $search );
+		if ( '' === $needle ) {
+			return array();
+		}
+
+		$cached = $channel->get_latest_videos( false );
+		if ( is_wp_error( $cached ) || ! is_array( $cached ) ) {
+			return array();
+		}
+
+		// mb_stripos so non-ASCII titles fold case correctly too.
+		$matches = array();
+		foreach ( $cached as $video ) {
+			$title = (string) ( $video->title ?? '' );
+			if ( '' !== $title && false !== mb_stripos( $title, $needle ) ) {
+				$matches[] = $video;
+			}
+		}
+
+		return $matches;
+	}
+
+	/**
 	 * Get videos from YouTube (search or latest).
 	 *
 	 * @param \WP_REST_Request $request The REST request.
@@ -344,8 +424,14 @@ class YouTubeController extends ApiController {
 		if ( ! $channel->is_configured() ) {
 			return new WP_REST_Response(
 				array(
-					'success' => true,
-					'videos'  => array(),
+					'success'         => true,
+					'videos'          => array(),
+					'next_page_token' => null,
+
+					// Must be present here too: the client reads a missing
+					// can_search as true and would offer a whole-channel
+					// search against a channel that isn't connected.
+					'can_search'      => false,
 				),
 				200
 			);
@@ -356,12 +442,80 @@ class YouTubeController extends ApiController {
 		$sort       = isset( $params['sort'] ) ? sanitize_text_field( $params['sort'] ) : 'date_desc';
 		$page_token = isset( $params['page_token'] ) ? sanitize_text_field( $params['page_token'] ) : '';
 
-		// If no search, default sort, and first page, use the fast cached playlist response.
-		if ( empty( $search ) && 'date_desc' === $sort && empty( $page_token ) ) {
+		/*
+		 * The block editor's picker is reachable by anyone with `edit_posts`,
+		 * which includes Contributors. The branch below that calls
+		 * Channel::search_videos() costs 100 YouTube quota units per request
+		 * against a 10,000/day allowance shared by the whole site — roughly a
+		 * hundred requests would take the plugin down for everyone — so it is
+		 * not something an untrusted role should be able to trigger at will.
+		 *
+		 * Users without `manage_tubebay` are therefore pinned to the cached
+		 * playlist path. The picker already loads that by default and filters
+		 * it client-side, so this costs them nothing in practice; it only
+		 * removes the ability to force repeated live Search API calls.
+		 */
+		$can_query_api = current_user_can( 'manage_tubebay' );
+
+		/*
+		 * Sorting and paging still need the Search API, so they stay gated. The
+		 * search TERM no longer does: it is also matched against the synced
+		 * library below, which costs nothing and works for every role.
+		 */
+		if ( ! $can_query_api ) {
+			$sort       = 'date_desc';
+			$page_token = '';
+		}
+
+		if ( '' === $search && 'date_desc' === $sort && '' === $page_token ) {
+			// No search, default sort, first page: the fast cached playlist.
 			$videos          = $channel->get_latest_videos( false );
 			$next_page_token = null;
+
+		} elseif ( '' !== $search ) {
+			/*
+			 * A search is BOTH: the synced library is matched here as a plain
+			 * substring, and YouTube's Search API is asked as well.
+			 *
+			 * Why both: YouTube's `q` matches whole words. On a channel full of
+			 * "WooCommerce ..." titles, searching "woo" returned nothing at all
+			 * while "cart" worked, because "cart" is a whole word and "woo" is
+			 * only half of one. Matching the cached titles ourselves covers the
+			 * partial-word case; still calling the API covers videos that have
+			 * not been synced into the cache yet. Neither alone is enough.
+			 *
+			 * Cached matches come first — they are the store's own library —
+			 * and API results are appended, skipping any already listed.
+			 */
+			$videos          = '' === $page_token ? $this->search_cached_videos( $channel, $search ) : array();
+			$next_page_token = null;
+
+			if ( $can_query_api ) {
+				$result = $channel->search_videos( $search, $sort, $page_token, 50 );
+
+				if ( is_wp_error( $result ) ) {
+					/*
+					 * Do not fail the whole request. The cached matches are a
+					 * real answer, and a quota or network problem at YouTube
+					 * should not empty a library the store already has.
+					 */
+					tubebay_log( 'get_videos: channel search failed, serving cached matches only - ' . $result->get_error_message(), 'error' );
+				} else {
+					$seen = array();
+					foreach ( $videos as $video ) {
+						$seen[ $video->id ] = true;
+					}
+					foreach ( $result['videos'] as $video ) {
+						if ( ! isset( $seen[ $video->id ] ) ) {
+							$videos[]           = $video;
+							$seen[ $video->id ] = true;
+						}
+					}
+					$next_page_token = $result['next_page_token'];
+				}
+			}
 		} else {
-			// Otherwise hit the search API directly.
+			// Sorting or paging with no search term: the API path, unchanged.
 			$result = $channel->search_videos( $search, $sort, $page_token, 50 );
 
 			if ( is_wp_error( $result ) ) {
@@ -376,14 +530,14 @@ class YouTubeController extends ApiController {
 			return new \WP_Error( 'fetch_failed', $videos->get_error_message(), array( 'status' => 400 ) );
 		}
 
-		$product_map = $this->get_product_video_map();
+		$product_map     = $this->get_product_video_map();
 		$response_videos = array();
 		foreach ( $videos as $video ) {
-			$arr = $video->to_array();
-			$arr['products'] = $product_map[ $video->id ] ?? array();
-			$arr['is_assigned'] = !empty($arr['products']);
-			$arr['assigned_count'] = count($arr['products']);
-			$response_videos[] = $arr;
+			$arr                   = $video->to_array();
+			$arr['products']       = $product_map[ $video->id ] ?? array();
+			$arr['is_assigned']    = ! empty( $arr['products'] );
+			$arr['assigned_count'] = count( $arr['products'] );
+			$response_videos[]     = $arr;
 		}
 
 		return new WP_REST_Response(
@@ -391,6 +545,14 @@ class YouTubeController extends ApiController {
 				'success'         => true,
 				'videos'          => $response_videos,
 				'next_page_token' => $next_page_token ?? null,
+
+				/*
+				 * Whether this user's search, sort and paging parameters are
+				 * honoured at all. When false the server pins the request to
+				 * the cached newest-first list, so the editor has to disable
+				 * those controls rather than let them appear to work.
+				 */
+				'can_search'      => $can_query_api,
 			),
 			200
 		);
@@ -480,82 +642,90 @@ class YouTubeController extends ApiController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function bulk_assign_videos( $request ) {
-		$params = $request->get_json_params();
-		$product_ids = isset($params['product_ids']) ? array_map('intval', (array) $params['product_ids']) : array();
-		$video_ids = isset($params['video_ids']) ? (array) $params['video_ids'] : array();
-		$action = isset($params['action']) ? sanitize_text_field($params['action']) : 'assign'; // 'assign' or 'remove'
+		$params      = $request->get_json_params();
+		$product_ids = isset( $params['product_ids'] ) ? array_map( 'intval', (array) $params['product_ids'] ) : array();
+		$video_ids   = isset( $params['video_ids'] ) ? (array) $params['video_ids'] : array();
+		$action      = isset( $params['action'] ) ? sanitize_text_field( $params['action'] ) : 'assign'; // Either assign or remove.
 
-		if (empty($product_ids)) {
-			return new \WP_Error('invalid_data', __('No products specified.', 'tubebay'), array('status' => 400));
+		if ( empty( $product_ids ) ) {
+			return new \WP_Error( 'invalid_data', __( 'No products specified.', 'tubebay' ), array( 'status' => 400 ) );
 		}
 
-		foreach ($product_ids as $product_id) {
+		foreach ( $product_ids as $product_id ) {
 			// Verify the target is a product and the user can edit it.
-			if (get_post_type($product_id) !== 'product' || !current_user_can('edit_post', $product_id)) {
-				tubebay_log('bulk_assign_videos: Skipping product ID ' . $product_id . ' — not a product or lacks edit_post cap', 'error');
+			if ( get_post_type( $product_id ) !== 'product' || ! current_user_can( 'edit_post', $product_id ) ) {
+				tubebay_log( 'bulk_assign_videos: Skipping product ID ' . $product_id . ' — not a product or lacks edit_post cap', 'error' );
 				continue;
 			}
 
-			$existing_videos_json = get_post_meta($product_id, '_tubebay_video_ids', true);
-			$existing_videos = empty($existing_videos_json) ? array() : json_decode($existing_videos_json, true);
+			$existing_videos_json = get_post_meta( $product_id, '_tubebay_video_ids', true );
+			$existing_videos      = empty( $existing_videos_json ) ? array() : json_decode( $existing_videos_json, true );
 
-			if (!is_array($existing_videos)) {
+			if ( ! is_array( $existing_videos ) ) {
 				// Migrate single video if needed
-				$legacy_video = get_post_meta($product_id, '_tubebay_video_id', true);
-				$existing_videos = !empty($legacy_video) ? array(array('id' => sanitize_text_field($legacy_video), 'type' => 'youtube')) : array();
+				$legacy_video    = get_post_meta( $product_id, '_tubebay_video_id', true );
+				$existing_videos = ! empty( $legacy_video ) ? array(
+					array(
+						'id'   => sanitize_text_field( $legacy_video ),
+						'type' => 'youtube',
+					),
+				) : array();
 			}
 
-			if ($action === 'assign') {
-				foreach ($video_ids as $video) {
-					if (is_array($video) && !isset($video['id'])) {
+			if ( 'assign' === $action ) {
+				foreach ( $video_ids as $video ) {
+					if ( is_array( $video ) && ! isset( $video['id'] ) ) {
 						continue; // Malformed entry — skip rather than emit a notice.
 					}
-					$vid_id = is_array($video) ? sanitize_text_field($video['id']) : sanitize_text_field($video);
-					$vid_type = is_array($video) && isset($video['type']) ? sanitize_text_field($video['type']) : 'youtube';
-					$vid_title = is_array($video) && isset($video['title']) ? sanitize_text_field($video['title']) : '';
-					$vid_thumb = is_array($video) && isset($video['thumbnail']) ? esc_url_raw($video['thumbnail']) : '';
+					$vid_id    = is_array( $video ) ? sanitize_text_field( $video['id'] ) : sanitize_text_field( $video );
+					$vid_type  = is_array( $video ) && isset( $video['type'] ) ? sanitize_text_field( $video['type'] ) : 'youtube';
+					$vid_title = is_array( $video ) && isset( $video['title'] ) ? sanitize_text_field( $video['title'] ) : '';
+					$vid_thumb = is_array( $video ) && isset( $video['thumbnail'] ) ? esc_url_raw( $video['thumbnail'] ) : '';
 
 					// Check if already exists
 					$exists = false;
-					foreach ($existing_videos as $ev) {
-						if (is_array($ev) && $ev['id'] === $vid_id) {
+					foreach ( $existing_videos as $ev ) {
+						if ( is_array( $ev ) && $ev['id'] === $vid_id ) {
 							$exists = true;
 							break;
 						}
 					}
 
-					if (!$exists) {
+					if ( ! $exists ) {
 						$existing_videos[] = array(
-							'id' => $vid_id,
-							'type' => $vid_type,
-							'title' => $vid_title,
-							'thumbnail' => $vid_thumb
+							'id'        => $vid_id,
+							'type'      => $vid_type,
+							'title'     => $vid_title,
+							'thumbnail' => $vid_thumb,
 						);
 					}
 				}
-			} elseif ($action === 'remove') {
-				foreach ($video_ids as $video) {
-					$vid_id = is_array($video) ? sanitize_text_field($video['id']) : sanitize_text_field($video);
-					$existing_videos = array_filter($existing_videos, function($ev) use ($vid_id) {
-						return (is_array($ev) ? $ev['id'] : $ev) !== $vid_id;
-					});
+			} elseif ( 'remove' === $action ) {
+				foreach ( $video_ids as $video ) {
+					$vid_id          = is_array( $video ) ? sanitize_text_field( $video['id'] ) : sanitize_text_field( $video );
+					$existing_videos = array_filter(
+						$existing_videos,
+						function ( $ev ) use ( $vid_id ) {
+							return ( is_array( $ev ) ? $ev['id'] : $ev ) !== $vid_id;
+						}
+					);
 				}
-				$existing_videos = array_values($existing_videos);
+				$existing_videos = array_values( $existing_videos );
 			}
 
 			// Update the post meta
-			update_post_meta($product_id, '_tubebay_video_ids', wp_json_encode($existing_videos));
+			update_post_meta( $product_id, '_tubebay_video_ids', wp_json_encode( $existing_videos ) );
 
 			// Update backward compatibility single ID
-			if (!empty($existing_videos)) {
+			if ( ! empty( $existing_videos ) ) {
 				$first_video = $existing_videos[0];
-				update_post_meta($product_id, '_tubebay_video_id', is_array($first_video) ? sanitize_text_field($first_video['id']) : sanitize_text_field($first_video));
+				update_post_meta( $product_id, '_tubebay_video_id', is_array( $first_video ) ? sanitize_text_field( $first_video['id'] ) : sanitize_text_field( $first_video ) );
 			} else {
-				delete_post_meta($product_id, '_tubebay_video_id');
+				delete_post_meta( $product_id, '_tubebay_video_id' );
 			}
 		}
 
-		wp_cache_delete('tubebay_product_video_map', 'tubebay');
+		wp_cache_delete( 'tubebay_product_video_map', 'tubebay' );
 
 		/**
 		 * Fires after videos have been assigned/removed from products.
@@ -565,12 +735,12 @@ class YouTubeController extends ApiController {
 		 * @param array  $video_ids   The video IDs in the operation.
 		 * @param string $action      The action ('assign' or 'remove').
 		 */
-		do_action('tubebay_videos_assigned', $product_ids, $video_ids, $action);
+		do_action( 'tubebay_videos_assigned', $product_ids, $video_ids, $action );
 
 		return new WP_REST_Response(
 			array(
 				'success' => true,
-				'message' => __('Products updated successfully.', 'tubebay')
+				'message' => __( 'Products updated successfully.', 'tubebay' ),
 			),
 			200
 		);
@@ -583,39 +753,39 @@ class YouTubeController extends ApiController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function save_video_order( $request ) {
-		$params = $request->get_json_params();
-		$product_id = isset($params['product_id']) ? intval($params['product_id']) : 0;
-		$video_order = isset($params['video_order']) ? (array) $params['video_order'] : array();
+		$params      = $request->get_json_params();
+		$product_id  = isset( $params['product_id'] ) ? intval( $params['product_id'] ) : 0;
+		$video_order = isset( $params['video_order'] ) ? (array) $params['video_order'] : array();
 
-		if (!$product_id || empty($video_order)) {
-			return new \WP_Error('invalid_data', __('Invalid product ID or empty order.', 'tubebay'), array('status' => 400));
+		if ( ! $product_id || empty( $video_order ) ) {
+			return new \WP_Error( 'invalid_data', __( 'Invalid product ID or empty order.', 'tubebay' ), array( 'status' => 400 ) );
 		}
 
 		// Verify the target is a product and the user can edit it.
-		if (get_post_type($product_id) !== 'product' || !current_user_can('edit_post', $product_id)) {
-			return new \WP_Error('forbidden', __('You do not have permission to edit this product.', 'tubebay'), array('status' => 403));
+		if ( get_post_type( $product_id ) !== 'product' || ! current_user_can( 'edit_post', $product_id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You do not have permission to edit this product.', 'tubebay' ), array( 'status' => 403 ) );
 		}
 
 		// Sanitize order elements.
 		$sanitized_order = array();
-		foreach ($video_order as $item) {
-			if (is_array($item)) {
+		foreach ( $video_order as $item ) {
+			if ( is_array( $item ) ) {
 				$sanitized_item = array();
-				foreach ($item as $k => $v) {
-					$sanitized_item[sanitize_text_field($k)] = sanitize_text_field($v);
+				foreach ( $item as $k => $v ) {
+					$sanitized_item[ sanitize_text_field( $k ) ] = sanitize_text_field( $v );
 				}
 				$sanitized_order[] = $sanitized_item;
 			} else {
-				$sanitized_order[] = sanitize_text_field($item);
+				$sanitized_order[] = sanitize_text_field( $item );
 			}
 		}
 
-		update_post_meta($product_id, '_tubebay_video_order', wp_json_encode($sanitized_order));
+		update_post_meta( $product_id, '_tubebay_video_order', wp_json_encode( $sanitized_order ) );
 
 		return new WP_REST_Response(
 			array(
 				'success' => true,
-				'message' => __('Video order saved successfully.', 'tubebay')
+				'message' => __( 'Video order saved successfully.', 'tubebay' ),
 			),
 			200
 		);

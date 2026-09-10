@@ -20,6 +20,8 @@ return array(
 	\TubeBay\Admin\ProductMetabox::class,
 	\TubeBay\Helper\Settings::class,
 	\TubeBay\Core\Cron::class,
+	\TubeBay\Core\Upgrader::class,
 	\TubeBay\Integration\WooCommerce::class,
 	\TubeBay\Frontend\VideoShortcode::class,
+	\TubeBay\Blocks\BlockManager::class,
 );

@@ -86,6 +86,23 @@ Fires after `POST /settings` has persisted all the built-in and filtered saveabl
 - **File:** `app/Api/SettingsController.php`
 - **Parameters:** `$body` (array, the raw request body)
 
+### `tubebay_uninstall_protected_options`
+Filters the option names a TubeBay data wipe must **not** delete. Both wipe paths — the "Delete All Data" REST route and the free plugin's `uninstall.php` — delete every option matching `tubebay_%`, and add-on options share that prefix. Any add-on storing state under `tubebay_` should append its option names here, or the free plugin will take them with it.
+
+Free already protects `tubebay_license_key` and `tubebay_license_status` whenever `TUBEBAY_PRO_VERSION` is defined.
+
+```php
+add_filter( 'tubebay_uninstall_protected_options', function ( $protected ) {
+	$protected[] = 'tubebay_myaddon_state';
+	return $protected;
+} );
+```
+
+Note the filter does not run inside `uninstall.php` for an add-on that is **inactive** at that moment: WordPress loads `uninstall.php` without bootstrapping the plugin, so only hooks registered by still-active plugins are in play.
+- **Type:** Filter · **Since:** 1.3.0
+- **File:** `app/functions.php`, mirrored in `uninstall.php`
+- **Parameters:** `$protected` (string[], fully-prefixed option names)
+
 ---
 
 ## Product Gallery & Frontend Rendering Hooks

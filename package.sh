@@ -27,17 +27,25 @@ copy_plugin_files() {
     cp uninstall.php "$DEST/"
     cp tubebay.php "$DEST/"
     cp composer.json "$DEST/"
+
+    # Source maps are build-time debugging aids, never runtime assets. Stale
+    # ones from an old `npm start` had been riding along in build/ and made up
+    # roughly half the shipped payload (settings.js.map alone was 640K), while
+    # also publishing the unminified sources. Stripped here rather than trusted
+    # to be absent, so a dev build before packaging can never leak them again.
+    find "$DEST" -name '*.map' -type f -delete
 }
 
 # Create a temporary directory for staging
 mkdir -p dist/$PLUGIN_SLUG
 copy_plugin_files "dist/$PLUGIN_SLUG"
 
-# Create the zip file
+# Create the zip file.
+# Files sit at the ZIP ROOT -- no top-level <slug>/ wrapper directory.
 echo "Creating zip file..."
-cd dist
-zip -r ../$ZIP_NAME $PLUGIN_SLUG
-cd ..
+cd dist/$PLUGIN_SLUG
+zip -rq ../../$ZIP_NAME .
+cd ../..
 rm -rf dist/$PLUGIN_SLUG
 
 # dist/svn/trunk mirrors the real WordPress.org SVN layout (trunk/ IS the

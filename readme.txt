@@ -1,11 +1,11 @@
 === TubeBay - YouTube Product Videos for WooCommerce ===
 Contributors: sankarsan, wpanchorbay, forhadkhan, arifac
-Tags: woocommerce video, youtube, lazy loading, performance, product video, video gallery, youtube embed
+Tags: woocommerce video, youtube, product video, video gallery, youtube embed
 Requires at least: 6.8
 Tested up to: 6.9
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.2.0
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,7 @@ With its guided setup wizard, synced channel library, flexible placement control
 - Assign Videos Faster - Browse synced videos and use them across WooCommerce products.
 - Keep Pages Fast - Load a lightweight video preview first, then load YouTube only on click.
 - Control Placement - Choose where videos appear on WooCommerce product pages.
+- Use Videos Anywhere - Drop a video block on any page or post, or turn words in a sentence into a link that opens the video.
 - Stay Organized - Manage connection status and all TubeBay settings from one admin area.
 
 [**Product Page**](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/) | [**Official Documentation**](https://docs.wpanchorbay.com/tubebay) | [**Support**](https://wpanchorbay.com/support/) | [**Live Demo**](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#demo-section)
@@ -46,6 +47,10 @@ With its guided setup wizard, synced channel library, flexible placement control
 - Setup Wizard - Guide store owners through Google OAuth or manual API setup.
 - Connection Status Panel - See API connection status and last sync time.
 - Debug Logging - Enable detailed API and event logging to a local file for troubleshooting.
+- Video Block - Add a click-to-play video thumbnail to any page or post, playing in place or in a popup.
+- Video Button Block - Add a button that opens a video in a popup, styled by your theme.
+- Inline Video Links - Select words in a paragraph, heading or list and turn them into a link that opens the video popup, straight from the block toolbar.
+- Per-Video Display Options - Set video shape (16:9, 4:3, 1:1, 9:16), a start time, and popup width on each block and inline link.
 - Shortcode Support - Embed a TubeBay video where shortcode output is supported.
 - Data Controls - Manage debug mode, uninstall cleanup, and full data removal.
 
@@ -58,6 +63,8 @@ With its guided setup wizard, synced channel library, flexible placement control
 - **Choose Video Placement** - Set the default product page placement from TubeBay settings.
 
 - **Show Product Videos** - Display video previews on WooCommerce product pages so shoppers can see more before they buy.
+
+- **Go Beyond Product Pages** - Use the TubeBay blocks or an inline video link to place videos in landing pages, posts, and descriptions.
 
 - **Protect Page Speed** - TubeBay shows a lightweight preview first. The YouTube player loads only when a shopper clicks play.
 
@@ -127,6 +134,15 @@ Yes. TubeBay includes automatic daily sync. You can also run a manual force sync
 = Does TubeBay include diagnostics? =
 Yes. TubeBay includes a debug logging toggle that writes detailed API and event logs to a local file for troubleshooting, plus a connection status indicator showing whether your YouTube account is connected.
 
+= Can I add videos outside of product pages? =
+Yes. TubeBay includes a Video block and a Video Button block for the block editor, so you can place a video on any page or post. There is also a shortcode for page builders and other places where shortcodes run.
+
+= Can I open a video from a link inside a paragraph? =
+Yes. Select the words you want in any paragraph, heading, or list item, then choose the video link button in the block toolbar. The selected words become a link that opens the video in a popup. If JavaScript is unavailable, the link falls back to opening the video on YouTube.
+
+= Do the blocks require a connected YouTube channel? =
+You can paste any YouTube URL or video ID into a block without connecting a channel. Connecting your channel additionally lets you pick videos from your synced library. Live channel searches are limited to administrators to protect your YouTube API quota.
+
 = Where can I get support? =
 Visit [WPAnchorBay Support](https://wpanchorbay.com/support/).
 
@@ -176,6 +192,40 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 
 == Changelog ==
 
+= 1.3.2 =
+
+- Fixed: "Show Player Controls" could not be turned off. Switching it off looked like it worked, but nothing was saved and controls stayed on. Stores updating from 1.2.0 were affected.
+- Fixed: a player toggle could show as on while it was stored as off, and the next save switched it back on.
+- Fixed: stores whose Video Position was the retired "Mixed" value could not save the Video Player settings at all. That value is now converted to "Last (After images)" once, automatically, on update.
+- Fixed: the setup wizard could not be finished on those stores.
+- Changed: Video Position, Video Placement and Connection Method are validated when saved, so an unrecognised value is rejected instead of stored.
+- Changed: the play badge on the video blocks is drawn from the stylesheet instead of being saved into each post, so future changes to it cannot invalidate posts you have already published.
+- Removed development source maps from the release build.
+
+= 1.3.1 =
+
+- Fixed: videos showed "Error 153 - Video player configuration error" instead of playing, on sites whose Referrer-Policy withholds the referrer from other domains. YouTube identifies the embedding site from that header and refuses to play without it. Affects the blocks, the inline link, the product gallery and the shortcode.
+- Version bumped so browsers and CDNs fetch the corrected script rather than a cached copy of the previous build.
+
+= 1.3.0 =
+
+- New: TubeBay Video block - a click-to-play thumbnail that plays in place or opens a popup, with an optional caption.
+- New: TubeBay Video Button block - a button that opens a video in a popup, styled by your theme.
+- New: inline video links - select words in any paragraph, heading or list and turn them into a link that opens the video popup, straight from the block toolbar.
+- New: video shape (16:9, 4:3, 1:1, 9:16), start time and popup width can be set per block and per inline link.
+- New: the Video Button block can open its fallback link in a new tab and mark it nofollow.
+- New: "Autoplay Shortcode Videos" setting, so shortcode autoplay no longer follows the product gallery's setting.
+- Editors and authors can now choose videos from your channel when adding a block. Live channel searches stay limited to administrators to protect your YouTube API quota.
+- Fixed: Privacy/GDPR mode had no effect on the product gallery, which always embedded youtube.com.
+- Fixed: "Show Player Controls" had no effect anywhere, and was stored as off while the settings screen showed it on.
+- Fixed: "Autoplay First Video" never actually autoplayed in the gallery.
+- Fixed: the setup wizard discarded five of the player settings you chose in it.
+- Fixed: the start time field rewrote what you typed, so entering 1:30 saved 30 seconds.
+- Fixed: "Delete All Data" and uninstalling the free plugin removed a TubeBay Pro licence key.
+- Fixed: the connection status, connection method and video position are now validated, so an unrecognised value can no longer leave a settings screen showing nothing selected.
+- Removed: the "Mixed" video position. It was offered on the settings screen and in the product metabox but was never implemented, and behaved exactly like "Last". Products already set to it now show as "Last".
+- Security: debug log files are given an unguessable name and can no longer be read directly over the web. They previously sat at a predictable URL under uploads and were readable on servers that ignore .htaccess, such as nginx.
+
 = 1.2.0 =
 
 - Security: redact secrets (API keys, OAuth tokens) from debug log output.
@@ -195,6 +245,15 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 - Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+Fixes "Show Player Controls" being impossible to turn off, and lets stores on the retired "Mixed" video position save their Player settings again. Recommended for everyone on 1.3.x or earlier.
+
+= 1.3.1 =
+Fixes YouTube "Error 153" on sites that restrict the referrer header. If you are on 1.3.0, clear any CDN or page cache after updating.
+
+= 1.3.0 =
+Adds Gutenberg blocks and inline video links. Fixes several Player settings that had no effect, and hardens debug log files against direct web access.
 
 = 1.2.0 =
 Security and stability update: secrets are now redacted from logs and per-product controls moved to Pro.

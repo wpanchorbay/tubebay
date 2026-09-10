@@ -114,7 +114,11 @@ class LogController extends ApiController {
 		$log_dir    = $upload_dir['basedir'] . '/' . TUBEBAY_TEXT_DOMAIN . '-logs/';
 
 		// Delete all log files.
-		$files = glob( $log_dir . 'plugin-log-*.log' );
+		// `*.log*` covers both shapes: the .log.php files written since 1.3.0
+		// and any plain .log left by an older version that never logged again
+		// (the one-off migration in tubebay_log() only runs when something
+		// writes a log line).
+		$files = glob( $log_dir . 'plugin-log-*.log*' );
 		if ( $files ) {
 			foreach ( $files as $file ) {
 				if ( file_exists( $file ) ) {

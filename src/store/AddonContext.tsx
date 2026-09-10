@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
 import { __ } from "@wordpress/i18n";
+import { TEXT_DOMAIN } from "../utils/textDomain";
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -256,7 +257,7 @@ function addonReducer(
       const newField = {
         ...JSON.parse(JSON.stringify(originalField)), // Deep clone
         id: generateFieldId(),
-        label: (originalField.label || "") + " " + __("(Copy)", "tubebay-boilerplate"),
+        label: (originalField.label || "") + " " + __("(Copy)", TEXT_DOMAIN),
       };
 
       const newSchema = [...state.schema];

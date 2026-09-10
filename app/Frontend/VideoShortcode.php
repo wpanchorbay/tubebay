@@ -86,7 +86,7 @@ class VideoShortcode {
 		global $post;
 		$atts = apply_filters( 'tubebay_shortcode_atts', $atts, $post );
 
-		$video_id = sanitize_text_field( $atts['id'] );
+		$video_id   = sanitize_text_field( $atts['id'] );
 		$video_type = 'youtube';
 
 		if ( empty( $video_id ) ) {
@@ -97,8 +97,8 @@ class VideoShortcode {
 					$videos = json_decode( $video_ids_json, true );
 					if ( is_array( $videos ) && ! empty( $videos ) ) {
 						$first_video = $videos[0];
-						$video_id = is_array( $first_video ) ? $first_video['id'] : $first_video;
-						$video_type = is_array( $first_video ) && isset( $first_video['type'] ) ? $first_video['type'] : 'youtube';
+						$video_id    = is_array( $first_video ) ? $first_video['id'] : $first_video;
+						$video_type  = is_array( $first_video ) && isset( $first_video['type'] ) ? $first_video['type'] : 'youtube';
 					}
 				} else {
 					$video_id = get_post_meta( $post->ID, '_tubebay_video_id', true );
@@ -124,13 +124,25 @@ class VideoShortcode {
 		$video_type = apply_filters( 'tubebay_video_type', $video_type, $video_id );
 
 		// Resolve settings: shortcode attrs override globals.
+
+		/*
+		 * Both fall back to the global setting, which is the whole point of
+		 * having one — each of these used to ignore it.
+		 *
+		 * `muted_autoplay` is the shortcode's own option. It previously read
+		 * `autoplay_first`, which is a GALLERY setting ("the first video in
+		 * the gallery will start playing automatically"); a shortcode is not a
+		 * gallery and has no first video, so that reading was wrong in both
+		 * directions — it made the gallery toggle silently change unrelated
+		 * shortcodes, and left `muted_autoplay` itself read by nothing.
+		 */
 		$muted_autoplay = null !== $atts['autoplay']
 			? ( '1' === $atts['autoplay'] )
-			: (bool) Settings::get( 'autoplay_first', false ); // Use new setting
+			: (bool) Settings::get( 'muted_autoplay', false );
 		$show_controls  = null !== $atts['controls']
 			? ( '1' === $atts['controls'] )
-			: true;
-		$privacy_mode = Settings::get( 'privacy_mode', false );
+			: (bool) Settings::get( 'show_controls', true );
+		$privacy_mode   = Settings::get( 'privacy_mode', false );
 
 		$width  = ! empty( $atts['width'] ) ? intval( $atts['width'] ) : '';
 		$height = ! empty( $atts['height'] ) ? intval( $atts['height'] ) : '';
@@ -139,46 +151,66 @@ class VideoShortcode {
 		?>
 		<div class="tubebay-shortcode-video-wrapper">
 			<div class="tubebay-responsive-iframe-container">
-				<?php if ( $video_type === 'youtube' ) :
-					$domain = $privacy_mode ? 'youtube-nocookie.com' : 'youtube.com';
-					$embed_url = 'https://www.' . $domain . '/embed/' . esc_attr( $video_id ) . '?rel=0';
+			<?php if ( 'youtube' === $video_type ) : ?>
+				<?php
+				$domain    = $privacy_mode ? 'youtube-nocookie.com' : 'youtube.com';
+				$embed_url = 'https://www.' . $domain . '/embed/' . esc_attr( $video_id ) . '?rel=0';
 
-					if ( $muted_autoplay ) {
-						$embed_url .= '&autoplay=1&mute=1';
-					}
-					if ( ! $show_controls ) {
-						$embed_url .= '&controls=0';
-					}
+				if ( $muted_autoplay ) {
+					$embed_url .= '&autoplay=1&mute=1';
+				}
+				if ( ! $show_controls ) {
+					$embed_url .= '&controls=0';
+				}
 				?>
-					<iframe
-					<?php if ( $width ) : ?> width="<?php echo esc_attr( $width ); ?>" <?php endif; ?>
-					<?php if ( $height ) : ?> height="<?php echo esc_attr( $height ); ?>" <?php endif; ?>
-						src="<?php echo esc_url( $embed_url ); ?>"
-						title="<?php esc_attr_e( 'TubeBay Video', 'tubebay' ); ?>" frameborder="0"
-						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-						allowfullscreen>
-					</iframe>
-<?php else :
+				<iframe
+					<?php
+					if ( $width ) {
+						printf( 'width="%s" ', esc_attr( $width ) );
+					}
+					if ( $height ) {
+						printf( 'height="%s" ', esc_attr( $height ) );
+					}
+					?>
+					src="<?php echo esc_url( $embed_url ); ?>"
+					title="<?php esc_attr_e( 'TubeBay Video', 'tubebay' ); ?>" frameborder="0"
+					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					<?php /* Sites that withhold the referrer cross-origin otherwise get YouTube's "Error 153". */ ?>
+					referrerpolicy="strict-origin-when-cross-origin"
+					allowfullscreen>
+				</iframe>
+			<?php else : ?>
+				<?php
 				// Allow pro to handle non-youtube video types (Vimeo, HLS, etc.).
 				do_action( 'tubebay_video_type_unknown', $video_id, $video_type );
-				// Self-hosted WP attachment fallback
+
+				// Self-hosted WP attachment fallback.
 				$attachment_url = wp_get_attachment_url( $video_id );
-					if ( $attachment_url ) :
 				?>
+				<?php if ( $attachment_url ) : ?>
 					<video
-						<?php if ( $width ) : ?> width="<?php echo esc_attr( $width ); ?>" <?php endif; ?>
-						<?php if ( $height ) : ?> height="<?php echo esc_attr( $height ); ?>" <?php endif; ?>
-						<?php if ( $show_controls ) echo 'controls'; ?>
-						<?php if ( $muted_autoplay ) echo 'autoplay muted'; ?>
+						<?php
+						if ( $width ) {
+							printf( 'width="%s" ', esc_attr( $width ) );
+						}
+						if ( $height ) {
+							printf( 'height="%s" ', esc_attr( $height ) );
+						}
+						if ( $show_controls ) {
+							echo 'controls ';
+						}
+						if ( $muted_autoplay ) {
+							echo 'autoplay muted ';
+						}
+						?>
 						playsinline
 						style="max-width: 100%; height: auto;"
 					>
 						<source src="<?php echo esc_url( $attachment_url ); ?>" type="<?php echo esc_attr( get_post_mime_type( $video_id ) ); ?>">
-						Your browser does not support the video tag.
+						<?php esc_html_e( 'Your browser does not support the video tag.', 'tubebay' ); ?>
 					</video>
-				<?php
-					endif;
-				endif; ?>
+				<?php endif; ?>
+			<?php endif; ?>
 			</div>
 		</div>
 		<?php

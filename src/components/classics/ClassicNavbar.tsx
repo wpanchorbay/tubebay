@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { __ } from "@wordpress/i18n";
+import { TEXT_DOMAIN } from "../../utils/textDomain";
 
 interface MenuLink {
   label: string;
@@ -18,15 +19,15 @@ const ClassicNavbar: FC = () => {
 
   const menus: MenuLink[] = [
     {
-      label: __("Dashboard", "tubebay-boilerplate"),
+      label: __("Dashboard", TEXT_DOMAIN),
       path: "/",
     },
     {
-      label: __("Items", "tubebay-boilerplate"),
+      label: __("Items", TEXT_DOMAIN),
       path: "/items",
     },
     {
-      label: __("Logs", "tubebay-boilerplate"),
+      label: __("Logs", TEXT_DOMAIN),
       path: "/logs",
     },
   ];

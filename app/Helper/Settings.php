@@ -57,7 +57,11 @@ class Settings {
 		'auto_sync'                     => true,
 		'video_placement'               => 'add_to_gallery_last',
 		'muted_autoplay'                => false,
-		'show_controls'                 => false,
+		// Controls are ON by default: that is YouTube's own default (no
+		// `controls` parameter means controls=1), it is what the gallery has
+		// always rendered, and PlayerTab.tsx already displays this toggle as
+		// checked when unset — so `false` here made the settings screen lie.
+		'show_controls'                 => true,
 		'is_onboarding_completed'       => false,
 		'last_sync_time'                => 0,
 		'connection_method'             => 'oauth',
@@ -130,11 +134,28 @@ class Settings {
 	/**
 	 * Set a plugin option value.
 	 *
+	 * Booleans are stored as '1'/'0' rather than handed to update_option() raw.
+	 *
+	 * update_option( $name, false ) writes NOTHING when the option row does not
+	 * exist: get_option() returns false for a missing row, update_option()
+	 * compares that against the new value, finds them equal and returns early.
+	 * So on a site that has never stored a given boolean, turning it OFF was
+	 * silently discarded and get() kept serving the default.
+	 *
+	 * That is not theoretical — it made "Show Player Controls" impossible to
+	 * turn off on every store upgrading from 1.2.0, because neither version ever
+	 * wrote that row. '0' is a non-empty string, so it always differs from the
+	 * missing-row false and is actually persisted, while still being falsy in
+	 * PHP for every existing reader.
+	 *
 	 * @param string $key   The setting key.
 	 * @param mixed  $value The setting value.
 	 * @return bool
 	 */
 	public static function set( $key, $value ) {
+		if ( is_bool( $value ) ) {
+			$value = $value ? '1' : '0';
+		}
 		return update_option( self::PREFIX . $key, $value );
 	}
 
@@ -316,7 +337,23 @@ class Settings {
 	public static function get_all() {
 		$settings = array();
 		foreach ( self::get_defaults() as $key => $default ) {
-			$settings[ $key ] = get_option( self::PREFIX . $key, $default );
+			$value = get_option( self::PREFIX . $key, $default );
+
+			/*
+			 * Booleans must leave here as real booleans.
+			 *
+			 * WordPress stores them as strings, so an option saved as off comes
+			 * back as '' or '0'. Both are falsy in PHP, but '0' is TRUTHY in
+			 * JavaScript — so handing the raw value to the settings screen made
+			 * a toggle the user had switched off render as on, and the next save
+			 * then wrote it back as on. Casting here fixes every JS consumer at
+			 * once rather than at each call site.
+			 */
+			if ( is_bool( $default ) ) {
+				$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+			}
+
+			$settings[ $key ] = $value;
 		}
 		return $settings;
 	}

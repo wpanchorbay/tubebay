@@ -191,11 +191,11 @@ class Channel {
 		}
 
 		$raw_body = wp_remote_retrieve_body( $response );
-		$body = json_decode( $raw_body, true );
+		$body     = json_decode( $raw_body, true );
 
 		if ( empty( $body['success'] ) || empty( $body['data']['access_token'] ) ) {
 			$response_code = wp_remote_retrieve_response_code( $response );
-			$error_msg = isset( $body['message'] ) ? sanitize_text_field( $body['message'] ) : 'Unknown error';
+			$error_msg     = isset( $body['message'] ) ? sanitize_text_field( $body['message'] ) : 'Unknown error';
 			tubebay_log( "get_access_token: Connector request failed. Response code: {$response_code}. Error: {$error_msg}", 'error' );
 			return false;
 		}

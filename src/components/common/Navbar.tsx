@@ -1,6 +1,7 @@
 import { useState, useEffect, FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { __ } from "@wordpress/i18n";
+import { TEXT_DOMAIN } from "../../utils/textDomain";
 import { useWpabStore } from "../../store/wpabStore";
 
 interface MenuLink {
@@ -15,24 +16,24 @@ const Navbar: FC = () => {
 
   const menus: MenuLink[] = [
     {
-      label: __("Dashboard", "tubebay-boilerplate"),
+      label: __("Dashboard", TEXT_DOMAIN),
       path: "/",
     },
     // Add your menu items here
     {
-      label: __("Logs", "tubebay-boilerplate"),
+      label: __("Logs", TEXT_DOMAIN),
       path: "/logs",
     },
     {
-      label: __("Components", "tubebay-boilerplate"),
+      label: __("Components", TEXT_DOMAIN),
       path: "/components",
     },
     {
-      label: __("Components (Classic)", "tubebay-boilerplate"),
+      label: __("Components (Classic)", TEXT_DOMAIN),
       path: "/components-classic",
     },
     // {
-    //   label: __("Settings", "tubebay-boilerplate"),
+    //   label: __("Settings", TEXT_DOMAIN),
     //   path: "/settings",
     // },
   ];

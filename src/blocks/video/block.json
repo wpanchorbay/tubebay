@@ -1,0 +1,79 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "tubebay/video",
+	"version": "1.3.2",
+	"title": "TubeBay Video",
+	"category": "media",
+	"description": "Click-to-play YouTube video with a fast thumbnail facade. No YouTube code loads until the visitor clicks.",
+	"keywords": [
+		"youtube",
+		"video",
+		"embed",
+		"tubebay",
+		"lazy"
+	],
+	"textdomain": "tubebay",
+	"icon": "video-alt3",
+	"attributes": {
+		"videoId": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"thumbnailUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"aspectRatio": {
+			"type": "string",
+			"default": "16-9"
+		},
+		"openInModal": {
+			"type": "boolean",
+			"default": false
+		},
+		"caption": {
+			"type": "rich-text",
+			"source": "rich-text",
+			"selector": "figcaption",
+			"role": "content"
+		},
+		"popupWidth": {
+			"type": "string",
+			"default": ""
+		},
+		"startTime": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": [
+			"wide",
+			"full"
+		],
+		"spacing": {
+			"margin": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"videoId": "dQw4w9WgXcQ",
+			"title": "Sample video",
+			"thumbnailUrl": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": [
+		"tubebay-blocks",
+		"tubebay-blocks-editor"
+	],
+	"viewStyle": "tubebay-blocks",
+	"viewScript": "tubebay-blocks-view"
+}

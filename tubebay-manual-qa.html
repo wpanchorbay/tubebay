@@ -1,0 +1,1557 @@
+<title>TubeBay Blocks QA</title>
+
+<style>
+	:root {
+		color-scheme: light;
+
+		--bg: #f6f7f9;
+		--panel: #ffffff;
+		--panel-2: #f0f2f5;
+		--ink: #14171c;
+		--ink-2: #444b56;
+		--ink-3: #6b7380;
+		--rule: #dfe3e9;
+		--rule-2: #eceff3;
+		--accent: #1f4fd8;
+		--accent-soft: #e8eeff;
+		--good: #0f7a4d;
+		--good-soft: #e3f5ec;
+		--warn: #8a5a00;
+		--warn-soft: #fdf3dd;
+		--bad: #a32020;
+		--bad-soft: #fdeaea;
+		--code-bg: #eef1f5;
+		--shadow: 0 1px 2px rgba(16, 20, 28, .06), 0 8px 24px rgba(16, 20, 28, .06);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			color-scheme: dark;
+
+			--bg: #0f1216;
+			--panel: #171b21;
+			--panel-2: #1e232b;
+			--ink: #e7eaef;
+			--ink-2: #b9c0ca;
+			--ink-3: #8b939f;
+			--rule: #2b323c;
+			--rule-2: #232932;
+			--accent: #86a8ff;
+			--accent-soft: #1b2436;
+			--good: #6fd39f;
+			--good-soft: #12281e;
+			--warn: #e8bf6a;
+			--warn-soft: #2a2313;
+			--bad: #f19292;
+			--bad-soft: #2c1717;
+			--code-bg: #1f242c;
+			--shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+		}
+	}
+
+	:root[data-theme="dark"] {
+		color-scheme: dark;
+
+		--bg: #0f1216;
+		--panel: #171b21;
+		--panel-2: #1e232b;
+		--ink: #e7eaef;
+		--ink-2: #b9c0ca;
+		--ink-3: #8b939f;
+		--rule: #2b323c;
+		--rule-2: #232932;
+		--accent: #86a8ff;
+		--accent-soft: #1b2436;
+		--good: #6fd39f;
+		--good-soft: #12281e;
+		--warn: #e8bf6a;
+		--warn-soft: #2a2313;
+		--bad: #f19292;
+		--bad-soft: #2c1717;
+		--code-bg: #1f242c;
+		--shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+	}
+
+	* { box-sizing: border-box; }
+
+	body {
+		margin: 0;
+		background: var(--bg);
+		color: var(--ink);
+		font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	.wrap {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 0 20px 96px;
+	}
+
+	/* ---------- masthead ---------- */
+
+	header.masthead {
+		padding: 48px 0 24px;
+		border-bottom: 1px solid var(--rule);
+	}
+
+	h1 {
+		margin: 0 0 8px;
+		font-size: 34px;
+		line-height: 1.15;
+		letter-spacing: -0.02em;
+	}
+
+	.subtitle {
+		margin: 0;
+		color: var(--ink-2);
+		font-size: 17px;
+	}
+
+	.meta {
+		margin: 18px 0 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.chip {
+		display: inline-block;
+		padding: 3px 10px;
+		border: 1px solid var(--rule);
+		border-radius: 999px;
+		background: var(--panel);
+		color: var(--ink-2);
+		font-size: 13px;
+		white-space: nowrap;
+	}
+
+	/* ---------- sticky progress ---------- */
+
+	.progress {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		margin: 0 -20px;
+		padding: 10px 20px;
+		background: color-mix(in srgb, var(--bg) 88%, transparent);
+		backdrop-filter: blur(8px);
+		border-bottom: 1px solid var(--rule);
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		flex-wrap: wrap;
+	}
+
+	.progress__count {
+		font-variant-numeric: tabular-nums;
+		font-weight: 650;
+		font-size: 15px;
+		white-space: nowrap;
+	}
+
+	.progress__bar {
+		flex: 1 1 180px;
+		height: 8px;
+		min-width: 120px;
+		background: var(--panel-2);
+		border-radius: 999px;
+		overflow: hidden;
+		border: 1px solid var(--rule-2);
+	}
+
+	.progress__fill {
+		height: 100%;
+		width: 0%;
+		background: var(--accent);
+		transition: width .18s ease-out;
+	}
+
+	.progress__reset {
+		border: 1px solid var(--rule);
+		background: var(--panel);
+		color: var(--ink-2);
+		font: inherit;
+		font-size: 13px;
+		padding: 4px 12px;
+		border-radius: 6px;
+		cursor: pointer;
+	}
+
+	.progress__reset:hover { border-color: var(--accent); color: var(--accent); }
+
+	.progress__note {
+		font-size: 12px;
+		color: var(--ink-3);
+	}
+
+	/* ---------- sections ---------- */
+
+	h2.section {
+		margin: 44px 0 4px;
+		font-size: 13px;
+		letter-spacing: .1em;
+		text-transform: uppercase;
+		color: var(--ink-3);
+		font-weight: 700;
+	}
+
+	.section-note {
+		margin: 0 0 16px;
+		color: var(--ink-2);
+		font-size: 15px;
+	}
+
+	/* ---------- scenario cards ---------- */
+
+	.scenario {
+		background: var(--panel);
+		border: 1px solid var(--rule);
+		border-radius: 10px;
+		padding: 18px 20px 6px;
+		margin: 14px 0;
+		box-shadow: var(--shadow);
+	}
+
+	.scenario.is-done { border-color: color-mix(in srgb, var(--good) 45%, var(--rule)); }
+	.scenario.is-done .scenario__title { color: var(--ink-3); }
+
+	.scenario__head {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.scenario__check {
+		flex: 0 0 auto;
+		width: 20px;
+		height: 20px;
+		margin: 5px 0 0;
+		accent-color: var(--good);
+		cursor: pointer;
+	}
+
+	.scenario__title {
+		margin: 0;
+		font-size: 19px;
+		line-height: 1.35;
+		letter-spacing: -0.01em;
+		cursor: pointer;
+	}
+
+	.scenario__num {
+		display: inline-block;
+		min-width: 2.1em;
+		color: var(--accent);
+		font-variant-numeric: tabular-nums;
+		font-weight: 700;
+	}
+
+	.scenario__body { padding: 8px 0 0 32px; }
+
+	dl { margin: 0; }
+
+	dt {
+		margin: 14px 0 4px;
+		font-size: 11.5px;
+		letter-spacing: .09em;
+		text-transform: uppercase;
+		font-weight: 700;
+		color: var(--ink-3);
+	}
+
+	dd { margin: 0 0 2px; color: var(--ink-2); }
+
+	dd p { margin: 0 0 8px; }
+
+	dd ol, dd ul { margin: 0 0 8px; padding-left: 22px; }
+	dd li { margin: 0 0 5px; }
+
+	dt.why + dd {
+		color: var(--ink-2);
+		font-style: italic;
+	}
+
+	code, kbd {
+		font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+		font-size: 0.87em;
+		background: var(--code-bg);
+		border-radius: 4px;
+		padding: 1px 5px;
+		color: var(--ink);
+		word-break: break-word;
+	}
+
+	kbd {
+		border: 1px solid var(--rule);
+		border-bottom-width: 2px;
+		padding: 1px 6px;
+		font-size: 0.82em;
+	}
+
+	a { color: var(--accent); }
+
+	pre {
+		margin: 0 0 10px;
+		padding: 10px 12px;
+		background: var(--code-bg);
+		border: 1px solid var(--rule-2);
+		border-radius: 6px;
+		overflow-x: auto;
+		font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+		font-size: 13px;
+		line-height: 1.5;
+	}
+
+	.url {
+		display: inline-block;
+		background: var(--accent-soft);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+		color: var(--ink);
+		border-radius: 5px;
+		padding: 2px 7px;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 13px;
+		word-break: break-all;
+	}
+
+	/* ---------- callouts ---------- */
+
+	.callout {
+		border-radius: 8px;
+		padding: 12px 14px;
+		margin: 12px 0;
+		border: 1px solid var(--rule);
+		background: var(--panel-2);
+		font-size: 14.5px;
+		color: var(--ink-2);
+	}
+
+	.callout strong { color: var(--ink); }
+
+	.callout.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 35%, transparent); }
+	.callout.bad { background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 35%, transparent); }
+	.callout.good { background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 35%, transparent); }
+
+	.callout p:first-child { margin-top: 0; }
+	.callout p:last-child { margin-bottom: 0; }
+
+	/* ---------- issue list ---------- */
+
+	.issues { list-style: none; margin: 0; padding: 0; }
+
+	.issues > li {
+		background: var(--panel);
+		border: 1px solid var(--rule);
+		border-left: 4px solid var(--rule);
+		border-radius: 8px;
+		padding: 14px 16px;
+		margin: 10px 0;
+	}
+
+	.issues > li.real { border-left-color: var(--bad); }
+	.issues > li.design { border-left-color: var(--ink-3); }
+	.issues > li.env { border-left-color: var(--warn); }
+
+	.issues h3 {
+		margin: 0 0 6px;
+		font-size: 16px;
+		line-height: 1.35;
+	}
+
+	.issues p { margin: 0 0 8px; color: var(--ink-2); font-size: 14.5px; }
+	.issues p:last-child { margin-bottom: 0; }
+
+	.tag {
+		display: inline-block;
+		font-size: 11px;
+		letter-spacing: .06em;
+		text-transform: uppercase;
+		font-weight: 700;
+		padding: 2px 7px;
+		border-radius: 4px;
+		margin-right: 8px;
+		vertical-align: 2px;
+	}
+
+	.tag.real { background: var(--bad-soft); color: var(--bad); }
+	.tag.design { background: var(--panel-2); color: var(--ink-3); }
+	.tag.env { background: var(--warn-soft); color: var(--warn); }
+
+	.src { font-size: 13px; color: var(--ink-3); }
+
+	footer.foot {
+		margin-top: 48px;
+		padding-top: 20px;
+		border-top: 1px solid var(--rule);
+		color: var(--ink-3);
+		font-size: 14px;
+	}
+
+	@media (max-width: 620px) {
+		h1 { font-size: 27px; }
+		.scenario { padding: 14px 14px 4px; }
+		.scenario__body { padding-left: 0; }
+	}
+</style>
+
+<div class="wrap">
+
+	<header class="masthead">
+		<h1>TubeBay Blocks — Manual QA Guide</h1>
+		<p class="subtitle">
+			Click-through testing for the two new Gutenberg blocks, the lightbox, popup widths,
+			and the loosened video-library permission. Everything below was written against the
+			working-tree source, not from memory.
+		</p>
+		<div class="meta">
+			<span class="chip">Site: http://localhost</span>
+			<span class="chip">WordPress 7.1</span>
+			<span class="chip">Theme: Storefront</span>
+			<span class="chip">tubebay + tubebaypro active</span>
+			<span class="chip">21 scenarios</span>
+		</div>
+	</header>
+
+	<div class="progress">
+		<span class="progress__count" id="count">0 / 21 done</span>
+		<span class="progress__bar"><span class="progress__fill" id="fill"></span></span>
+		<button class="progress__reset" id="reset" type="button">Clear ticks</button>
+		<span class="progress__note" id="storeNote"></span>
+	</div>
+
+	<h2 class="section">What changed</h2>
+	<p class="section-note">
+		Two brand-new Gutenberg blocks in the <strong>free</strong> plugin —
+		<code>tubebay/video</code> ("TubeBay Video") and <code>tubebay/video-button</code>
+		("TubeBay Video Button") — plus a shared frontend lightbox, per-block popup width
+		controls, and a REST permission change that lets anyone with <code>edit_posts</code>
+		browse the channel library (pinned to the cached list unless they are a TubeBay admin).
+		Build tooling changed too: the blocks are extra webpack entry points and
+		<code>build.sh</code> now runs a second i18n pass.
+	</p>
+
+	<div class="callout warn">
+		<p>
+			<strong>Read scenario 1 before anything else.</strong> The plugin version constant was
+			<em>not</em> bumped (still <code>1.2.0</code>) while the block JavaScript and CSS were
+			edited today. Every block asset URL therefore still ends in <code>?ver=1.2.0</code>,
+			so a warm browser cache will happily serve you <em>yesterday's</em> lightbox code and
+			you will chase phantom bugs. Disable cache first.
+		</p>
+	</div>
+
+	<h2 class="section">A. Setup and registration</h2>
+	<p class="section-note">Prove the build is present and being served fresh before testing behaviour.</p>
+
+	<!-- 1 -->
+	<article class="scenario" data-id="s1">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s1">
+			<h3 class="scenario__title"><span class="scenario__num">1.</span><label for="chk-s1">Serve fresh assets, and confirm the view script loads</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-blocks-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Open DevTools (<kbd>F12</kbd>), go to the <strong>Network</strong> tab, tick <strong>Disable cache</strong>. Leave DevTools open for the whole session.</li>
+						<li>Hard-reload the page: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> on macOS).</li>
+						<li>In the Network filter box type <code>tubebay</code>.</li>
+						<li>Switch to the <strong>Console</strong> tab and type <code>window.tubebayBlocks</code> then <kbd>Enter</kbd>.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Network shows <code>assets/js/blocks/tubebay-blocks-view.js</code> and <code>assets/css/blocks/tubebay-blocks.css</code>, both HTTP 200 (not 304, because cache is disabled).</li>
+						<li>The console prints an object like:
+							<pre>{privacyMode: false, i18n: {close: "Close video", dialog: "Video player",
+ playVideo: "Play video", playVideoTitled: "Play video: %s"}}</pre>
+						</li>
+						<li>Zero console errors mentioning <code>tubebay</code>.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Everything downstream tests the frontend behaviour script; a stale cached copy makes every later result meaningless.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 2 -->
+	<article class="scenario" data-id="s2">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s2">
+			<h3 class="scenario__title"><span class="scenario__num">2.</span><label for="chk-s2">Both blocks appear in the inserter</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/wp-admin/post-new.php?post_type=page</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Dismiss the welcome guide if it appears (the <strong>×</strong> / Close button on the modal).</li>
+						<li>Click the blue <strong>+</strong> block inserter at the top left.</li>
+						<li>Type <code>tubebay</code> in the search field.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<p>Exactly two results:</p>
+					<ul>
+						<li><strong>TubeBay Video</strong> — described as "Click-to-play YouTube video with a fast thumbnail facade. No YouTube code loads until the visitor clicks."</li>
+						<li><strong>TubeBay Video Button</strong> — "A button that opens a YouTube video in a lightbox."</li>
+					</ul>
+					<p>Both sit in the <strong>Media</strong> category. Hovering each shows a preview card (a sample 16:9 facade / a "Watch the video" button).</p>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>This is the only visible proof that <code>build/blocks/</code> exists and that <code>BlockManager</code> registered both types instead of logging its "missing build output" error.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 3 -->
+	<article class="scenario" data-id="s3">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s3">
+			<h3 class="scenario__title"><span class="scenario__num">3.</span><label for="chk-s3">Block assets load only on pages that contain a block</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>
+					<span class="url">http://localhost/sample-page/</span> then
+					<span class="url">http://localhost/tubebay-blocks-demo/</span>
+				</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Load <strong>/sample-page/</strong> (no TubeBay block on it). In the Network tab, filter on <code>blocks</code>.</li>
+						<li>Load <strong>/tubebay-blocks-demo/</strong>. Same filter.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li><strong>/sample-page/</strong>: <em>no</em> request for <code>tubebay-blocks-view.js</code> and <em>no</em> request for <code>assets/css/blocks/tubebay-blocks.css</code>. (You will still see <code>assets/js/public.js</code> and <code>assets/css/public.css</code> — those load site-wide and are not part of this change.)</li>
+						<li><strong>/tubebay-blocks-demo/</strong>: both block files are requested.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>The blocks declare their script and style as <code>viewScript</code>/<code>viewStyle</code> precisely so they cost nothing on the other 99% of a site's pages.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<h2 class="section">B. Frontend playback</h2>
+	<p class="section-note">
+		The three demo pages are pre-built. Their exact contents:
+		<strong>/tubebay-blocks-demo/</strong> = one inline video (caption "Plays inline") + one button at 50% width;
+		<strong>/tubebay-thumbnail-popup-demo/</strong> = one 16:9 popup video at 80vw;
+		<strong>/tubebay-popup-width-demo/</strong> = default width, 100vw, 50vw, a 9:16 Short at 40vw, and a button at 70%.
+		All of them use the same YouTube video, <code>dQw4w9WgXcQ</code>.
+	</p>
+
+	<!-- 4 -->
+	<article class="scenario" data-id="s4">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s4">
+			<h3 class="scenario__title"><span class="scenario__num">4.</span><label for="chk-s4">Inline playback — nothing from YouTube loads until you click</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-blocks-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Before clicking anything, in the Console run:
+							<pre>document.querySelectorAll('iframe[src*="youtube"]').length</pre>
+						</li>
+						<li>Click the round dark play badge in the middle of the thumbnail (the first block on the page, captioned <strong>Plays inline</strong>).</li>
+						<li>Run the same console line again.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Before the click: <code>0</code>. No <code>youtube.com</code> request at all in the Network tab.</li>
+						<li>The play badge turns <strong>red</strong> on hover.</li>
+						<li>After the click: <code>1</code>. The thumbnail is <em>replaced in place</em> by the player — no dark overlay, no popup — and the video autoplays.</li>
+						<li>Inspect the container: it now has class <code>tubebay-block-facade is-playing</code>, and the iframe <code>src</code> starts <code>https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&amp;playsinline=1&amp;autoplay=1</code>.</li>
+						<li>The caption <strong>Plays inline</strong> stays visible below the player.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>The whole selling point of the block is the facade: zero YouTube code, cookies or requests on page load.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 5 -->
+	<article class="scenario" data-id="s5">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s5">
+			<h3 class="scenario__title"><span class="scenario__num">5.</span><label for="chk-s5">Video Button opens a popup — and is still a real link</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-blocks-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Scroll to the button reading <strong>Watch the video</strong> (it spans half the content width).</li>
+						<li>Hover it and read the browser's status bar / right-click &rarr; Copy link address.</li>
+						<li>Left-click it. Note the address bar. Close the popup with <kbd>Esc</kbd>.</li>
+						<li>Now <kbd>Ctrl</kbd>-click (<kbd>Cmd</kbd>-click on macOS) the same button.</li>
+						<li>Finally, middle-click it.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>The link target is genuinely <code>https://www.youtube.com/watch?v=dQw4w9WgXcQ</code> — not <code>#</code>, not <code>javascript:</code>.</li>
+						<li>Plain left-click opens the dark lightbox with the player inside, and the <strong>address bar does not change</strong>.</li>
+						<li>Ctrl/Cmd-click and middle-click <strong>bypass</strong> the popup and open YouTube in a new tab. This is deliberate.</li>
+						<li>The button carries the classes <code>wp-block-button__link wp-element-button tubebay-video-trigger</code> plus <code>wp-block-button__width-50</code>, so it is styled by the theme like a normal core button.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>If JavaScript fails the button must still take a visitor to the video, and "open in new tab" must keep working like any other link.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 6 -->
+	<article class="scenario" data-id="s6">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s6">
+			<h3 class="scenario__title"><span class="scenario__num">6.</span><label for="chk-s6">Thumbnail that opens a popup, at 80vw</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-thumbnail-popup-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Maximise the browser window (these numbers assume roughly 1280&times;900 or larger).</li>
+						<li>Click the thumbnail's play badge.</li>
+						<li>With the popup open, run in the Console:
+							<pre>const b = document.querySelector('.tubebay-lightbox-content').getBoundingClientRect();
+console.log(Math.round(b.width), Math.round(b.height), window.innerWidth, window.innerHeight);</pre>
+						</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>A near-black full-screen overlay fades in over about 0.3s, with the player centred and a large <strong>&times;</strong> at the top right.</li>
+						<li>The player box is materially wider than 900px (80vw of the window), still 16:9, and both its width and height fit inside the window — nothing is cropped off the bottom.</li>
+						<li>The page behind cannot be scrolled while the popup is open, and the page does <em>not</em> shift sideways when it opens.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Per-block popup width is a new control; it has to actually change the size, without ever letting the dialog grow past the viewport.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 7 -->
+	<article class="scenario" data-id="s7">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s7">
+			<h3 class="scenario__title"><span class="scenario__num">7.</span><label for="chk-s7">Popup widths: default, 100vw, 50vw and a 70% button</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-popup-width-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<p>The page holds five triggers, in this order: <strong>Default size</strong>, <strong>Full width 100vw</strong>, <strong>Half 50vw</strong>, <strong>Shorts 9:16</strong> (covered in scenario 8), and a link-style button reading <strong>Open at 70%</strong>.</p>
+					<ol>
+						<li>Open each of the four non-Shorts triggers in turn, measuring each with the console snippet from scenario 6, then pressing <kbd>Esc</kbd>.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li><strong>Default size</strong> — the popup is about 90% of the window width but never wider than 900px, and always fits vertically.</li>
+						<li><strong>Full width 100vw</strong> — flush to the left and right edges of the window. There should be <em>no horizontal scrollbar on the page</em>. If a horizontal scrollbar appears, or the popup is visibly wider than the window, report it.</li>
+						<li><strong>Half 50vw</strong> — noticeably narrower than the default: roughly half the window width.</li>
+						<li><strong>Open at 70%</strong> — a popup about 70% of the window width, 16:9. (Buttons have no aspect-ratio control; they always open widescreen.)</li>
+						<li>Each popup is sized independently — reopening a narrow one after a wide one must not leave the wide size behind.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>One lightbox element is reused for every trigger on the page, so last click's size leaking into this one is the obvious failure mode.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 8 -->
+	<article class="scenario" data-id="s8">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s8">
+			<h3 class="scenario__title"><span class="scenario__num">8.</span><label for="chk-s8">9:16 Shorts popup stays inside the window</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-popup-width-demo/</span> — the fourth block, titled <strong>Shorts 9:16</strong>.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Note the thumbnail itself: it is a <em>tall, narrow</em> box on the page, not a widescreen one.</li>
+						<li>Click its play badge.</li>
+						<li>Measure with the console snippet from scenario 6.</li>
+						<li>Press <kbd>Esc</kbd>, resize the window to something short (say 700px tall), and repeat.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>The popup is <strong>portrait</strong> — taller than it is wide — not a 16:9 box with black bars.</li>
+						<li>Its height never exceeds about 90% of the window height, at either window size. The top and bottom of the player are both visible; the <strong>&times;</strong> button is reachable.</li>
+						<li>Nothing is clipped off the bottom of the screen, and the overlay itself never scrolls.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>A 9:16 video at the default 900px width would be 1600px tall — taller than most screens, with no way to scroll to the rest. The height cap is the fix; this is the case that proves it.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 9 -->
+	<article class="scenario" data-id="s9">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s9">
+			<h3 class="scenario__title"><span class="scenario__num">9.</span><label for="chk-s9">Keyboard only: open, Tab, Escape, and focus coming back</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-thumbnail-popup-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<p><strong>Put the mouse down.</strong> Use only the keyboard for this whole scenario.</p>
+					<ol>
+						<li>Click once on the page background to give the document focus, then press <kbd>Tab</kbd> repeatedly until the play badge on the thumbnail has a visible white focus ring.</li>
+						<li>Press <kbd>Enter</kbd>.</li>
+						<li>Run <code>document.activeElement.className</code> in the console (or just look for the focus ring).</li>
+						<li>Press <kbd>Tab</kbd> three or four times.</li>
+						<li>Press <kbd>Esc</kbd>.</li>
+						<li>Run <code>document.activeElement.className</code> again.</li>
+						<li>Reopen with <kbd>Enter</kbd>, then close by pressing <kbd>Enter</kbd> on the <strong>&times;</strong> button.</li>
+						<li>Reopen once more and this time click the dark area <em>outside</em> the player.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>The play badge takes focus and shows a white outline; the badge also turns red.</li>
+						<li><kbd>Enter</kbd> opens the popup, and within a fraction of a second focus lands on the close button — <code>document.activeElement.className</code> contains <code>tubebay-lightbox-close</code>.</li>
+						<li>Tabbing <strong>never leaves the dialog</strong>. Focus stays on the close button no matter how many times you press <kbd>Tab</kbd> or <kbd>Shift</kbd>+<kbd>Tab</kbd>. It must not land on links in the page behind the overlay. (Only ever landing on the close button is intended — see the "expected, do not report" list.)</li>
+						<li><kbd>Esc</kbd> closes the popup, the audio stops immediately, and <code>document.activeElement.className</code> now contains <code>tubebay-block-play</code> — focus is back on the thumbnail you came from.</li>
+						<li>Closing via the <strong>&times;</strong> button restores focus the same way.</li>
+						<li>Clicking the dark backdrop closes it; clicking the player itself does not.</li>
+						<li>After every close, <code>document.querySelectorAll('.tubebay-lightbox-overlay iframe').length</code> is <code>0</code> — the player is destroyed, not just hidden.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>A modal a keyboard user cannot escape from, or that dumps them back at the top of the page, is a hard accessibility failure.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<h2 class="section">C. Authoring in the block editor</h2>
+	<p class="section-note">
+		These use a fresh draft page. Go to
+		<span class="url">http://localhost/wp-admin/post-new.php?post_type=page</span> and dismiss
+		the welcome guide before each one, or reuse a single scratch draft throughout.
+	</p>
+
+	<!-- 10 -->
+	<article class="scenario" data-id="s10">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s10">
+			<h3 class="scenario__title"><span class="scenario__num">10.</span><label for="chk-s10">Pick a video from the connected channel</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/wp-admin/post-new.php?post_type=page</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Insert a <strong>TubeBay Video</strong> block.</li>
+						<li>In the grey placeholder panel, click <strong>Choose from channel</strong>.</li>
+						<li>In the modal titled <strong>Choose a video</strong>, type a word from one of the video titles into the field labelled <strong>Filter loaded videos</strong>.</li>
+						<li>Clear the filter, then click a thumbnail.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>A brief spinner, then a grid of thumbnails with two-line titles. On this install the cache currently holds <strong>19 videos</strong>, the first being "Block Checkout or Classic Checkout? How to Tell in 30 Seconds".</li>
+						<li>Typing filters the grid <strong>instantly, with no network request</strong> — watch the Network tab; nothing should fire while you type.</li>
+						<li>Once you have typed something, a link appears reading <strong>Search your whole channel instead</strong>. (You do not have to click it; it spends YouTube API quota.)</li>
+						<li>Filtering to something that matches nothing shows <strong>"No loaded videos match that filter."</strong></li>
+						<li>Clicking a thumbnail closes the modal, and the block preview becomes that video's thumbnail with a play badge over it. The Inspector's <strong>Video</strong> panel now reads <strong>Selected:</strong> followed by the video title.</li>
+					</ul>
+					<div class="callout warn">
+						<p>The cached video list on this install expires around <strong>2026-08-31 00:12</strong>. After that, the picker may come back empty because <code>tubebay_channel_id</code> is not set on this site. That is an environment condition, not a block bug — use scenario 11's manual-paste path instead.</p>
+					</div>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Typing must stay free; only an explicit action may spend the site's shared 10,000-unit daily YouTube quota.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 11 -->
+	<article class="scenario" data-id="s11">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s11">
+			<h3 class="scenario__title"><span class="scenario__num">11.</span><label for="chk-s11">The block works with no channel connected — paste a URL by hand</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/wp-admin/post-new.php?post_type=page</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<p>First, confirm the disconnected state at
+					<span class="url">http://localhost/wp-admin/admin.php?page=wc-settings&amp;tab=tubebay</span>
+					(the <strong>Connection</strong> tab) and at
+					<span class="url">http://localhost/wp-admin/edit.php?post_type=product&amp;page=tubebay-videos</span>.
+					On this install the Library screen says <strong>"Your YouTube library is currently disconnected."</strong></p>
+					<ol>
+						<li>Insert a <strong>TubeBay Video</strong> block.</li>
+						<li>Ignore "Choose from channel". In the field labelled <strong>Or paste a YouTube URL or ID</strong>, paste <code>https://youtu.be/dQw4w9WgXcQ</code>.</li>
+						<li>Click <strong>Use this video</strong>.</li>
+						<li>Insert a second block and repeat with each of these, one per block or by replacing:
+							<pre>https://www.youtube.com/watch?v=dQw4w9WgXcQ
+https://www.youtube.com/shorts/dQw4w9WgXcQ
+https://www.youtube.com/embed/dQw4w9WgXcQ
+https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ
+dQw4w9WgXcQ</pre>
+						</li>
+						<li>Try pressing <kbd>Enter</kbd> inside the field instead of clicking the button.</li>
+						<li>Publish the page and view it.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Every one of those six forms is accepted and produces a thumbnail preview.</li>
+						<li><kbd>Enter</kbd> in the field works exactly like clicking <strong>Use this video</strong>, and does <em>not</em> submit or reload anything.</li>
+						<li>The Inspector shows <strong>Selected: dQw4w9WgXcQ</strong> (the raw ID) rather than a title, because a pasted video has no synced record.</li>
+						<li>On the published page the facade renders and plays normally.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>The blocks must be usable by anyone who has installed the plugin but never connected a channel — otherwise the free plugin is dead on arrival for most installs.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 12 -->
+	<article class="scenario" data-id="s12">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s12">
+			<h3 class="scenario__title"><span class="scenario__num">12.</span><label for="chk-s12">Rubbish input is rejected with a readable message</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>A draft page with a fresh <strong>TubeBay Video</strong> block.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Paste each of these into <strong>Or paste a YouTube URL or ID</strong> and click <strong>Use this video</strong>:
+							<pre>hello world
+https://vimeo.com/12345678
+https://www.youtube.com/watch?v=tooshort
+https://www.youtube.com/channel/UCabcdefghij</pre>
+						</li>
+						<li>After a rejection, start typing again.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Each is refused with a red notice reading <strong>"That does not look like a YouTube video URL or ID."</strong></li>
+						<li>The block does <em>not</em> change; whatever was selected before is left alone.</li>
+						<li>The error clears as soon as you edit the field again.</li>
+						<li>The <strong>Use this video</strong> button is greyed out while the field is empty or only whitespace.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>A silently-swallowed bad paste leaves an author staring at an empty block with no idea why.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 13 -->
+	<article class="scenario" data-id="s13">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s13">
+			<h3 class="scenario__title"><span class="scenario__num">13.</span><label for="chk-s13">"Replace video" keeps your caption and button text</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>A draft page.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Insert a <strong>TubeBay Video</strong> block and give it any video.</li>
+						<li>Click below the thumbnail where it says <em>Add a caption…</em> and type <code>KEEP ME</code>.</li>
+						<li>Select the block, then in the floating <strong>block toolbar</strong> click the video icon whose tooltip reads <strong>Replace video</strong>.</li>
+						<li>Choose a different video from the picker.</li>
+						<li>Repeat with a <strong>TubeBay Video Button</strong> block: type <code>KEEP ME TOO</code> as the button label, then use its toolbar <strong>Replace video</strong>.</li>
+						<li>Also try replacing from the Inspector: <strong>Video</strong> panel &rarr; the button that now reads <strong>Replace video</strong> (it says <strong>Choose from channel</strong> before a video is set).</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>The picker opens without the block emptying out first — the thumbnail stays on screen behind the modal.</li>
+						<li>After choosing, the thumbnail and title change but <strong>KEEP ME</strong> / <strong>KEEP ME TOO</strong> are still there, unchanged.</li>
+						<li>Closing the picker with its own <strong>×</strong> (choosing nothing) leaves the block exactly as it was.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>These are static blocks: if the video ID is cleared even briefly, the elements that hold the caption and button text vanish from the saved HTML and that text is lost for good.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 14 -->
+	<article class="scenario" data-id="s14">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s14">
+			<h3 class="scenario__title"><span class="scenario__num">14.</span><label for="chk-s14">Popup width control: number plus unit, vw / % / px</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>A draft page.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Insert a <strong>TubeBay Video</strong> block with any video and open the Inspector (the settings cog, top right).</li>
+						<li>Open the <strong>Display</strong> panel. Confirm there is <em>no</em> popup width field yet.</li>
+						<li>Turn on the toggle <strong>Open in a popup instead</strong>.</li>
+						<li>A <strong>Popup width</strong> field appears, with a unit selector. Set it to <code>60</code> <code>vw</code>.</li>
+						<li>Change the unit to <code>%</code>, then to <code>px</code>, watching the number each time.</li>
+						<li>Clear the field entirely.</li>
+						<li>Now insert a <strong>TubeBay Video Button</strong> block and open its <strong>Popup</strong> panel.</li>
+						<li>Publish and check each width on the front end with the measuring snippet from scenario 6.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>The width field is hidden while <strong>Open in a popup instead</strong> is off, and appears when it is on. Its help text reads <strong>"Leave empty for the default size. 100vw fills the screen edge to edge."</strong></li>
+						<li>The toggle's own help text swaps between "Clicking plays the video in place." and "Clicking opens the video in a lightbox."</li>
+						<li>Switching unit either replaces the number with that unit's default (80 for vw, 90 for %, 900 for px) or leaves the number alone — <em>either is acceptable</em>. What must not happen is a nonsense carry-over that is then saved, such as <code>900%</code> or <code>80px</code> for a full-width popup. Check what actually reaches the front end.</li>
+						<li>Negative numbers are not accepted (minimum 0).</li>
+						<li>An empty field means "use the default", and on the front end that block behaves exactly like the <strong>Default size</strong> one in scenario 7.</li>
+						<li>The button block always shows <strong>Popup width</strong> (it has no inline mode), under a panel titled <strong>Popup</strong>.</li>
+						<li>Each published width takes effect on the front end.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>This is the newest control in the set and the one most likely to have been wired up in the editor but never read at click time.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 15 -->
+	<article class="scenario" data-id="s15">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s15">
+			<h3 class="scenario__title"><span class="scenario__num">15.</span><label for="chk-s15">Aspect ratios, including 9:16 played inline</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>A draft page.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Insert a <strong>TubeBay Video</strong> block with any video and leave <strong>Open in a popup instead</strong> <em>off</em>.</li>
+						<li>Inspector &rarr; <strong>Display</strong> &rarr; the <strong>Aspect ratio</strong> dropdown. Step through all four options, watching the editor preview each time.</li>
+						<li>Leave it on <strong>9:16 — Shorts</strong>, publish, and view the page.</li>
+						<li>Click the play badge on the published page.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>The dropdown offers exactly: <strong>16:9 — Widescreen</strong>, <strong>4:3 — Standard</strong>, <strong>1:1 — Square</strong>, <strong>9:16 — Shorts</strong>.</li>
+						<li>The editor preview reshapes immediately for each — 1:1 is a square, 9:16 is a tall narrow column.</li>
+						<li>On the published page the 9:16 facade is a tall narrow box, and after clicking, the player fills that same tall box exactly — no letterboxing, no overflow past the block.</li>
+						<li>Inspecting the container shows <code>data-ratio="9-16"</code>.</li>
+					</ul>
+					<p class="src">Note: 9:16 <em>inline</em> is not covered by any pre-built demo page, which is why this scenario builds one.</p>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Vertical video is the case the old square-only gallery facade could not handle at all.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 16 -->
+	<article class="scenario" data-id="s16">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s16">
+			<h3 class="scenario__title"><span class="scenario__num">16.</span><label for="chk-s16">Button block: width presets and theme styling</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>A draft page.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Insert a <strong>TubeBay Video Button</strong>, give it a video, and type a label over the <em>Watch the video</em> placeholder.</li>
+						<li>Open the Inspector's <strong>Styles</strong> tab (the half-filled circle icon). Find the <strong>Dimensions</strong> group. The width control is a small uppercase <strong>Width</strong> heading sitting above a row of four buttons — it is the block's own control, so it will not look exactly like a standard core control row.</li>
+						<li>Click <strong>25%</strong>, then <strong>50%</strong>, <strong>75%</strong>, <strong>100%</strong>.</li>
+						<li>Click the currently-active one a second time.</li>
+						<li>Still in Styles, change the background colour, the text colour, the font size, the border radius and the padding.</li>
+						<li>Publish and view.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Four buttons labelled 25% / 50% / 75% / 100%; the active one is highlighted.</li>
+						<li>The button visibly resizes in the editor at each setting.</li>
+						<li>Clicking the active one again <strong>clears</strong> the width, back to shrink-to-fit.</li>
+						<li>Colour, gradient, typography, border, radius, shadow and padding controls are all present and all take effect on the published page — they are applied to the <code>&lt;a&gt;</code> itself, so view source and check the inline styles are on the link, not on a wrapper.</li>
+						<li>The <strong>Align</strong> option is absent from the toolbar for this block, by design.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>The block hand-rolls core's width mechanism and its own CSS; if either half is missing the width classes are emitted but do nothing.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 17 -->
+	<article class="scenario" data-id="s17">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s17">
+			<h3 class="scenario__title"><span class="scenario__num">17.</span><label for="chk-s17">Already-published blocks still validate</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>
+					<span class="url">http://localhost/wp-admin/edit.php?post_type=page</span> — then open
+					<strong>TubeBay Blocks Demo</strong>, <strong>TubeBay Thumbnail Popup Demo</strong>
+					and <strong>TubeBay Popup Width Demo</strong> in the editor, one at a time.
+				</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Open each page for editing and wait for the canvas to finish rendering.</li>
+						<li>Scroll through every block.</li>
+						<li>Do not save. Leave without saving.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Every block renders as a normal thumbnail / button preview.</li>
+						<li><strong>No</strong> yellow warning bar reading "This block contains unexpected or invalid content." anywhere on any of the three pages.</li>
+						<li>Blocks Demo shows 1 video + 1 button; Thumbnail Popup Demo shows 1 video; Popup Width Demo shows 4 videos + 1 button.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>These are static blocks with an empty deprecation list. If the saved markup ever drifts from what the code now produces, every published post silently breaks — and this warning is the only signal.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<h2 class="section">D. Settings interaction and permissions</h2>
+
+	<!-- 18 -->
+	<article class="scenario" data-id="s18">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s18">
+			<h3 class="scenario__title"><span class="scenario__num">18.</span><label for="chk-s18">Privacy mode changes the embed host on already-published pages</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>
+					<span class="url">http://localhost/wp-admin/admin.php?page=wc-settings&amp;tab=tubebay</span> &rarr; the
+					<strong>Player</strong> tab, then <span class="url">http://localhost/tubebay-blocks-demo/</span>
+				</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>On the demo page, click the inline video and note the iframe's <code>src</code> host (DevTools &rarr; Elements, or the Network tab).</li>
+						<li>Go to the Player tab and turn <strong>on</strong> the privacy / no-cookie setting (a toggle labelled something like "Privacy mode" or "Enable YouTube no-cookie"). Save.</li>
+						<li>Go back to <strong>/tubebay-blocks-demo/</strong>. <em>Do not edit or re-save the page.</em> Hard-reload it and click the video again.</li>
+						<li>Also open the <strong>Open at 70%</strong> button on <span class="url">http://localhost/tubebay-popup-width-demo/</span> and check its popup iframe.</li>
+						<li>Turn the setting back off and confirm it reverts.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Off: <code>https://www.youtube.com/embed/dQw4w9WgXcQ?...</code></li>
+						<li>On: <code>https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?...</code> — on the <em>same, untouched</em> published page.</li>
+						<li>The button's <code>href</code> stays <code>https://www.youtube.com/watch?v=…</code> either way. That is correct: the no-cookie domain has no watch page.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Blocks save only a video ID for exactly this reason — a shop owner must be able to switch to no-cookie embeds without re-saving every post they ever wrote.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 19 -->
+	<article class="scenario" data-id="s19">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s19">
+			<h3 class="scenario__title"><span class="scenario__num">19.</span><label for="chk-s19">An Editor can browse the library but cannot search the whole channel</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/wp-admin/user-new.php</span> first, then the block editor as that new user.</dd>
+
+				<div class="callout">
+					<p><strong>There is no Editor account on this install yet.</strong> Create one: Users &rarr; Add New, username <code>qa_editor</code>, any email, set a password you note down, <strong>Role: Editor</strong>. (The existing <code>tempshop</code> account is a Shop Manager, which also has <code>edit_posts</code> and works equally well if you know its password.)</p>
+				</div>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>As an <strong>administrator</strong>, open a new page, insert a <strong>TubeBay Video</strong> block, click <strong>Choose from channel</strong>, and note the state of the <strong>Sort by</strong> dropdown. Close the picker.</li>
+						<li>Log out. Log in as <code>qa_editor</code>.</li>
+						<li>Go to <span class="url">http://localhost/wp-admin/post-new.php?post_type=post</span> and insert a <strong>TubeBay Video</strong> block.</li>
+						<li>Click <strong>Choose from channel</strong>.</li>
+						<li>Type into <strong>Filter loaded videos</strong>.</li>
+						<li>Try to use the <strong>Sort by</strong> dropdown.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>As <strong>admin</strong>: the picker lists videos, <strong>Sort by</strong> is enabled with five options (Newest first / Oldest first / Title A–Z / Title Z–A / Most viewed), and typing reveals <strong>Search your whole channel instead</strong>.</li>
+						<li>As <strong>Editor</strong>: the picker still lists the same videos — the Editor is <em>not</em> blocked.</li>
+						<li>As <strong>Editor</strong>: <strong>Sort by</strong> is greyed out, with help text reading <strong>"Showing the most recent videos. Sorting the full channel needs a TubeBay administrator."</strong></li>
+						<li>As <strong>Editor</strong>: the <strong>Search your whole channel instead</strong> link never appears, however much you type. Local filtering still works.</li>
+						<li>The Editor sees no API keys, tokens or TubeBay settings screens anywhere.</li>
+					</ul>
+					<div class="callout warn">
+						<p><strong>Precondition.</strong> This scenario is only conclusive while a channel is connected. If the channel is disconnected (or the video cache has expired), the server reports "search not allowed" to <em>everyone</em>, so an administrator sees the same greyed-out dropdown and the same misleading help text. See known issue #1. If admin and Editor look identical, check the connection first before filing anything.</p>
+					</div>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Opening the library to every content editor is the point of the change; letting them spend 100 quota units per keystroke against a shared 10,000/day allowance is not.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<!-- 20 -->
+	<article class="scenario" data-id="s20">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s20">
+			<h3 class="scenario__title"><span class="scenario__num">20.</span><label for="chk-s20">Nothing else was opened up by mistake</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd>Still logged in as <code>qa_editor</code>.</dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<ol>
+						<li>Try to visit <span class="url">http://localhost/wp-admin/admin.php?page=wc-settings&amp;tab=tubebay</span></li>
+						<li>Try to visit <span class="url">http://localhost/wp-admin/edit.php?post_type=product&amp;page=tubebay-videos</span></li>
+						<li>Open the block editor. In DevTools, make sure the Console's <strong>frame selector</strong> (the dropdown next to the filter box, usually reading "top") is set to <strong>top</strong> and <em>not</em> to <code>editor-canvas</code> — blocks render in an iframe, and the nonce lives in the outer document. Then run:
+							<pre>typeof wpApiSettings  // must print "object" before continuing</pre>
+							If it prints <code>"undefined"</code> you are in the wrong frame, or the editor has not finished loading. Fix that before reading anything into the next two results.
+						</li>
+						<li>Now run:
+							<pre>(await fetch('/wp-json/tubebay/v1/settings',
+  {headers:{'X-WP-Nonce': wpApiSettings.nonce}})).status</pre>
+						</li>
+						<li>And:
+							<pre>await (await fetch('/wp-json/tubebay/v1/youtube/videos',
+  {headers:{'X-WP-Nonce': wpApiSettings.nonce}})).json()</pre>
+						</li>
+						<li>Log back in as administrator and run that second snippet again from any TubeBay admin screen.</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li>Both admin URLs refuse the Editor ("Sorry, you are not allowed to access this page." or a redirect) — the TubeBay menu items are not even in their sidebar.</li>
+						<li>The <code>/settings</code> request returns <strong>403</strong>.</li>
+						<li>The <code>/youtube/videos</code> request returns <strong>200</strong> with a <code>videos</code> array and <code>can_search: false</code>.</li>
+						<li>The same request as an administrator returns <code>can_search: true</code>.</li>
+						<li>No <code>access_token</code>, <code>refresh_token</code> or <code>api_key</code> appears anywhere in the Editor's response.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>Exactly one route was loosened. If any other TubeBay route answers a non-admin, that is a security regression, not a feature.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<h2 class="section">E. Resilience</h2>
+
+	<!-- 21 -->
+	<article class="scenario" data-id="s21">
+		<div class="scenario__head">
+			<input class="scenario__check" type="checkbox" id="chk-s21">
+			<h3 class="scenario__title"><span class="scenario__num">21.</span><label for="chk-s21">Broken thumbnail falls back instead of showing a torn image</label></h3>
+		</div>
+		<div class="scenario__body">
+			<dl>
+				<dt>Where to go</dt>
+				<dd><span class="url">http://localhost/tubebay-blocks-demo/</span></dd>
+
+				<dt>What to click</dt>
+				<dd>
+					<p>YouTube does not publish a <code>maxresdefault</code> thumbnail for every video, so the block ships a fallback. Force it from the Console:</p>
+					<ol>
+						<li>Run:
+							<pre>const t = document.querySelector('.tubebay-block-facade__thumb');
+console.log('fallback is:', t.dataset.fallback);
+t.src = 'https://i.ytimg.com/vi/ZZZZZZZZZZZ/maxresdefault.jpg';</pre>
+						</li>
+						<li>Wait a moment, then run:
+							<pre>console.log(t.src, t.dataset.tubebayFallbackApplied);</pre>
+						</li>
+					</ol>
+				</dd>
+
+				<dt>What you should see</dt>
+				<dd>
+					<ul>
+						<li><code>data-fallback</code> is a real <code>.../hqdefault.jpg</code> URL.</li>
+						<li>After the failed load, <code>t.src</code> has switched itself to that fallback URL and <code>t.dataset.tubebayFallbackApplied</code> is <code>"1"</code>.</li>
+						<li>The thumbnail is visibly back — no broken-image icon, no empty black box.</li>
+						<li>Running the same broken URL a second time does <em>not</em> loop; the flag stops it.</li>
+					</ul>
+				</dd>
+
+				<dt class="why">Why it matters</dt>
+				<dd>These are static blocks — there is no server-side render pass that could ever correct a bad thumbnail after the fact.</dd>
+			</dl>
+		</div>
+	</article>
+
+	<h2 class="section">Known issues and expected failures</h2>
+	<p class="section-note">
+		Everything here was confirmed by reading the source. Please do <strong>not</strong> file
+		these as new bugs.
+	</p>
+
+	<ul class="issues">
+
+		<li class="real">
+			<h3><span class="tag real">Bug</span>An administrator is told they are not an administrator</h3>
+			<p>
+				Whenever the video library route reports that searching is off-limits, the picker
+				disables <strong>Sort by</strong> and shows
+				<em>"Showing the most recent videos. Sorting the full channel needs a TubeBay administrator."</em>
+				The server also sends that flag when <em>no channel is connected</em> — regardless of who is
+				asking. So an administrator with a disconnected channel is told they need to be an administrator.
+			</p>
+			<p class="src">
+				<code>app/Api/YouTubeController.php</code> (the not-configured early return sends
+				<code>can_search: false</code>) &middot;
+				<code>src/blocks/shared/VideoPicker.tsx</code> (disables on
+				<code>hasFetched &amp;&amp; !canSearch</code>).
+			</p>
+		</li>
+
+		<li class="real">
+			<h3><span class="tag real">Bug</span>The lightbox's mobile full-width rule never applies</h3>
+			<p>
+				<code>assets/css/blocks/tubebay-blocks.css</code> has a
+				<code>@media (max-width: 768px)</code> rule setting the popup to
+				<code>width: 100%</code>, but the view script writes an inline <code>width</code>
+				on <em>every</em> open, including when the author left the width empty. Inline styles win,
+				so narrow screens get 90% and never the intended 100%. Cosmetic only — the popup still
+				fits and works.
+			</p>
+			<p class="src"><code>assets/js/blocks/tubebay-blocks-view.js</code>, <code>applySize()</code>.</p>
+		</li>
+
+		<li class="env">
+			<h3><span class="tag env">Environment</span>Version constant not bumped — block assets are cached under the old version</h3>
+			<p>
+				Both <code>block.json</code> files and every new <code>@since</code> tag say
+				<strong>1.3.0</strong>, but the plugin header and <code>TUBEBAY_VERSION</code> still say
+				<strong>1.2.0</strong>. Since <code>tubebay-blocks-view.js</code> and the block CSS are
+				versioned by that constant, edits made to them today do not bust anyone's cache. This is
+				a release-process item, and the reason scenario 1 exists.
+			</p>
+		</li>
+
+		<li class="env">
+			<h3><span class="tag env">Environment</span>This site reports "disconnected" while the library actually works</h3>
+			<p>
+				<code>tubebay_connection_status</code> is not set on this install, so it defaults to
+				<code>inactive</code> and the Library screen says
+				<em>"Your YouTube library is currently disconnected."</em> — yet an OAuth refresh token is
+				present and a 19-video cache is warm, so the block picker lists videos perfectly well.
+				This mismatch is a pre-existing, already-documented data-integrity issue, not something the
+				blocks introduced.
+			</p>
+			<p class="src">Documented in the repo's <code>CLAUDE.md</code> under "Known issues".</p>
+		</li>
+
+		<li class="env">
+			<h3><span class="tag env">Environment</span>The cached video list expires soon</h3>
+			<p>
+				The <code>tubebay_videos_cache</code> transient on this install expires around
+				<strong>2026-08-31 00:12</strong>. After that the picker may return nothing, because
+				<code>tubebay_channel_id</code> is empty here and a live refresh cannot be built from it.
+				Fall back to the manual-paste path (scenario 11), which is channel-independent by design.
+			</p>
+		</li>
+
+		<li class="design">
+			<h3><span class="tag design">By design</span>Escape stops working once you click <em>into</em> the player</h3>
+			<p>
+				The YouTube player is a cross-origin iframe: once focus is inside it, every keypress —
+				<kbd>Esc</kbd> included — is delivered to YouTube's document and never reaches the page.
+				Close with the <strong>&times;</strong> button or the backdrop instead. The alternative
+				(making the iframe a tab stop) would create a keyboard trap, which is a worse failure.
+			</p>
+		</li>
+
+		<li class="design">
+			<h3><span class="tag design">By design</span>Tab inside the popup only ever lands on the close button</h3>
+			<p>
+				The dialog deliberately has exactly one tab stop. Pressing <kbd>Tab</kbd> repeatedly
+				looking like "nothing happens" is the correct behaviour — what matters is that focus never
+				escapes to the page behind the overlay.
+			</p>
+		</li>
+
+		<li class="design">
+			<h3><span class="tag design">By design</span>Inline playback drops focus into the player</h3>
+			<p>
+				After pressing <kbd>Enter</kbd> on an inline (non-popup) facade, focus is moved into the
+				YouTube iframe so the keyboard is not stranded on <code>&lt;body&gt;</code>. Tabbing back out
+				of it may feel unusual — same cross-origin constraint as above.
+			</p>
+		</li>
+
+		<li class="design">
+			<h3><span class="tag design">By design</span>The editor preview is not clickable</h3>
+			<p>
+				Clicking a video block's thumbnail in the editor selects the block instead of playing
+				anything. The preview has <code>pointer-events: none</code> on purpose.
+			</p>
+		</li>
+
+		<li class="design">
+			<h3><span class="tag design">By design</span>The saved <code>aria-label</code> differs from the live one</h3>
+			<p>
+				View-source shows <code>aria-label="&lt;video title&gt;"</code>, but the live DOM shows
+				<code>aria-label="Play video: &lt;video title&gt;"</code> — the script upgrades it at runtime.
+				A translated label cannot be frozen into post content without invalidating the block for
+				authors in other languages. Untitled videos (any manually pasted URL) get plain
+				<em>"Play video"</em>.
+			</p>
+		</li>
+
+		<li class="design">
+			<h3><span class="tag design">By design</span>The deprecation lists are empty</h3>
+			<p>
+				Both <code>deprecated.ts</code> files are intentionally empty on this first release. It is
+				the wiring, not an omission. It does mean scenario 17 is the only guard against saved-markup
+				drift, so treat any validation warning there as serious.
+			</p>
+		</li>
+
+	</ul>
+
+	<div class="callout good">
+		<p>
+			<strong>When you file something:</strong> include the scenario number, the exact URL, your
+			browser and window size, whether DevTools "Disable cache" was on, and a copy of any console
+			error. For popup sizing issues, paste the numbers from the measuring snippet in scenario 6.
+		</p>
+	</div>
+
+	<footer class="foot">
+		Ticks are stored in this browser only (localStorage). Clearing site data, or opening this file
+		from a different path, starts you over.
+	</footer>
+
+</div>
+
+<script>
+	(function () {
+		'use strict';
+
+		var KEY = 'tubebay-manual-qa-v1';
+		var boxes = Array.prototype.slice.call(
+			document.querySelectorAll('.scenario__check')
+		);
+		var countEl = document.getElementById('count');
+		var fillEl = document.getElementById('fill');
+		var resetEl = document.getElementById('reset');
+		var noteEl = document.getElementById('storeNote');
+		var canStore = true;
+
+		function load() {
+			try {
+				var raw = window.localStorage.getItem(KEY);
+				return raw ? (JSON.parse(raw) || {}) : {};
+			} catch (e) {
+				canStore = false;
+				return {};
+			}
+		}
+
+		function save(state) {
+			try {
+				window.localStorage.setItem(KEY, JSON.stringify(state));
+			} catch (e) {
+				canStore = false;
+				if (noteEl) {
+					noteEl.textContent = 'Ticks cannot be saved in this browser.';
+				}
+			}
+		}
+
+		function idFor(box) {
+			var card = box.closest('.scenario');
+			return card ? card.getAttribute('data-id') : box.id;
+		}
+
+		function render() {
+			var done = 0;
+
+			boxes.forEach(function (box) {
+				var card = box.closest('.scenario');
+				if (box.checked) {
+					done++;
+					if (card) { card.classList.add('is-done'); }
+				} else if (card) {
+					card.classList.remove('is-done');
+				}
+			});
+
+			var total = boxes.length;
+			var pct = total ? Math.round((done / total) * 100) : 0;
+
+			if (countEl) { countEl.textContent = done + ' / ' + total + ' done'; }
+			if (fillEl) { fillEl.style.width = pct + '%'; }
+		}
+
+		var state = load();
+
+		boxes.forEach(function (box) {
+			var id = idFor(box);
+			if (id && state[id]) { box.checked = true; }
+
+			box.addEventListener('change', function () {
+				var current = load();
+				var key = idFor(box);
+				if (key) {
+					if (box.checked) { current[key] = 1; }
+					else { delete current[key]; }
+					save(current);
+				}
+				render();
+			});
+		});
+
+		if (resetEl) {
+			resetEl.addEventListener('click', function () {
+				boxes.forEach(function (box) { box.checked = false; });
+				try {
+					window.localStorage.removeItem(KEY);
+				} catch (e) { /* nothing to clear */ }
+				render();
+			});
+		}
+
+		if (!canStore && noteEl) {
+			noteEl.textContent = 'Ticks cannot be saved in this browser.';
+		}
+
+		render();
+	})();
+</script>

@@ -53,6 +53,8 @@
         <properties>
             <property name="custom_capabilities" type="array">
                 <element value="manage_tubebay"/>
+                <!-- Registered by WooCommerce, which this plugin requires. -->
+                <element value="manage_woocommerce"/>
             </property>
         </properties>
     </rule>

@@ -1,0 +1,265 @@
+<?php
+/**
+ * Registers the TubeBay Gutenberg blocks.
+ *
+ * @package TubeBay
+ * @since 1.3.0
+ */
+
+namespace TubeBay\Blocks;
+
+use TubeBay\Helper\Settings;
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Class BlockManager
+ *
+ * Registers `tubebay/video` and `tubebay/video-button`. Both are static blocks:
+ * their markup is produced by JavaScript at save time and frozen into post
+ * content, so there is deliberately no render_callback here.
+ *
+ * @since 1.3.0
+ */
+class BlockManager {
+
+	/**
+	 * Singleton instance.
+	 *
+	 * @since 1.3.0
+	 * @var BlockManager|null
+	 */
+	private static $instance = null;
+
+	/**
+	 * Blocks to register, relative to the build directory.
+	 *
+	 * @since 1.3.0
+	 * @var string[]
+	 */
+	private $blocks = array( 'video', 'video-button' );
+
+	/**
+	 * Get the singleton instance.
+	 *
+	 * @since 1.3.0
+	 * @return BlockManager
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Register hooks with the shared loader.
+	 *
+	 * Runs in both admin and frontend contexts: config/core.php is loaded by
+	 * Plugin::define_admin_hooks(), which despite its name is not admin-gated.
+	 *
+	 * @since 1.3.0
+	 * @param \TubeBay\Core\Plugin $plugin The plugin instance.
+	 * @return void
+	 */
+	public function run( $plugin ) {
+		$plugin->get_loader()->add_action( 'init', $this, 'register_blocks' );
+		$plugin->get_loader()->add_action(
+			'enqueue_block_editor_assets',
+			$this,
+			'enqueue_format_assets'
+		);
+		$plugin->get_loader()->add_filter( 'render_block', $this, 'enqueue_for_inline_links', 10, 2 );
+	}
+
+	/**
+	 * Load the inline video-link format in the block editor.
+	 *
+	 * Formats are not blocks: they have no block.json, so nothing registers
+	 * this for us the way register_block_type() does for the two blocks.
+	 *
+	 * @since 1.3.0
+	 * @return void
+	 */
+	public function enqueue_format_assets() {
+		$asset_file = TUBEBAY_PATH . 'build/formats/video-link/index.asset.php';
+
+		if ( ! file_exists( $asset_file ) ) {
+			tubebay_log(
+				'BlockManager: missing build output for the video-link format — run npm run build',
+				'error'
+			);
+			return;
+		}
+
+		$asset = require $asset_file;
+
+		wp_enqueue_script(
+			'tubebay-video-link-format',
+			TUBEBAY_URL . 'build/formats/video-link/index.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+
+		wp_set_script_translations(
+			'tubebay-video-link-format',
+			'tubebay',
+			TUBEBAY_PATH . 'languages'
+		);
+
+		wp_enqueue_style( 'tubebay-blocks' );
+		wp_enqueue_style( 'tubebay-blocks-editor' );
+	}
+
+	/**
+	 * Load the view assets for content that carries an inline video link.
+	 *
+	 * The two blocks declare viewScript/viewStyle, so WordPress enqueues those
+	 * only when a block is actually on the page — which is what keeps TubeBay
+	 * off pages that do not use it. An inline format is not a block, so nothing
+	 * triggers that, and a paragraph containing a video link would render with
+	 * no popup script at all: the link would silently fall back to navigating
+	 * to YouTube.
+	 *
+	 * Sniffing the rendered HTML keeps the conditional-loading guarantee: a
+	 * page with neither a block nor a link still enqueues nothing.
+	 *
+	 * @since 1.3.0
+	 * @param string $block_content The rendered block HTML.
+	 * @param array  $block         The parsed block.
+	 * @return string The unmodified block content.
+	 */
+	public function enqueue_for_inline_links( $block_content, $block ) {
+		if ( is_admin() || ! is_string( $block_content ) || '' === $block_content ) {
+			return $block_content;
+		}
+
+		// Already handled by the blocks' own viewScript declaration.
+		if ( isset( $block['blockName'] ) && 0 === strpos( (string) $block['blockName'], 'tubebay/' ) ) {
+			return $block_content;
+		}
+
+		if ( false === strpos( $block_content, 'data-tubebay-video' ) ) {
+			return $block_content;
+		}
+
+		if ( ! wp_script_is( 'tubebay-blocks-view', 'enqueued' ) ) {
+			wp_enqueue_script( 'tubebay-blocks-view' );
+		}
+
+		if ( ! wp_style_is( 'tubebay-blocks', 'enqueued' ) ) {
+			wp_enqueue_style( 'tubebay-blocks' );
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Register the shared asset handles and both block types.
+	 *
+	 * @since 1.3.0
+	 * @return void
+	 */
+	public function register_blocks() {
+		$this->register_assets();
+
+		foreach ( $this->blocks as $block ) {
+			$path = TUBEBAY_PATH . 'build/blocks/' . $block;
+
+			// Fail loudly rather than silently shipping a plugin with no blocks.
+			if ( ! file_exists( $path . '/block.json' ) ) {
+				tubebay_log(
+					'BlockManager: missing build output for block "' . $block . '" — run npm run build',
+					'error'
+				);
+				continue;
+			}
+
+			$type = register_block_type( $path );
+
+			if ( ! $type ) {
+				tubebay_log( 'BlockManager: failed to register block "' . $block . '"', 'error' );
+				continue;
+			}
+
+			// Handles are generated by WordPress from block.json; read them back
+			// rather than hardcoding names that could drift.
+			foreach ( $type->editor_script_handles as $handle ) {
+				wp_set_script_translations( $handle, 'tubebay', TUBEBAY_PATH . 'languages' );
+			}
+		}
+	}
+
+	/**
+	 * Register the script and style handles the blocks reference by name.
+	 *
+	 * Must run before register_block_type(), so the handle strings in each
+	 * block.json resolve to something already registered.
+	 *
+	 * @since 1.3.0
+	 * @return void
+	 */
+	private function register_assets() {
+		wp_register_style(
+			'tubebay-blocks',
+			TUBEBAY_URL . 'assets/css/blocks/tubebay-blocks.css',
+			array(),
+			TUBEBAY_VERSION
+		);
+
+		wp_register_style(
+			'tubebay-blocks-editor',
+			TUBEBAY_URL . 'assets/css/blocks/tubebay-blocks-editor.css',
+			array(),
+			TUBEBAY_VERSION
+		);
+
+		wp_register_script(
+			'tubebay-blocks-view',
+			TUBEBAY_URL . 'assets/js/blocks/tubebay-blocks-view.js',
+			array(),
+			TUBEBAY_VERSION,
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
+		);
+
+		/*
+		 * The blocks save only a video ID, never an embed URL. The view script
+		 * builds the URL at click time from this value, which is why toggling
+		 * privacy mode takes effect on already-published posts without anyone
+		 * re-saving them.
+		 *
+		 * Because 'tubebay-blocks-view' is only enqueued when a block with that
+		 * viewScript is on the page, neither this data nor the script file
+		 * appears on pages without a TubeBay block.
+		 */
+		$config = array(
+			'privacyMode' => (bool) Settings::get( 'privacy_mode', false ),
+			'i18n'        => array(
+				'close'           => __( 'Close video', 'tubebay' ),
+				'dialog'          => __( 'Video player', 'tubebay' ),
+				'playVideo'       => __( 'Play video', 'tubebay' ),
+				/* translators: %s: video title. */
+				'playVideoTitled' => __( 'Play video: %s', 'tubebay' ),
+			),
+		);
+
+		/*
+		 * wp_add_inline_script rather than wp_localize_script: the latter casts
+		 * every scalar to a string, so `false` would arrive in JavaScript as ""
+		 * and `true` as "1". privacyMode needs to stay a real boolean.
+		 */
+		wp_add_inline_script(
+			'tubebay-blocks-view',
+			'window.tubebayBlocks = ' . wp_json_encode( $config ) . ';',
+			'before'
+		);
+	}
+}

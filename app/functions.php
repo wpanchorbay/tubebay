@@ -35,9 +35,25 @@ if ( ! function_exists( 'tubebay_log' ) ) {
 			wp_mkdir_p( $log_dir );
 			// Re-create the access guards if the directory was removed post-activation.
 			tubebay_write_log_dir_guards( $log_dir );
+		} elseif ( ! get_option( 'tubebay_logs_secured' ) ) {
+			/*
+			 * An install that already has a log directory never reaches the
+			 * branch above, so its existing guessable-named files would keep
+			 * their old names forever. Do the one-off rename here instead.
+			 * The option makes this a single glob per site, not per write.
+			 */
+			tubebay_secure_legacy_log_files( $log_dir );
+			tubebay_write_log_dir_guards( $log_dir );
+			update_option( 'tubebay_logs_secured', 1, false );
 		}
 
-		$log_file = $log_dir . 'plugin-log-' . gmdate( 'Y-m-d' ) . '.log';
+		$log_file = $log_dir . 'plugin-log-' . gmdate( 'Y-m-d' ) . '-' . tubebay_log_file_secret() . TUBEBAY_LOG_EXTENSION;
+
+		// A fresh file starts with the guard, never with a log line.
+		if ( ! file_exists( $log_file ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $log_file, TUBEBAY_LOG_GUARD, LOCK_EX );
+		}
 
 		$formatted_message = '';
 		if ( is_array( $message ) || is_object( $message ) ) {
@@ -58,6 +74,176 @@ if ( ! function_exists( 'tubebay_log' ) ) {
 		);
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
+	}
+}
+
+/*
+ * Log files are written as .log.php, opening with `<?php exit;`.
+ *
+ * The unguessable filename below keeps the URL from being derived, but a name
+ * that leaks any other way (a backup listing, a stray screenshot) would still
+ * hand over the whole file. PHP is what makes the file unreadable rather than
+ * merely unfindable: requested directly it executes, exits, and returns an
+ * empty body — on nginx, Apache, IIS or anything else, with no dependence on
+ * .htaccess, which nginx ignores outright.
+ *
+ * Nothing reads these files back through PHP — LogController exposes DELETE
+ * only, and the guard is one line to skip when reading by hand.
+ */
+tubebay_define_log_constants();
+
+/**
+ * Define the log file constants once.
+ *
+ * @since  1.3.0
+ * @return void
+ */
+function tubebay_define_log_constants() {
+	if ( ! defined( 'TUBEBAY_LOG_EXTENSION' ) ) {
+		define( 'TUBEBAY_LOG_EXTENSION', '.log.php' );
+	}
+
+	if ( ! defined( 'TUBEBAY_LOG_GUARD' ) ) {
+		define( 'TUBEBAY_LOG_GUARD', "<?php exit; // phpcs:ignore ?>\n" );
+	}
+}
+
+if ( ! function_exists( 'tubebay_protected_option_names' ) ) {
+	/**
+	 * Option names a full data wipe must leave alone.
+	 *
+	 * Every TubeBay option shares the `tubebay_` prefix, add-ons included, so
+	 * a blanket `LIKE 'tubebay_%'` delete also takes `tubebay_license_key` and
+	 * `tubebay_license_status` with it. Both wipe paths did exactly that: the
+	 * free plugin's "Delete All Data" button and its uninstall routine each
+	 * silently deactivated a PAID licence belonging to an add-on that was
+	 * still installed and running, with nothing in the confirmation dialog
+	 * saying so.
+	 *
+	 * An add-on cleans up after itself in its own uninstall, so free steps
+	 * around anything an active add-on claims here.
+	 *
+	 * uninstall.php carries its own copy of this: WordPress loads that file
+	 * standalone, without bootstrapping the plugin, so it cannot call this one.
+	 * Keep the two in step.
+	 *
+	 * @since  1.3.0
+	 * @return string[] Fully-prefixed option names to preserve.
+	 */
+	function tubebay_protected_option_names() {
+		$protected = array();
+
+		// Defined only while the pro add-on is active — i.e. exactly when
+		// there is still a licence worth protecting.
+		if ( defined( 'TUBEBAY_PRO_VERSION' ) ) {
+			$protected = array(
+				'tubebay_license_key',
+				'tubebay_license_status',
+			);
+		}
+
+		/**
+		 * Filter the options a TubeBay data wipe must not delete.
+		 *
+		 * @since 1.3.0
+		 * @param string[] $protected Fully-prefixed option names.
+		 */
+		$protected = apply_filters( 'tubebay_uninstall_protected_options', $protected );
+
+		return array_values( array_unique( array_filter( array_map( 'strval', (array) $protected ) ) ) );
+	}
+}
+
+if ( ! function_exists( 'tubebay_log_file_secret' ) ) {
+	/**
+	 * Per-site random suffix for log filenames.
+	 *
+	 * The log directory lives under wp-content/uploads, which is served
+	 * directly by the web server. The .htaccess guard beside it is honoured by
+	 * Apache and ignored completely by nginx, so on an nginx host the log was
+	 * fetchable by anyone who guessed the name — and the name was
+	 * `plugin-log-<today>.log`, which is not a guess so much as a calculation.
+	 * Verified against a live install: HTTP 200, full contents, no auth.
+	 *
+	 * tubebay_redact_secrets() keeps tokens out of the file, so this is
+	 * site-internals disclosure rather than a credential leak, but neither
+	 * belongs on the open web. An unguessable suffix is the same defence
+	 * WooCommerce applies to its own logs, and unlike a rewrite rule it does
+	 * not depend on which web server is in front of WordPress.
+	 *
+	 * @since  1.3.0
+	 * @return string 32 alphanumeric characters.
+	 */
+	function tubebay_log_file_secret() {
+		$secret = get_option( 'tubebay_log_secret' );
+
+		if ( ! is_string( $secret ) || 32 !== strlen( $secret ) ) {
+			/*
+			 * wp_generate_password() is pluggable, and pluggable.php loads
+			 * after the plugin files themselves are included. Error-level
+			 * logging is exactly the path that can run early and unexpectedly,
+			 * and a fatal inside the logger would bury whatever it was trying
+			 * to record — so fall back rather than assume.
+			 */
+			// bin2hex( random_bytes( 16 ) ) is exactly 32 hex characters.
+			$secret = function_exists( 'wp_generate_password' )
+				? wp_generate_password( 32, false, false )
+				: bin2hex( random_bytes( 16 ) );
+
+			update_option( 'tubebay_log_secret', $secret, false );
+		}
+
+		return $secret;
+	}
+}
+
+if ( ! function_exists( 'tubebay_secure_legacy_log_files' ) ) {
+	/**
+	 * Rename log files written before the suffix existed.
+	 *
+	 * Without this, adding the suffix protects only new logs: every file
+	 * already on disk keeps its guessable name and stays readable over HTTP.
+	 *
+	 * @since  1.3.0
+	 * @param  string $log_dir Absolute path to the log directory, trailing slash.
+	 * @return void
+	 */
+	function tubebay_secure_legacy_log_files( $log_dir ) {
+		// Every plain .log file, whether or not it already carries a secret.
+		$legacy = glob( $log_dir . 'plugin-log-*.log' );
+
+		if ( empty( $legacy ) ) {
+			return;
+		}
+
+		$secret = tubebay_log_file_secret();
+
+		foreach ( $legacy as $file ) {
+			$base = basename( $file, '.log' );
+
+			// Add the secret only if this file predates it. A name already
+			// ending in `-<32 chars>` has one.
+			if ( ! preg_match( '/-[A-Za-z0-9]{32}$/', $base ) ) {
+				$base .= '-' . $secret;
+			}
+
+			$target = $log_dir . $base . TUBEBAY_LOG_EXTENSION;
+
+			// A log we cannot read is one we also could not have written, so
+			// there is nothing useful to do about the failure here.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+			if ( file_exists( $target ) || ! is_writable( $file ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$contents = file_get_contents( $file );
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( false !== file_put_contents( $target, TUBEBAY_LOG_GUARD . $contents, LOCK_EX ) ) {
+				wp_delete_file( $file );
+			}
+		}
 	}
 }
 
@@ -85,6 +271,18 @@ if ( ! function_exists( 'tubebay_write_log_dir_guards' ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			file_put_contents( $index_file, "<?php\n// Silence is golden.\n" );
 		}
+
+		// IIS honours neither .htaccess nor nginx config.
+		$web_config = $log_dir . 'web.config';
+		if ( ! file_exists( $web_config ) ) {
+			$web_config_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n\t<system.webServer>\n\t\t<authorization>\n\t\t\t<deny users=\"*\" />\n\t\t</authorization>\n\t</system.webServer>\n</configuration>\n";
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( $web_config, $web_config_content );
+		}
+
+		tubebay_secure_legacy_log_files( $log_dir );
+
+		update_option( 'tubebay_logs_secured', 1, false );
 	}
 }
 

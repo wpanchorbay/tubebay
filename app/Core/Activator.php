@@ -36,11 +36,33 @@ class Activator {
 	public static function activate() {
 		tubebay_log( 'Running Activator sequence', 'info' );
 
+		/*
+		 * Whether this is a first-ever activation — captured BEFORE the loop
+		 * below writes any defaults, because afterwards the two cases are
+		 * indistinguishable. connection_status has been seeded on every
+		 * install since 1.0.0, so its absence means no TubeBay data exists.
+		 */
+		$is_fresh_install = false === get_option( Settings::PREFIX . 'connection_status' );
+
 		tubebay_log( 'Activator: Setting default plugin options', 'debug' );
 		foreach ( Settings::get_defaults() as $key => $value ) {
 			if ( get_option( Settings::PREFIX . $key ) === false ) {
 				Settings::set( $key, $value );
 			}
+		}
+
+		/*
+		 * Record the data version, so Upgrader never runs a migration against
+		 * a fresh install whose defaults were just written correctly.
+		 *
+		 * Gated on $is_fresh_install, NOT on the option being absent: an
+		 * existing pre-1.3.2 site that is deactivated and reactivated also has
+		 * no version option, and stamping it current there would silently skip
+		 * the migration it actually needs.
+		 */
+		if ( $is_fresh_install ) {
+			update_option( Upgrader::VERSION_OPTION, Upgrader::TARGET_VERSION );
+			tubebay_log( 'Activator: Fresh install, seeded data version ' . Upgrader::TARGET_VERSION, 'debug' );
 		}
 
 		// Flush rewrite rules.

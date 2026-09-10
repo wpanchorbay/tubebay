@@ -19,6 +19,18 @@ jQuery(document).ready(function ($) {
     var isLoading = false;
     var isConnected = !!tubebayMetabox.isConnected;
 
+    /*
+     * The REST route serves the cached newest-first playlist to users without
+     * `manage_tubebay` (see YouTubeController::get_videos) — a live Search API
+     * call costs 100 quota units, so it is not open to every role that can
+     * edit a product. It answers with can_search:false when it does that.
+     *
+     * Without this flag the search box looked like it worked: a Shop Manager
+     * typed a query and was handed the unfiltered recent list as if those were
+     * the results. Filter locally instead, and say so.
+     */
+    var canSearchApi = true;
+
     // Data layer for videos
     var videoIdsInput = $('#tubebay_video_ids');
     var currentVideos = [];
@@ -233,9 +245,28 @@ jQuery(document).ready(function ($) {
                 }
 
                 if (response && response.success) {
-                    if (response.videos && response.videos.length > 0) {
+                    if (response.can_search === false && canSearchApi) {
+                        canSearchApi = false;
+                        sortSelect.prop('disabled', true);
+                        $('#tubebay-modal-pinned-note')
+                            .text(tubebayMetabox.i18n.pinnedToRecent)
+                            .show();
+                    }
+
+                    var videos = response.videos || [];
+
+                    // The server ignored our `search` — apply it here so the
+                    // grid matches what the user typed.
+                    if (!canSearchApi && currentSearch) {
+                        var needle = $.trim(currentSearch).toLowerCase();
+                        videos = videos.filter(function (video) {
+                            return (video.title || '').toLowerCase().indexOf(needle) !== -1;
+                        });
+                    }
+
+                    if (videos.length > 0) {
                         var html = '';
-                        response.videos.forEach(function (video) {
+                        videos.forEach(function (video) {
                             html += '<div class="tubebay-modal-video-item" data-id="' + video.id + '" data-title="' + video.title + '" data-thumbnail="' + video.thumbnail_url + '">';
                             html += '<img src="' + video.thumbnail_url + '" alt="Thumbnail" />';
                             html += '<p title="' + video.title + '">' + video.title + '</p>';

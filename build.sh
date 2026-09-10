@@ -20,6 +20,14 @@ npm run build
 echo "Running npm run makepot..."
 npm run makepot
 
+# 3b. Build the per-handle JSON translation files.
+# wp_set_script_translations() (BlockManager.php, Admin.php) loads
+# tubebay-<locale>-<md5>.json, which only make-json produces. Without this the
+# zip ships a .pot containing the block strings and no JSON for the editor to
+# read, so those strings stay untranslated at runtime.
+echo "Running npm run make-json..."
+npm run make-json
+
 
 
 # # 3. Rename license file
@@ -44,8 +52,14 @@ HEADER="/*
  *
  */"
 
-# List of files to edit
-FILES=("build/admin.js")
+# List of files to edit.
+# Block AND format bundles are included alongside the admin bundle: all of them
+# are minified generated output shipped to wp.org, so they carry the same
+# source-disclosure header. nullglob keeps the loop quiet if a given group
+# hasn't been built.
+shopt -s nullglob
+FILES=("build/admin.js" build/blocks/*/index.js build/formats/*/index.js)
+shopt -u nullglob
 
 # Loop through each file and prepend the header
 for file in "${FILES[@]}"; do

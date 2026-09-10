@@ -33,18 +33,44 @@ export default function Onboarding() {
     }
   }, [isConnected, wizardStarted, currentStep]);
 
+  /*
+   * Every key PlayerTab renders. Step 2 of the wizard IS <PlayerTab />, so a
+   * key it can edit but this list omits is one the user sets, sees accepted,
+   * and loses on Finish.
+   *
+   * That is what used to happen to five of them: only video_placement,
+   * muted_autoplay and show_controls were sent, while max_videos,
+   * video_position, autoplay_first, show_duration and privacy_mode were
+   * collected and dropped. Keep this in step with PlayerTab.tsx.
+   */
+  const WIZARD_PLAYER_KEYS = [
+    "video_placement",
+    "max_videos",
+    "video_position",
+    "autoplay_first",
+    "show_duration",
+    "privacy_mode",
+    "show_controls",
+    "muted_autoplay",
+  ] as const;
+
   const handleFinish = async () => {
     try {
-      // Save Player settings
+      const data: Record<string, unknown> = { is_onboarding_completed: true };
+
+      for (const key of WIZARD_PLAYER_KEYS) {
+        // Omit rather than send undefined: the REST controller keys off
+        // isset(), so an undefined would be dropped anyway, and sending one
+        // for an untouched field would overwrite a stored value with null.
+        if (settings[key] !== undefined) {
+          data[key] = settings[key];
+        }
+      }
+
       await apiFetch({
         path: "/tubebay/v1/settings",
         method: "POST",
-        data: {
-          video_placement: settings.video_placement,
-          muted_autoplay: settings.muted_autoplay,
-          show_controls: settings.show_controls,
-          is_onboarding_completed: true
-        },
+        data,
       });
       updateStore("plugin_settings", { ...settings, is_onboarding_completed: true });
     } catch (e) {

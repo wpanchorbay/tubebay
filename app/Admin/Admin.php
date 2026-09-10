@@ -101,7 +101,7 @@ class Admin {
 			'tubebay-videos',
 			array( $this, 'add_setting_root_div' )
 		);
-		
+
 		// Add TubeBay menu under WooCommerce or main menu (using Products -> TubeBay Manager as requested, we'll put it under TubeBay if it existed, otherwise Products)
 		add_submenu_page(
 			'edit.php?post_type=product',
@@ -137,14 +137,14 @@ class Admin {
 	 * @return bool
 	 */
 	public function is_menu_page() {
-		$screen              = get_current_screen();
-		
+		$screen = get_current_screen();
+
 		if ( ! $screen ) {
 			return false;
 		}
-		
+
 		$base = $screen->base;
-		
+
 		if ( 'product_page_tubebay-videos' === $base || 'product_page_tubebay-manager' === $base ) {
 			return true;
 		}
@@ -224,7 +224,7 @@ class Admin {
 			return;
 		}
 
-		$screen = get_current_screen();
+		$screen  = get_current_screen();
 		$context = ( isset( $screen->base ) && 'woocommerce_page_wc-settings' === $screen->base ) ? 'settings' : 'admin';
 		$handle  = TUBEBAY_PLUGIN_NAME . '-' . $context;
 
@@ -320,7 +320,7 @@ class Admin {
 		$actions[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=' . TUBEBAY_PLUGIN_NAME ) ) . '">' . esc_html__( 'Settings', 'tubebay' ) . '</a>';
 		return $actions;
 	}
-	
+
 	/**
 	 * Add to WooCommerce settings pages.
 	 *
@@ -430,7 +430,8 @@ class Admin {
 			try {
 				\Automattic\WooCommerce\Admin\Notes\Notes::delete_notes_with_name( $note_name );
 			} catch ( \Exception $e ) {
-				// Ignore errors
+				// WooCommerce Admin Notes may be unavailable; nothing to clean up.
+				tubebay_log( 'Could not delete the onboarding note: ' . $e->getMessage(), 'debug' );
 			}
 			return;
 		}
@@ -449,7 +450,7 @@ class Admin {
 			$note->set_name( $note_name );
 			$note->set_source( 'tubebay' );
 
-			$setup_url   = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
+			$setup_url = admin_url( 'edit.php?post_type=product&page=tubebay-videos#/onboarding' );
 
 			// Start Setup (Primary action)
 			$note->add_action(
@@ -462,7 +463,8 @@ class Admin {
 
 			$note->save();
 		} catch ( \Exception $e ) {
-			// Ignore database errors
+			// The note is a convenience only — a failure here must not break the admin.
+			tubebay_log( 'Could not create the onboarding note: ' . $e->getMessage(), 'debug' );
 		}
 	}
 

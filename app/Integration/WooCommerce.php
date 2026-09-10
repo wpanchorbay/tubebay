@@ -134,6 +134,13 @@ class WooCommerce {
 		$placement = get_post_meta( $post->ID, '_tubebay_video_position', true );
 		$placement = ( $placement !== '' ) ? $placement : Settings::get( 'video_position', 'first' );
 
+		// 'mixed' was offered until 1.3.0 and never implemented — it always
+		// fell through to the same branch as 'last'. Say so explicitly rather
+		// than leave it to a fall-through nobody can read as intentional.
+		if ( 'mixed' === $placement ) {
+			$placement = 'last';
+		}
+
 		$autoplay_first = get_post_meta( $post->ID, '_tubebay_autoplay_first', true );
 		$autoplay_first = ( $autoplay_first !== '' ) ? ($autoplay_first === 'yes') : Settings::get( 'autoplay_first', false );
 
@@ -151,8 +158,11 @@ class WooCommerce {
 		static $has_output_gallery_data = false;
 		if ( ! $has_output_gallery_data ) {
 			$gallery_config = array(
-				'privacy_mode' => $privacy_mode,
-				'placement' => $placement
+				'privacy_mode'  => (bool) $privacy_mode,
+				'placement'     => $placement,
+				// Read by assets/js/public.js when it builds the embed URL.
+				// Without it the gallery ignored Settings > Player entirely.
+				'show_controls' => (bool) Settings::get( 'show_controls', true ),
 			);
 			echo '<div id="tubebay-gallery-data" style="display:none;" data-config="' . esc_attr( wp_json_encode( $gallery_config ) ) . '"></div>';
 			$has_output_gallery_data = true;
@@ -251,7 +261,7 @@ class WooCommerce {
 			 * @since 1.1.0
 			 * @param string $output    The combined HTML.
 			 * @param array  $videos    The video array.
-			 * @param string $placement  The placement setting ('first'|'last'|'mixed').
+			 * @param string $placement  The placement setting ('first'|'last').
 			 */
 			return apply_filters( 'tubebay_gallery_html', $output, $videos, $placement );
 		}
