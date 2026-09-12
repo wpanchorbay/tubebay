@@ -12,7 +12,7 @@
  * @package           TubeBay
  *
  * @wordpress-plugin
- * Plugin Name:       TubeBay - YouTube Product Videos for WooCommerce
+ * Plugin Name:       TubeBay - YouTube Product Video Gallery & Embeds for WooCommerce
  * Plugin URI:        https://wpanchorbay.com/products/tubebay
  * Source URI:        https://github.com/wpanchorbay/tubebay
  * Description:       Connect your YouTube channel to WooCommerce and show fast, click-to-play product videos on product pages.

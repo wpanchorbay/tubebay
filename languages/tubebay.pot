@@ -2,21 +2,21 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: TubeBay - YouTube Product Videos for WooCommerce 1.3.2\n"
+"Project-Id-Version: TubeBay - YouTube Product Video Gallery & Embeds for WooCommerce 1.3.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tubebay\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-10T08:06:14+00:00\n"
+"POT-Creation-Date: 2026-09-12T14:03:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: tubebay\n"
 
 #. Plugin Name of the plugin
 #: tubebay.php
-msgid "TubeBay - YouTube Product Videos for WooCommerce"
+msgid "TubeBay - YouTube Product Video Gallery & Embeds for WooCommerce"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -90,7 +90,7 @@ msgstr ""
 
 #: app/Admin/ProductMetabox.php:90
 #: app/Frontend/VideoShortcode.php:176
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "TubeBay Video"
 msgstr ""
 
@@ -370,312 +370,312 @@ msgstr ""
 msgid "Your browser does not support the video tag."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Popup width"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Leave empty for the default size. 100vw fills the screen edge to edge."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "16:9 — Widescreen"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "4:3 — Standard"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "1:1 — Square"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "9:16 — Shorts"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Video shape"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Start at"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "For example 1:30. Leave empty to start at the beginning."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Newest first"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Oldest first"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Title A–Z"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Title Z–A"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Most viewed"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Could not load videos from your channel."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Choose a video"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Filter loaded videos"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Sort by"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Showing the most recent videos. Sorting the full channel needs a TubeBay administrator."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Search your whole channel instead"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Clear search and show recent videos"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "You do not have permission to browse the channel library. You can still paste a YouTube URL instead."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "No videos matched your search."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "No videos found. Connect your YouTube channel in TubeBay settings, or paste a YouTube URL instead."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "No loaded videos match that filter."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Loading…"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Load more"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "That does not look like a YouTube video URL or ID."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Selected:"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Replace video"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Choose from channel"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Or paste a YouTube URL or ID"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Use this video"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/blocks/video/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/blocks/video/index.js:12
 msgid "Video"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
+#: build/blocks/video-button/index.js:12
 msgid "Popup"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Show play icon"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
+#: build/blocks/video-button/index.js:12
 msgid "Link fallback"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Open in new tab"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Applies to the fallback link, used when the popup cannot open."
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
-#: build/formats/video-link/index.js:1
+#: build/blocks/video-button/index.js:12
+#: build/formats/video-link/index.js:12
 msgid "Add nofollow"
 msgstr ""
 
-#: build/blocks/video-button/index.js:1
+#: build/blocks/video-button/index.js:12
 msgid "Width"
 msgstr ""
 
 #. translators: %d: width percentage.
-#: build/blocks/video-button/index.js:2
+#: build/blocks/video-button/index.js:13
 #, js-format
 msgid "%d%% width"
 msgstr ""
 
-#: build/blocks/video-button/index.js:2
+#: build/blocks/video-button/index.js:13
 msgid "Watch the video"
 msgstr ""
 
-#: build/blocks/video-button/index.js:2
+#: build/blocks/video-button/index.js:13
 msgid "TubeBay Video Button"
 msgstr ""
 
-#: build/blocks/video-button/index.js:2
+#: build/blocks/video-button/index.js:13
 msgid "Choose a video from your connected YouTube channel, or paste any YouTube URL. The button will open it in a popup."
 msgstr ""
 
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "Display"
 msgstr ""
 
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "Open in a popup instead"
 msgstr ""
 
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "Clicking opens the video in a lightbox."
 msgstr ""
 
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "Clicking plays the video in place."
 msgstr ""
 
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "Add a caption…"
 msgstr ""
 
-#: build/blocks/video/index.js:1
+#: build/blocks/video/index.js:12
 msgid "Choose a video from your connected YouTube channel, or paste any YouTube URL."
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "Video link"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "Appearance"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "Link"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "Button"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "▾ Advanced"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "▸ Advanced"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "Remove"
 msgstr ""
 
-#: build/formats/video-link/index.js:1
+#: build/formats/video-link/index.js:12
 msgid "Apply"
 msgstr ""
 
