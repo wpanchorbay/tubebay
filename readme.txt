@@ -5,7 +5,7 @@ Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-WC requires at least: 9.0
+WC requires at least: 6.1
 WC tested up to: 11.0
 Stable tag: 1.3.2
 License: GPLv2 or later
@@ -39,6 +39,10 @@ A product can carry more than one video, and TubeBay displays them as a product 
 
 The setup wizard connects the channel in one of two ways: a guided Google OAuth sign-in, or a manual setup with a YouTube channel ID and a Google Cloud API key. Either way the connection status panel shows whether the channel is connected and when it last synced. A debug logging toggle writes API and sync events to a local file, with API keys and OAuth tokens redacted, for troubleshooting.
 
+= Video blocks for the block editor =
+
+TubeBay adds two blocks and one inline link to the block editor, so a YouTube video can also sit in a post, a page or a template rather than only on a product page. The TubeBay Video block shows a click-to-play thumbnail that plays where it sits or opens in a popup. The TubeBay Video Button block shows a button, styled by your theme, that opens the video in a popup. Video link turns selected words in any paragraph, heading or list into a link that opens the same popup. All three choose from the synced channel library, and all three use the click-to-play facade, so the YouTube player still loads only when a reader asks for it.
+
 = Shortcode =
 
 A TubeBay shortcode embeds a synced video anywhere shortcode output is supported, so a product video can also appear in a page built with a page builder or in a post.
@@ -54,6 +58,8 @@ A TubeBay shortcode embeds a synced video anywhere shortcode output is supported
 * Click-to-play video facade; the YouTube player loads only on click
 * Muted autoplay and player control settings
 * Object caching for product-to-video mappings
+* TubeBay Video and TubeBay Video Button blocks for the block editor
+* Inline video links in any paragraph, heading or list
 * Shortcode for embedding a synced video
 * Connection status panel and debug logging with secrets redacted
 * Uninstall cleanup and full data removal controls
@@ -104,13 +110,17 @@ Yes. Placement, muted autoplay and player controls are set store-wide in TubeBay
 
 Yes. The TubeBay shortcode places a synced video wherever shortcode output is supported, including page builder layouts.
 
+= Can I add a YouTube video to a post or a page, not just a product? =
+
+Yes. TubeBay adds a TubeBay Video block and a TubeBay Video Button block to the block editor, and a Video link option that turns selected text into a link opening the video in a popup. All of them choose from the same synced channel library.
+
 = Does TubeBay require WooCommerce? =
 
 Yes. TubeBay is a WooCommerce extension and does nothing without it.
 
 = What are the system requirements? =
 
-WordPress 6.8 or newer, WooCommerce 9.0 or newer, PHP 7.4 or newer, and a YouTube channel to connect.
+WordPress 6.8 or newer, WooCommerce 6.1 or newer, PHP 7.4 or newer, and a YouTube channel to connect.
 
 = Is TubeBay free? =
 

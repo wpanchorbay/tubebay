@@ -27,6 +27,7 @@
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
  * WC requires at least: 6.1
+ * WC tested up to: 11.0
  */
 
 // If this file is called directly, abort.
@@ -67,6 +68,33 @@ if ( ! function_exists( 'tubebay_run' ) ) {
 	}
 }
 tubebay_run();
+
+/**
+ * Tell WooCommerce which of its opt-in features this plugin is safe with.
+ *
+ * Without this, WooCommerce lists TubeBay under "incompatible plugins" on the
+ * Advanced > Features screen from WC 8.2 onwards -- not because anything is
+ * broken, but because silence is read as "not checked". TubeBay never reads or
+ * writes an order (no wc_get_order, no WC_Order, no shop_order query) and never
+ * touches cart or checkout, so both declarations below are statements of fact
+ * rather than promises.
+ *
+ * This cannot go through the Loader like the plugin's own hooks: the callback
+ * has to be attached before WooCommerce boots, and FeaturesUtil only exists
+ * once WooCommerce itself is loaded, hence the class_exists guard.
+ *
+ * @since 1.3.2
+ * @return void
+ */
+function tubebay_declare_wc_feature_compatibility() {
+	if ( ! class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+		return;
+	}
+
+	\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+	\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+}
+add_action( 'before_woocommerce_init', 'tubebay_declare_wc_feature_compatibility' );
 
 /**
  * Plugin activation hook.
