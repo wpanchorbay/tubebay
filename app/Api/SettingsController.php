@@ -584,7 +584,16 @@ class SettingsController extends ApiController {
 		delete_option( 'tubebay' );
 		tubebay_log( 'Delete All Data: Deleted all plugin options', 'debug' );
 
-		// 2. Delete all product meta (free + premium keys).
+		/*
+		 * 2. Delete the product meta THIS plugin owns.
+		 *
+		 * Not pro's. Pro writes _tubebay_video_position, _tubebay_autoplay_first,
+		 * _tubebay_max_videos and _tubebay_show_duration from its own metabox;
+		 * free only ever reads them. Pro removes them in its own uninstall.php,
+		 * the same division of labour that keeps free from deleting a paid
+		 * licence key. This comment previously claimed to cover "free + premium
+		 * keys" while listing none of them.
+		 */
 		$meta_keys = array(
 			'_tubebay_video_id',
 			'_tubebay_video_title',

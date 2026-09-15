@@ -83,43 +83,48 @@ Namespace `tubebay/v1` (`ApiController::$namespace`/`$version`). Controllers reg
 
 ## Known issues
 
-### `connection_status` is an exact-match sentinel with no allow-list on write
+### `connection_status` / `connection_method` validation — FIXED in 1.3.0
 
-Every consumer compares `connection_status` to the literal string `'connected'`:
-`src/pages/ChannelLibrary.tsx:41` (gates the whole Video Library screen),
-`src/pages/Onboarding.tsx:27`, `src/components/settings/tabs/ConnectionTab.tsx:33`,
-`src/components/settings/tabs/SyncTab.tsx:89`, and `app/Admin/ProductMetabox.php` at
-:75, :133 and :176.
+This section used to document `connection_status` as an exact-match sentinel
+persisted with `sanitize_text_field()` and no allow-list, so any string could
+land in a field every consumer compares to the literal `'connected'`.
 
-But `app/Api/SettingsController.php:352` persists whatever the client sent:
+That is fixed. `app/Api/SettingsController.php` now carries the enums as
+constants and validates against them on write:
 
 ```php
-} elseif (!$creds_changed && isset($body['connection_status'])) {
-    Settings::set('connection_status', sanitize_text_field($body['connection_status']));
-}
+const CONNECTION_STATUSES = array( 'connected', 'disconnected', 'failed', 'inactive' );
+const CONNECTION_METHODS  = array( 'api', 'oauth' );
 ```
 
-`sanitize_text_field()` is not validation — there is no allow-list, so any string
-lands in the field. The route is admin-gated (`update_item_permissions_check`), so
-this is not a privilege issue; it is a data-integrity one. A value like `'active'`
-leaves the plugin in a state where `Channel::is_configured()` is satisfied and the
-video cache is warm, yet every screen above renders its disconnected branch — the
-Library shows "Your YouTube library is currently disconnected" while holding a full
-set of videos, and the product metabox hides the picker. Nothing logs a warning.
+Both are wired into the validation table in `update_item()`, which rejects an
+unrecognised value with `tubebay_invalid_connection_status` /
+`tubebay_invalid_connection_method` instead of storing it. `video_position` and
+`video_placement` got the same treatment, and the retired `'mixed'` position is
+coerced to `'last'` on write rather than refused, so a stale React state from
+before an update cannot fail a save.
 
-Note also that the values in play are not self-consistent as a set: the default is
-`'inactive'` (`app/Helper/Settings.php:55`), disconnect writes `'disconnected'`
-(`Channel.php:628`), failure writes `'failed'`, and only `'connected'` is ever
-tested for. Three of the four are effectively "not connected" by falling through.
+Keep this note until 1.2.0 is out of circulation — a site still on 1.2.0 can
+hold an out-of-range value that these constants now reject, and `Upgrader`
+normalises those on update.
 
-Fix, if touched: validate against
-`array( 'connected', 'disconnected', 'failed', 'inactive' )` on write and reject
-anything else, rather than sanitising a free string into a field used as an enum.
+### Data ownership across free and pro
 
-Related: `connection_method` has the same shape — `src/utils/types.ts:47` declares
-`"oauth" | "api"`, `ConnectionTab.tsx` renders radios for exactly those two, but
-`Channel.php:79` only ever branches on `'oauth'`, so any other value silently
-behaves as `'api'` while leaving the Settings radio group with nothing selected.
+Neither plugin cleans up the other's data, deliberately:
+
+- Free's `uninstall.php` and `delete_all_data()` skip options an active add-on
+  claims through `tubebay_uninstall_protected_options`, so uninstalling free
+  cannot destroy a paid licence key.
+- Pro owns four per-product meta keys — `_tubebay_video_position`,
+  `_tubebay_autoplay_first`, `_tubebay_max_videos`, `_tubebay_show_duration`.
+  Pro's metabox writes them; free only ever reads them
+  (`Integration/WooCommerce.php`, `Admin/ProductMetabox.php`). They are removed
+  by pro's own `uninstall.php`, added in 1.0.2.
+- `_tubebay_video_order` is written by BOTH and is owned by free. Pro must not
+  delete it, or dropping the add-on would wipe a store's gallery ordering.
+
+If you add a per-product meta key, add it to the uninstall list of whichever
+plugin writes it, and say so here.
 
 ## Release process
 
