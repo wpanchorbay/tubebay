@@ -182,6 +182,7 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 - Fixed: a player toggle could show as on while it was stored as off, and the next save switched it back on.
 - Fixed: stores whose Video Position was the retired "Mixed" value could not save the Video Player settings at all. That value is now converted to "Last (After images)" once, automatically, on update.
 - Fixed: the setup wizard could not be finished on those stores.
+- Fixed: the shop front went blank instead of loading if WooCommerce stopped running while TubeBay was still active. TubeBay now steps aside quietly, and the product list in the admin explains what is wrong instead of failing silently.
 - Fixed: searching the video library found nothing unless you typed a whole word. Searching "woo" now finds your "WooCommerce ..." videos, matching your synced library as well as YouTube.
 - Changed: Video Position, Video Placement and Connection Method are validated when saved, so an unrecognised value is rejected instead of stored.
 - Changed: the play badge on the video blocks is drawn from the stylesheet instead of being saved into each post, so future changes to it cannot invalidate posts you have already published.

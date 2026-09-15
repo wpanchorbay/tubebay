@@ -61,7 +61,17 @@ class WooCommerce {
 	 * Enqueue frontend vanilla JS and CSS.
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_product() ) {
+		/*
+		 * This runs on wp_enqueue_scripts, i.e. on every front-end request. An
+		 * unguarded is_product() therefore takes the entire shop front down with
+		 * a fatal the moment WooCommerce stops loading -- not a theoretical
+		 * case: it is in this site's debug.log. "Requires Plugins: woocommerce"
+		 * blocks activation without WooCommerce and makes its Deactivate link
+		 * inert, but it does not survive WP-CLI, a fatal inside WooCommerce
+		 * itself, or the plugin folder being renamed. Without WooCommerce there
+		 * is no product page to style, so bailing is also the correct behaviour.
+		 */
+		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
 			return;
 		}
 

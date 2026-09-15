@@ -81,6 +81,17 @@ class ProductController extends ApiController {
 	 * @return WP_REST_Response
 	 */
 	public function get_products( $request ) {
+		// wc_get_product() and wc_placeholder_img_src() are both used below. A
+		// 500 from an undefined function tells the admin nothing; this says what
+		// is actually wrong.
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return new \WP_Error(
+				'woocommerce_missing',
+				__( 'WooCommerce is not active, so products cannot be listed.', 'tubebay' ),
+				array( 'status' => 503 )
+			);
+		}
+
 		$params   = $request->get_params();
 		$search   = isset( $params['search'] ) ? sanitize_text_field( $params['search'] ) : '';
 		$page     = isset( $params['page'] ) ? max( 1, intval( $params['page'] ) ) : 1;
