@@ -123,7 +123,7 @@ Fires right before the gallery's video-slide loop starts rendering.
 Filters the final combined gallery HTML (product images + injected video slides) before it's returned to WooCommerce.
 - **Type:** Filter · **Since:** 1.1.0
 - **File:** `app/Integration/WooCommerce.php`
-- **Parameters:** `$output` (string), `$videos` (array), `$placement` (string — `'first'|'last'|'mixed'`)
+- **Parameters:** `$output` (string), `$videos` (array), `$placement` (string — `'first'|'last'`)
 
 ### `tubebay_videos_assigned`
 Fires after one or more videos are assigned to or removed from products (via the metabox save or the bulk-assign REST endpoint).

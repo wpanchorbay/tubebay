@@ -10,7 +10,10 @@ In **WooCommerce → Settings → TubeBay → Player**, the **Video Position in 
 |-----------|-------------|
 | **First (Before images)** | Video slides appear before the product images, so a video is the first thing shoppers see. |
 | **Last (After images)** | Video slides appear after the product images. |
-| **Mixed (Based on drag/drop order)** | Videos are interleaved with images according to the order you arrange in the product's TubeBay Video meta box. |
+
+::: warning "Mixed" was removed in 1.3.0
+Earlier versions offered a third option, **Mixed (Based on drag/drop order)**. It was never actually implemented — it behaved exactly like **Last**. It was removed in 1.3.0, and any product still set to it is converted to **Last (After images)** automatically when you update. Nothing changes about how those products display.
+:::
 
 ::: tip Pro: Per-Product Overrides
 [TubeBay Pro](/guide/pro) lets you override **Video Position** — along with Max Videos, Autoplay First Video, and Show Duration Badge — for an individual product, instead of relying on the global setting for every product. [Buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).

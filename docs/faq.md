@@ -5,7 +5,9 @@ Commonly asked questions about TubeBay.
 ## Requirements & Compatibility
 
 ### Do I need WooCommerce?
-Yes. TubeBay is a WooCommerce extension and **will not function** without WooCommerce installed and active. The plugin checks for WooCommerce on activation and will display a notice if it's missing.
+Yes. TubeBay is a WooCommerce extension and **will not function** without WooCommerce installed and active. WordPress itself enforces this: TubeBay declares WooCommerce as a required plugin, so WordPress will not let you activate TubeBay until WooCommerce is active.
+
+If WooCommerce is later deactivated or breaks, TubeBay steps aside quietly rather than taking your site down with it — videos simply stop rendering until WooCommerce is back.
 
 ### Which WordPress version is required?
 TubeBay requires **WordPress 6.8 or later**. We recommend always running the latest stable version of WordPress.
@@ -27,7 +29,7 @@ No. TubeBay is built with performance in mind. It caches your video library usin
 ## Video Player
 
 ### Where can I display the video?
-Videos render as extra slides inside the product's image gallery — you control whether they sit before, after, or interleaved with your product images (see [Visual Placement](/features/placement)). For custom locations outside the gallery, use [Shortcodes](/features/shortcodes).
+Videos render as extra slides inside the product's image gallery — you control whether they sit before or after your product images (see [Visual Placement](/features/placement)). Anywhere else on your site, use the [video blocks](/features/blocks) in the block editor, or [Shortcodes](/features/shortcodes) in a page builder or template.
 
 ### Does the player work on mobile?
 Yes, the TubeBay player is fully responsive and uses the official YouTube IFrame API to ensure smooth playback across all devices.

@@ -11,7 +11,9 @@ Before installing TubeBay, make sure your environment meets the following requir
 | **PHP** | 7.4+ | 8.0+ |
 
 ::: warning WooCommerce Required
-TubeBay is a WooCommerce extension. It **will not activate** without WooCommerce installed and active.
+TubeBay is a WooCommerce extension. WordPress will not let you activate it until WooCommerce is installed and active, because TubeBay declares WooCommerce as a required plugin.
+
+Should WooCommerce be deactivated afterwards, TubeBay stops rendering videos but leaves your site running.
 :::
 
 ## Connection Requirements

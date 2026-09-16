@@ -38,6 +38,21 @@ When the plugin is uninstalled with data deletion enabled, the following is remo
 - **Synced Library Cache:** The local cache of your YouTube video metadata.
 - **Plugin Settings:** Global configuration and player settings.
 
+## Removing TubeBay Pro
+
+Each plugin cleans up only its own data, so removing one never damages the other.
+
+Since Pro 1.0.2, deleting TubeBay Pro removes its licence key and the per-product overrides it owns — Max Videos, Video Position, Autoplay First Video and Show Duration Badge. It respects the same **Clean Uninstall** setting: leave that off and Pro's data stays put, ready for when you reinstall.
+
+Two things are worth knowing:
+
+- **Removing Pro does not disturb the order of your video galleries.** That ordering is the free plugin's, and Pro leaves it alone.
+- **Removing the free plugin does not delete your Pro licence key.** Free deliberately steps around it while Pro is still installed, so you never have to re-enter a key you already paid for.
+
+::: tip Removing both?
+Order does not matter. Each plugin removes its own data whenever it is deleted, and whichever goes second still cleans up correctly.
+:::
+
 ## How to Uninstall
 
 1. Go to **Plugins** in your WordPress admin.

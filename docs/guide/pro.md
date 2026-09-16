@@ -6,8 +6,8 @@ TubeBay Pro is a paid add-on for the free TubeBay plugin. It doesn't replace any
 [Buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing) to unlock per-product overrides and automatic updates.
 :::
 
-::: tip Requires TubeBay 1.2.0+
-TubeBay Pro will not activate unless the free TubeBay plugin is installed, active, and at version 1.2.0 or newer.
+::: tip Requires TubeBay 1.3.0+
+TubeBay Pro will not activate unless the free TubeBay plugin is installed, active, and at version 1.3.0 or newer. If the free plugin is older, Pro stays inactive and tells you which version it needs.
 :::
 
 ## What Pro Adds
@@ -19,7 +19,7 @@ As of TubeBay 1.2.0, the global [Player settings](/features/global-settings) (Ma
 | Field | What it controls |
 |-------|-------------------|
 | **Max Videos** | Overrides the global video-gallery limit for this one product. |
-| **Video Position** | First / Last / Mixed — overrides where this product's videos sit relative to its images. |
+| **Video Position** | First / Last — overrides where this product's videos sit relative to its images. |
 | **Autoplay First Video** | Overrides whether this product's first video autoplays muted. |
 | **Show Duration Badge** | Overrides whether the duration badge shows on this product's video thumbnails. |
 

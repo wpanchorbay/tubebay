@@ -40,6 +40,6 @@ For attaching or removing videos across many products at once, use **Products �
 
 ## Video Search
 
-The **Add YouTube Video** modal searches your synced library by title, and supports sorting by Recently Added, Oldest First, Title (A-Z/Z-A), or Most Viewed.
+The **Add YouTube Video** modal searches your synced library by title — any part of a title matches — and supports sorting by Recently Added, Oldest First, Title (A-Z/Z-A), or Most Viewed. Administrators can additionally search the whole channel through YouTube; see [Searching Your Library](/features/library-management#searching-your-library).
 
 The **TubeBay Manager** product search searches WooCommerce products by title.

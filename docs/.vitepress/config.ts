@@ -36,10 +36,10 @@ export default defineConfig({
 
 		nav: [
 			{
-				text: 'v1.2.0',
+				text: 'v1.3.2',
 				items: [
 					{
-						text: 'v1.2.0 (Latest)',
+						text: 'v1.3.2 (Latest)',
 						link: '/guide/introduction',
 						activeMatch: '^/(?!v\\d)',
 					},
@@ -90,6 +90,7 @@ export default defineConfig({
 					{ text: 'Account Connection', link: '/features/connection' },
 					{ text: 'Library Management', link: '/features/library-management' },
 					{ text: 'Product Mapping', link: '/features/product-mapping' },
+					{ text: 'Video Blocks', link: '/features/blocks' },
 					{ text: 'Embedded Player', link: '/features/embedded-player' },
 					{ text: 'Visual Placement', link: '/features/placement' },
 				],

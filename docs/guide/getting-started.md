@@ -38,7 +38,11 @@ Choose between **OAuth 2.0** (recommended) or **API Key (Legacy)**. For most use
 
 ### Step 2: Configure Settings
 
-Once connected, set your default player preferences — the same fields as the [Player tab](/features/embedded-player) in Settings (Max Videos, Video Position, Autoplay First Video, Show Duration Badge, Privacy Mode, Show Controls). These apply to every product unless overridden individually (Pro).
+Once connected, set your default player preferences — the same fields as the [Player tab](/features/global-settings#player-tab) in Settings: Max Videos, Video Position, Autoplay First Video, Show Duration Badge, Privacy Mode, Show Controls, and Autoplay Shortcode Videos. These apply to every product unless overridden individually (Pro).
+
+::: tip Updating from before 1.3.0?
+Wizard settings were not all being saved in earlier versions — five of the seven were discarded. That was fixed in 1.3.0. If you ran the wizard on an older version, it is worth checking the Player tab reflects what you chose.
+:::
 
 Click **Save & Continue** to finish.
 
