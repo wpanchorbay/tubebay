@@ -20,14 +20,33 @@ Each product can have **multiple videos** attached — a mix of synced YouTube v
 
 ![Step 3: Selected Video Preview](/public/img/feature-mapping-step3.png)
 
-4. Optionally expand **Video Gallery Settings** to review the (Pro-gated) per-product overrides — see [TubeBay Pro](/guide/pro) or [buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+4. Optionally expand **Video Gallery Settings** to give this one product its own behaviour, instead of following your store defaults.
 5. Click **Update** or **Publish** in the WooCommerce "Publish" box to save your changes.
+
+### Video Gallery Settings
+
+Four fields, each of which falls back to the store default from the [Player tab](/features/global-settings#player-tab) when left on **Inherit (Global)**:
+
+| Field | What it controls for this product |
+|-------|-----------------------------------|
+| **Max Videos** | How many video slides this product shows. Choose 1–10, or **Unlimited**. |
+| **Video Position** | Whether this product's videos come First (before its images) or Last (after them). |
+| **Autoplay First Video** | Whether this product's first video starts playing, muted, when the page loads. |
+| **Show Duration Badge** | Whether the small **Video** label appears on this product's video thumbnails. |
+
+**Show Player Controls** and **Privacy/GDPR Mode** are store-wide only — they have no per-product field.
+
+![Video Gallery Settings in the product meta box](/public/img/pro-metabox-overrides-active.png)
+
+::: tip Per-product settings
+Setting these on an individual product is part of TubeBay Pro. [See the pricing](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+:::
 
 ![Step 4: Save Mapping](/public/img/feature-mapping-step4.png)
 
 ## Bulk Assignment
 
-For attaching or removing videos across many products at once, use **Products → TubeBay Manager** instead of editing products one at a time — see [Library Management](/features/library-management).
+To attach the same video or videos to many products at once, use **Products → TubeBay Manager** instead of editing products one at a time — see [Library Management](/features/library-management). Bulk assignment **adds** to whatever a product already has, and skips any video already attached, so running it twice is harmless. Removing a video is done one product at a time, from that product's **TubeBay Video** panel.
 
 ---
 

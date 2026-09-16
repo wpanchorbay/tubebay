@@ -33,7 +33,7 @@ If you omit `id` on a product page (or any post/page a video has been mapped to)
 
 ## Technical Performance
 
-- **Zero Impact on Page Speed:** TubeBay uses the same lazy-loading Video Facade as the product gallery — the actual YouTube player only loads when a visitor clicks the thumbnail.
+- **The shortcode embeds the player directly.** Unlike the product gallery and the [video blocks](/features/blocks), which show a thumbnail and load YouTube only on click, `[tubebay_video]` puts the YouTube iframe straight into the page. It therefore costs what an ordinary YouTube embed costs. If page weight matters on that page, reach for a video block instead.
 - **Theme Independent:** Shortcodes inherit your theme's container width while staying responsive.
 - **Block editor:** Use the [TubeBay Video block](/features/blocks) instead — it previews the video as you write and needs no shortcode. The Shortcode block still works if you prefer it.
 - **Page builders:** Use whichever block/module renders raw shortcodes or HTML in your builder.

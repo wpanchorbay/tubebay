@@ -46,8 +46,12 @@ Since Pro 1.0.2, deleting TubeBay Pro removes its licence key and the per-produc
 
 Two things are worth knowing:
 
-- **Removing Pro does not disturb the order of your video galleries.** That ordering is the free plugin's, and Pro leaves it alone.
-- **Removing the free plugin does not delete your Pro licence key.** Free deliberately steps around it while Pro is still installed, so you never have to re-enter a key you already paid for.
+- **Removing Pro does not disturb the order of your video galleries.** That ordering belongs to TubeBay itself, and Pro leaves it alone.
+- **Removing TubeBay does not delete your licence key** — as long as Pro is still *active*. TubeBay deliberately steps around the key so you never have to re-enter one you paid for.
+
+::: warning Deactivate Pro first and the key goes
+The protection depends on Pro being active, not merely installed. If you deactivate Pro and then run **Delete All Data** or delete TubeBay, the licence key is wiped with everything else. Leave Pro active until TubeBay is gone.
+:::
 
 ::: tip Removing both?
 Order does not matter. Each plugin removes its own data whenever it is deleted, and whichever goes second still cleans up correctly.

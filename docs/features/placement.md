@@ -15,13 +15,15 @@ In **WooCommerce → Settings → TubeBay → Player**, the **Video Position in 
 Earlier versions offered a third option, **Mixed (Based on drag/drop order)**. It was never actually implemented — it behaved exactly like **Last**. It was removed in 1.3.0, and any product still set to it is converted to **Last (After images)** automatically when you update. Nothing changes about how those products display.
 :::
 
-::: tip Pro: Per-Product Overrides
-[TubeBay Pro](/guide/pro) lets you override **Video Position** — along with Max Videos, Autoplay First Video, and Show Duration Badge — for an individual product, instead of relying on the global setting for every product. [Buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+An individual product can sit somewhere different from your store default. The **Video Gallery Settings** panel on each product offers its own **Video Position**, alongside Max Videos, Autoplay First Video and Show Duration Badge. Leave a field on **Inherit (Global)** and it follows the store setting.
+
+::: tip Per-product settings
+Setting these on an individual product is part of TubeBay Pro. [See the pricing](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
 :::
 
 ## How It Renders
 
-Each video slide shows the video's thumbnail with a play button overlay (and, if enabled, a duration badge in the corner). Clicking it swaps in the actual YouTube (or self-hosted) player — the iframe itself is never loaded until a shopper clicks, which is what keeps product pages fast (TubeBay's "Video Facade" technique).
+Each video slide shows the video's thumbnail with a play button overlay (and, if enabled, a small **Video** label in the corner marking it as a video rather than a photo). Clicking it swaps in the actual YouTube (or self-hosted) player — the iframe itself is never loaded until a shopper clicks, which is what keeps product pages fast (TubeBay's "Video Facade" technique).
 
 ## Shortcodes (Manual Placement)
 If you need to place a video somewhere other than the product gallery — a custom page, a landing page, a page-builder layout — use the [Shortcode system](/features/shortcodes) instead.

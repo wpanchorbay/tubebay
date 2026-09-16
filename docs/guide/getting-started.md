@@ -38,7 +38,7 @@ Choose between **OAuth 2.0** (recommended) or **API Key (Legacy)**. For most use
 
 ### Step 2: Configure Settings
 
-Once connected, set your default player preferences — the same fields as the [Player tab](/features/global-settings#player-tab) in Settings: Max Videos, Video Position, Autoplay First Video, Show Duration Badge, Privacy Mode, Show Controls, and Autoplay Shortcode Videos. These apply to every product unless overridden individually (Pro).
+Once connected, set your default player preferences — the same fields as the [Player tab](/features/global-settings#player-tab) in Settings: Max Videos, Video Position, Autoplay First Video, Show Duration Badge, Privacy Mode, Show Controls, and Autoplay Shortcode Videos. Each is explained on [Global Settings](/features/global-settings#player-tab). These apply to every product, unless an individual product overrides one — see [Video Gallery Settings](/features/product-mapping#video-gallery-settings). Note that **Show Player Controls**, **Privacy Mode** and **Autoplay Shortcode Videos** are store-wide only.
 
 ::: tip Updating from before 1.3.0?
 Wizard settings were not all being saved in earlier versions — five of the seven were discarded. That was fixed in 1.3.0. If you ran the wizard on an older version, it is worth checking the Player tab reflects what you chose.
@@ -85,4 +85,5 @@ Visit the product page you just mapped a video to — you should see it rendered
 - Learn more about [Connection Methods](/guide/connection).
 - Optimize your [Sync Schedule](/guide/sync-library).
 - Explore [Shortcodes](/features/shortcodes) for custom video placement.
-- See what [TubeBay Pro](/guide/pro) adds on top of this, or [buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+- Give an individual product its own [Video Gallery Settings](/features/product-mapping#video-gallery-settings).
+- Add videos to posts and pages with the [video blocks](/features/blocks).

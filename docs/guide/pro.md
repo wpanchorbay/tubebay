@@ -1,50 +1,61 @@
-# TubeBay Pro
+# License &amp; Activation
 
-TubeBay Pro is a paid add-on for the free TubeBay plugin. It doesn't replace anything — it activates a handful of fields that are already visible (but disabled) in the free plugin, and adds automatic updates.
+A license unlocks automatic updates for TubeBay Pro and entitles you to support. This page covers buying one, activating it, and what happens when it lapses.
 
-::: tip 🚀 Get TubeBay Pro
-[Buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing) to unlock per-product overrides and automatic updates.
+::: tip Get a license
+[See the pricing](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing) for TubeBay Pro.
 :::
 
 ::: tip Requires TubeBay 1.3.0+
-TubeBay Pro will not activate unless the free TubeBay plugin is installed, active, and at version 1.3.0 or newer. If the free plugin is older, Pro stays inactive and tells you which version it needs.
+TubeBay Pro will not activate unless TubeBay is installed, active, and at version 1.3.0 or newer. WordPress will refuse to activate Pro at all if TubeBay is missing; if TubeBay is present but older, Pro stays inactive and tells you which version it needs.
 :::
-
-## What Pro Adds
-
-### Per-Product Gallery Overrides
-
-As of TubeBay 1.2.0, the global [Player settings](/features/global-settings) (Max Videos, Video Position, Autoplay First Video, Show Duration Badge) can be **overridden on a per-product basis** — Pro-only:
-
-| Field | What it controls |
-|-------|-------------------|
-| **Max Videos** | Overrides the global video-gallery limit for this one product. |
-| **Video Position** | First / Last — overrides where this product's videos sit relative to its images. |
-| **Autoplay First Video** | Overrides whether this product's first video autoplays muted. |
-| **Show Duration Badge** | Overrides whether the duration badge shows on this product's video thumbnails. |
-
-Every product's **TubeBay Video** meta box (Products → edit a product) has a **Video Gallery Settings** panel with these four fields. On the free plugin they're visible but disabled, each carrying a **PRO** badge — a live preview of what activating Pro unlocks. With Pro active, they become fully editable per product and override the global default.
-
-![Video Gallery Settings, free plugin — fields disabled with PRO badges](/public/img/pro-metabox-overrides-free.png)
-
-![Video Gallery Settings, Pro active — fields enabled and editable](/public/img/pro-metabox-overrides-active.png)
-
-### Automatic Updates
-
-Once a license is activated, TubeBay Pro registers with the plugin update checker so new Pro releases show up in **Plugins → Updates** like any WordPress.org plugin.
 
 ## Activating Your License
 
 1. Install and activate the TubeBay Pro plugin (**Plugins → Add New → Upload Plugin**, then **Activate**).
-2. Go to **WooCommerce → Settings → TubeBay → Advanced**. A new **License Settings** section appears below the standard Advanced fields.
+2. Go to **WooCommerce → Settings → TubeBay → Advanced**. A **License Settings** section appears below the standard Advanced fields.
 3. Paste your license key into **License Key**.
 4. Click **Activate License**.
 
 ![License Settings with a key entered, before activating](/public/img/pro-license-activation.png)
 
-Once active, the field is locked and a **Deactivate License** button appears if you need to move the license to another site.
+Once active, the field is locked and a **Deactivate License** button appears.
 
 ![License Settings after successful activation](/public/img/pro-license-active.png)
+
+::: warning Moving a license between sites
+**Deactivate License** clears the key on *this* site only — it does not release the seat on our licensing server. If you are moving a license to a different domain, [contact support](https://wpanchorbay.com/support/) so we can free the old one, rather than deactivating and expecting the new site to activate.
+:::
+
+### If activation is rejected
+
+An invalid, mistyped or already-used key is not saved: the key field stays empty and the message from the licensing server is shown once. Because nothing was stored, reloading the page returns you to an ordinary empty form with no error on screen — so if activation appears to have silently done nothing, the key was rejected. Check it for stray spaces and confirm the seat is free.
+
+## Automatic Updates
+
+While a license is active, TubeBay Pro checks for new releases and they appear in **Plugins → Updates** like any other plugin.
+
+Three things follow from that, which are easy to trip over:
+
+- **Without an active license there is no update path at all.** TubeBay Pro is not on WordPress.org, so updating means downloading the new version and uploading it by hand.
+- **Deactivating the license also ends update checks**, immediately and silently.
+- **TubeBay itself updates independently**, from WordPress.org, and needs no license.
+
+::: warning Update both plugins together
+Some fixes reach a Pro site only when **Pro** is updated, even when the release notes credit the change to TubeBay — Pro ships its own copy of the admin interface, so the version it carries is the one you see. If something described in the changelog isn't behaving as written, check that both plugins are current before anything else.
+:::
+
+### Expiry
+
+Nothing re-checks a key after activation. An expired license keeps showing as active in **License Settings** while the update server quietly stops offering new versions — so the first sign of expiry is usually updates that never arrive. Renew from the [pricing page](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+
+## Requirements
+
+| | |
+|---|---|
+| **TubeBay** | 1.3.0 or newer, installed and active |
+| **License** | Required for automatic updates and support |
+| **Outbound HTTPS** | Your server must be able to reach `wpanchorbay.com` for activation and update checks |
 
 ## Buying a License
 

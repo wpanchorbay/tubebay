@@ -19,7 +19,7 @@ The automatic sync happens in the background. If you just uploaded a video to Yo
 If you need to fetch your latest videos immediately, trigger a manual sync from either the Library page or Settings:
 
 1. Go to **Products → TubeBay Library**.
-2. Click the **Sync Library** button.
+2. Click the **Sync Now** button.
 
 ![Sync Library Button](/public/img/library-sync-button.png)
 
@@ -31,13 +31,11 @@ You can also trigger a sync from **WooCommerce → Settings → TubeBay → Sync
 
 ## Sync Status
 
-The Library page shows the current connection and sync status.
+When your channel is connected, the Library page shows how many videos it holds and when they last refreshed — for example *"21 videos available · Last sync: 2 hours ago"*.
 
 ![Dashboard Sync Status](/public/img/dashboard-sync-status.png)
 
-- **Connected:** The last sync was successful.
-- **Failed:** There was an error during the last sync attempt (usually due to an expired token or API quota).
-- **Last Sync:** Displays the timestamp of the most recent successful update.
+If the channel is **not** connected, the Library page does not show a status panel at all: the whole page is replaced by a notice reading *"Your YouTube library is currently disconnected"* and a **Go to Setup** button. Sync problems therefore surface as a disconnected library rather than as a "failed" badge — see [Troubleshooting Sync](#troubleshooting-sync) below.
 
 ## Troubleshooting Sync
 

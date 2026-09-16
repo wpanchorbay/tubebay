@@ -51,7 +51,7 @@ export default defineConfig({
 			},
 			{ text: 'Guide', link: '/guide/introduction' },
 			{ text: 'Features', link: '/features/connection' },
-			{ text: 'Pro', link: '/guide/pro' },
+			{ text: 'License', link: '/guide/pro' },
 			{ text: 'Developer', link: '/developer/architecture' },
 			{
 				text: 'More',
@@ -104,10 +104,10 @@ export default defineConfig({
 				],
 			},
 			{
-				text: 'TubeBay Pro',
+				text: 'License',
 				collapsed: false,
 				items: [
-					{ text: 'Overview & License', link: '/guide/pro' },
+					{ text: 'License & Activation', link: '/guide/pro' },
 				],
 			},
 			{

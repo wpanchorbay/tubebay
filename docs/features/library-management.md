@@ -22,6 +22,10 @@ YouTube's own search matches whole words only. Searching `woo` finds nothing the
 
 The API half costs **100 units** of your daily YouTube quota per search (the free allowance is 10,000 units a day), so it is limited to administrators. Editors and authors still get the instant library search, which costs nothing. If YouTube is unreachable or your quota is spent, the search quietly falls back to library results rather than failing.
 
+::: warning Sorting and Load more use your API quota
+Only the default view — newest first, nothing typed, first page — is served from the synced cache. Changing the sort, or clicking **Load More Videos**, asks YouTube directly and costs 100 units of your daily 10,000 each time. Clicking through several sorts in a row adds up faster than you would expect.
+:::
+
 ## Sync Timing & Cache
 TubeBay caches synced video data for performance (default 12 hours, configurable in **WooCommerce → Settings → TubeBay → Sync**). Automatic daily sync runs when enabled. You can also run a manual sync anytime — see [Syncing Your Library](/guide/sync-library).
 
@@ -36,4 +40,4 @@ Use the sort dropdown to find the right content quickly:
 
 ## Bulk Product Assignment
 
-For assigning or removing videos across many products at once, use **Products → TubeBay Manager** — a product-centric view for managing video assignments in bulk, complementary to mapping videos one product at a time from the [product edit screen](/features/product-mapping).
+For assigning videos to many products at once, use **Products → TubeBay Manager** — a product-centric view for managing video assignments in bulk, complementary to mapping videos one product at a time from the [product edit screen](/features/product-mapping).

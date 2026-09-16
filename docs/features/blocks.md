@@ -17,7 +17,7 @@ The empty block offers two ways to choose a video:
 
 ![Choosing a video from the synced channel library](/public/img/blocks-video-picker.png)
 
-The picker opens on your most recent uploads, newest first. The **Search** box filters the videos already loaded, and **Sort by** reorders them. **Load more** fetches the next batch.
+The picker opens on your most recent uploads, newest first. The **Search** box filters the videos already loaded. Administrators also get a **Sort by** dropdown and a **Load more** button — see [Who can use the blocks](#who-can-use-the-blocks).
 
 Type something the loaded videos don't match and administrators get one extra option — **Search your whole channel instead**, which asks YouTube directly rather than looking only at what has been synced. See [Who can use the blocks](#who-can-use-the-blocks) for why that one is limited.
 
@@ -94,7 +94,7 @@ If you have enabled **Privacy (GDPR) Mode** in [Global Settings](/features/globa
 
 Editors and authors can add all three and choose from your synced library — they do not need TubeBay's own permissions to write a post with a video in it.
 
-**Search your whole channel instead** is limited to administrators. That search calls the YouTube Data API, and every call spends part of your daily quota; browsing and filtering the synced library costs nothing. See [Library Management](/features/library-management) for how the two differ.
+Two things are administrator-only, both because they call the YouTube API and each call spends part of your daily quota: **Search your whole channel instead**, and the **Sort by** dropdown. For editors and authors the sort control is disabled and **Load more** does not appear — they see the most recent videos and can filter what is loaded, which costs nothing. See [Library Management](/features/library-management#searching-your-library).
 
 ## Blocks or shortcode?
 

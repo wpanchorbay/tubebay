@@ -13,7 +13,7 @@ hero:
       text: Get Started
       link: /guide/introduction
     - theme: alt
-      text: Free Download
+      text: Download
       link: https://wordpress.org/plugins/tubebay/
     - theme: alt
       text: Buy Pro
@@ -88,7 +88,7 @@ Ready to dive deeper? Choose a section below to find exactly what you're looking
 
 <div class="tip custom-block">
   <p class="custom-block-title">TubeBay Pro</p>
-  <p><a href="/tubebay/guide/pro">Per-product overrides & license activation</a> · <a href="https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing">Buy a license</a></p>
+  <p><a href="/tubebay/guide/pro">License & activation</a> · <a href="https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing">See the pricing</a></p>
 </div>
 
 <style>

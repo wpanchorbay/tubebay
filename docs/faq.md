@@ -37,13 +37,13 @@ Yes. TubeBay adds a **TubeBay Video** block and a **TubeBay Video Button** block
 ### Does the player work on mobile?
 Yes, the TubeBay player is fully responsive and uses the official YouTube IFrame API to ensure smooth playback across all devices.
 
-## TubeBay Pro
+## Licensing
 
-### What does TubeBay Pro add?
-Per-product overrides for Max Videos, Video Position, Autoplay First Video, and Show Duration Badge — so an individual product can deviate from your global Player settings — plus automatic plugin updates. See [TubeBay Pro](/guide/pro) or [buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+### How do I activate a license?
+**WooCommerce → Settings → TubeBay → Advanced**, paste the key into **License Settings** and click **Activate License**. A license enables automatic updates for TubeBay Pro and entitles you to support — see [License & Activation](/guide/pro).
 
-### Can I attach more than one video to a product without Pro?
-Yes. Attaching multiple videos (YouTube and self-hosted) to a product is a free-plugin feature. Pro only adds the ability to override the gallery *settings* — max count, position, autoplay, duration badge — on a per-product basis.
+### Can I attach more than one video to a product?
+Yes. A product can hold as many videos as you like, mixing synced YouTube videos with self-hosted ones, and you can drag them into the order you want. Cap how many actually appear with **Max Videos Per Product**.
 
 ## Troubleshooting
 
