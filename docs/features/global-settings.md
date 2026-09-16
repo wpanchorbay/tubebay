@@ -29,12 +29,16 @@ Controls how videos display in the product gallery — see [Embedded Player](/fe
 - **Manual Sync** — force an immediate refresh; see [Syncing Your Library](/guide/sync-library).
 
 ## Advanced Tab
-- **Debug Mode** — logs detailed API errors/events to `wp-content/uploads/tubebay-logs/` for troubleshooting. Since 1.3.0 each log file carries a random 32-character suffix and a `.log.php` extension, so it cannot be found and read over the web. Earlier versions used a predictable name that was readable on servers ignoring `.htaccess`, such as nginx. API keys and OAuth tokens are stripped from every line before it is written.
+- **Debug Mode** — logs detailed API errors/events to `wp-content/uploads/tubebay-logs/` for troubleshooting. There is no screen for reading or clearing these files: switch Debug Mode off when you have finished troubleshooting, and delete the folder's contents over FTP or your host's file manager if you want the space back. Since 1.3.0 each log file carries a random 32-character suffix and a `.log.php` extension, so it cannot be found and read over the web. Earlier versions used a predictable name that was readable on servers ignoring `.htaccess`, such as nginx. API keys and OAuth tokens are stripped from every line before it is written.
 - **Clean Uninstall** — delete all TubeBay settings, cached videos, and product assignments when the plugin is uninstalled (off by default; see [Uninstallation](/guide/uninstallation)).
 - **Delete All Data** — immediately and permanently wipe all TubeBay settings, credentials, cached videos, and product mappings, resetting the plugin to a factory state. Requires typing `DELETE` to confirm.
 - **License Settings** *(appears with TubeBay Pro installed)* — activate or deactivate your license; see [License & Activation](/guide/pro).
 
 ## Permissions
 TubeBay's admin pages — the Library, the Manager and these Settings — require the `manage_tubebay` capability, which is granted to the Administrator role automatically on activation. To give Shop Managers or another role access, add that capability to their role with a roles-and-capabilities plugin.
+
+::: warning Deactivating TubeBay removes the capability
+Deactivation strips `manage_tubebay` from **every** role that holds it, and reactivating grants it back to Administrator only. Any grant you made to Shop Manager or a custom role has to be made again after the plugin is reactivated — including after an update that deactivates and reactivates the plugin.
+:::
 
 Since 1.3.0 there is one deliberate exception. Anyone who can edit posts can browse your synced library when adding a [video block](/features/blocks), because otherwise editors and authors could not put a video in a post without being handed the keys to your YouTube connection. They see titles and thumbnails only; the connection settings, API key and OAuth tokens stay behind `manage_tubebay`, and searching the whole channel through the YouTube API stays administrator-only to protect your quota.

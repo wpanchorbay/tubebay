@@ -7,12 +7,15 @@ Once connected, TubeBay's primary job is to keep a local cache of your YouTube v
 When **Enable daily automatic sync** is on (the default), TubeBay refreshes your video library once a day via WP-Cron.
 
 - **How it works:** A background WP-Cron job fetches the channel's latest uploads once per day.
+- **When it runs:** 03:00 **UTC** — not 03:00 in your site's timezone. It is an off-peak slot chosen to spread API usage, and WP-Cron fires it on the first page view after that time, so on a quiet site the real run can be later.
 - **What is fetched:** Your latest 50 uploads.
 - **Between syncs:** Video data stays cached for the duration set by **Cache Duration** (default 12 hours) in **WooCommerce → Settings → TubeBay → Sync**.
 
 ::: tip Background Processing
 The automatic sync happens in the background. If you just uploaded a video to YouTube and want to see it immediately in TubeBay, use **Manual Sync** instead of waiting for the next scheduled run.
 :::
+
+Turning **Enable daily automatic sync** off unschedules the job entirely, and deactivating TubeBay clears it too. Both are reversed by switching the setting back on.
 
 ## Manual Sync
 

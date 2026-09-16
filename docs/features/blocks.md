@@ -74,7 +74,7 @@ The popover offers the same **Choose from channel** picker, or a pasted YouTube 
 | Setting | What it does |
 |---------|--------------|
 | **Appearance** | **Link** keeps your text looking like a link. **Button** styles it as a button instead, without leaving the sentence. |
-| **▸ Advanced** | Expands to the familiar **Video shape**, **Start at** and **Popup width**, so an inline link can start part-way in just as a block can. |
+| **▸ Advanced** | Expands to six more controls: **Open in new tab** and **Add nofollow** (both governing the fallback link, as on the Video Button block), plus **Popup width**, **Video shape**, **Start at** and **Show play icon** — so an inline link can start part-way in, or carry a play triangle, just as a block can. |
 
 Click **Apply** to set the link. Selecting it again reopens the popover, where **Remove** turns it back into ordinary text.
 

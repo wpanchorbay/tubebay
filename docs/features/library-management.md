@@ -2,10 +2,26 @@
 
 **TubeBay Library** (**Products → TubeBay Library** in the WordPress admin menu) is the central hub of TubeBay. It displays all the videos synchronized from your YouTube channel and provides the interface for mapping them to your WooCommerce products.
 
-## The Video Grid
-The Library page shows a responsive grid of your YouTube videos. Each item includes:
-- **Thumbnail:** The high-quality thumbnail from YouTube.
-- **Title:** The video title as it appears on YouTube.
+## The Library Table
+
+Your synced videos are listed in a standard WordPress list table:
+
+| Column | What it shows |
+|--------|---------------|
+| Checkbox | Selects videos for a bulk action. |
+| **Thumbnail** | The thumbnail YouTube holds for the video. |
+| **Title** | The video title, with two row actions beneath it. |
+| **Products** | **Assigned to _n_ products**, or a dash if the video is not attached to anything yet. Click the badge to expand the list — every product name links straight to its edit screen. |
+| **Published** | The date the video went live on YouTube. |
+
+Two actions sit under each title:
+
+- **View on YouTube** opens the video in a popup **inside your dashboard**. Despite the wording you are not sent to YouTube and you do not leave the Library.
+- **Copy Shortcode** copies `[tubebay_video id="…"]` for that video to your clipboard, ready to paste into any post, page or widget. It reads **Copied!** for a moment to confirm.
+
+The toolbar above the table holds a **Bulk Actions** dropdown, the [sort dropdown](#sorting), the [search box](#searching-your-library), and **Sync Now** on the right. Below it, a bar reports how many videos are loaded and when the library last refreshed. If your channel holds more than the table currently shows, **Load More Videos** appears underneath it.
+
+If the channel is not connected, the table is replaced by a notice and a **Go to Setup** button — see [Syncing Your Library](/guide/sync-library#sync-status).
 
 ## Searching Your Library
 
@@ -38,6 +54,29 @@ Use the sort dropdown to find the right content quickly:
 - **Sort by Title (A-Z / Z-A):** Sort alphabetically by video title.
 - **Sort by Views:** Prioritize videos with the highest view counts on YouTube.
 
-## Bulk Product Assignment
+## The Manager
 
-For assigning videos to many products at once, use **Products → TubeBay Manager** — a product-centric view for managing video assignments in bulk, complementary to mapping videos one product at a time from the [product edit screen](/features/product-mapping).
+**Products → TubeBay Manager** turns the Library around. Instead of listing videos and telling you which products use them, it lists your WooCommerce products and tells you how many videos each one carries.
+
+| Column | What it shows |
+|--------|---------------|
+| Checkbox | Selects products for a bulk action. |
+| **Image** | The product's featured image. |
+| **Product Name** | Links to the product edit screen. |
+| **SKU** | The product's SKU, or a dash. |
+| **Assigned Videos** | How many videos the product currently has, or **None**. |
+| **Actions** | **Edit Videos** — opens that product's edit screen, where the **TubeBay Video** panel lives. |
+
+Search by product title with the box on the right, and move between pages with the arrows beside the item count.
+
+### Assigning videos to many products
+
+1. Tick the products you want. The header checkbox takes the whole page.
+2. Choose **Assign Videos** under **Bulk Actions** and click **Apply**.
+3. Pick one or more videos in the window that opens, then click **Assign Videos**.
+
+Bulk assignment **adds** to whatever each product already holds, and skips any video that product already carries — so running it twice is harmless. There is no bulk *remove*: take a video off a product from its own **TubeBay Video** panel, as described in [Product Mapping](/features/product-mapping).
+
+::: warning Start from the Manager, not the Library
+The Library's **Bulk Actions → Assign to Products** carries your chosen videos to the Manager but selects no products, and the assignment then fails with *"No products specified."* Until that is fixed, pick the products first, from the Manager.
+:::

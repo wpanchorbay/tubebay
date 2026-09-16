@@ -37,6 +37,16 @@ For power users or those who wish to maintain their own API quotas and Google Cl
 | Custom Quotas | No | Yes |
 | Stability | High | High |
 
+## Disconnecting
+
+**Disconnect**, on the Connection tab, signs your site out of YouTube. It clears the credentials — API key, channel ID, OAuth tokens — along with the channel name and thumbnail it discovered, and empties the cached copy of your video library. The page reloads into the disconnected state.
+
+What it does **not** touch is just as important: every video already attached to a product stays attached, and your player, sync and advanced settings are all untouched. Reconnect the same channel and everything resumes; the library refills on the next sync. Switching between OAuth and API Key is the same operation — disconnect, then connect again with the other method.
+
+::: tip Disconnecting is not uninstalling
+To remove TubeBay's data rather than just its connection, see [Uninstallation](/guide/uninstallation).
+:::
+
 ## Connection Status & Discovery
 When you connect via either method, TubeBay automatically attempts to:
 1. **Validate Credentials:** Ensure the token or key is valid.

@@ -18,12 +18,14 @@ Earlier versions offered a third option, **Mixed (Based on drag/drop order)**. I
 An individual product can sit somewhere different from your store default. The **Video Gallery Settings** panel on each product offers its own **Video Position**, alongside Max Videos, Autoplay First Video and Show Duration Badge. Leave a field on **Inherit (Global)** and it follows the store setting.
 
 ::: tip Per-product settings
-Setting these on an individual product is part of TubeBay Pro. [See the pricing](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
+Setting these on an individual product is part of TubeBay Pro; without an active license the fields are shown greyed out, each marked with a purple **PRO** badge. [See the pricing](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
 :::
 
 ## How It Renders
 
 Each video slide shows the video's thumbnail with a play button overlay (and, if enabled, a small **Video** label in the corner marking it as a video rather than a photo). Clicking it swaps in the actual YouTube (or self-hosted) player — the iframe itself is never loaded until a shopper clicks, which is what keeps product pages fast (TubeBay's "Video Facade" technique).
+
+Video slides are **square**, to sit flush with WooCommerce's default square gallery images. YouTube thumbnails are widescreen, so the thumbnail is scaled up to fill that square and cropped at the left and right edges — worth knowing if a video's thumbnail has text near its edges. This affects the still image only: the player that loads on click is 16:9 as usual.
 
 ## Shortcodes (Manual Placement)
 If you need to place a video somewhere other than the product gallery — a custom page, a landing page, a page-builder layout — use the [Shortcode system](/features/shortcodes) instead.
