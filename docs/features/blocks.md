@@ -17,7 +17,9 @@ The empty block offers two ways to choose a video:
 
 ![Choosing a video from the synced channel library](/public/img/blocks-video-picker.png)
 
-Inside the picker, **Filter loaded videos** narrows what is already on screen. Administrators also get **Search your whole channel instead**, which queries YouTube directly — see [Who can use the blocks](#who-can-use-the-blocks) below for why that one is limited.
+The picker opens on your most recent uploads, newest first. The **Search** box filters the videos already loaded, and **Sort by** reorders them. **Load more** fetches the next batch.
+
+Type something the loaded videos don't match and administrators get one extra option — **Search your whole channel instead**, which asks YouTube directly rather than looking only at what has been synced. See [Who can use the blocks](#who-can-use-the-blocks) for why that one is limited.
 
 Once a video is chosen the block shows its thumbnail with a play badge, exactly as visitors will see it.
 
@@ -32,8 +34,8 @@ Open the sidebar (the gear icon) for two panels — **Video** and **Display**.
 | **Replace video** | Swap in a different video, keeping every other setting. |
 | **Video shape** | 16:9 — Widescreen (default), 4:3 — Standard, 1:1 — Square, 9:16 — Shorts. |
 | **Start at** | Begin part-way in. Accepts clock format — `1:30` means one minute thirty, not thirty seconds. Leave empty to start at the beginning. |
-| **Open in a popup instead** | Off, the video plays in place. On, clicking opens it in a popup over the page. |
-| **Popup width** | How wide that popup is, as a percentage of the screen. Only applies when the popup is on. |
+| **Open in a popup instead** | Off, the video plays in place — the block tells you so: *"Clicking plays the video in place."* On, it becomes *"Clicking opens the video in a lightbox."* |
+| **Popup width** | How wide that popup is, as a percentage of the screen. This control only appears once **Open in a popup instead** is on, since it has nothing to affect otherwise. |
 
 ![The block sidebar showing Video shape, Start at and Popup width](/public/img/blocks-sidebar-controls.png)
 
@@ -67,9 +69,16 @@ Sometimes a video belongs inside a sentence rather than in a block of its own. S
 
 ![Turning selected text into a video link from the block toolbar](/public/img/blocks-inline-link.png)
 
-The popover that appears offers the same **Choose a video** picker, plus **Video shape**, **Start at** and **Popup width** under **▸ Advanced**. Click **Apply** to set the link, or **Remove** to turn it back into ordinary text.
+The popover offers the same **Choose from channel** picker, or a pasted YouTube URL. Two more choices sit below it:
 
-This is the lightest-touch option of the three: no thumbnail, no button, just a phrase like "watch the two-minute demo" that opens the video where the reader is.
+| Setting | What it does |
+|---------|--------------|
+| **Appearance** | **Link** keeps your text looking like a link. **Button** styles it as a button instead, without leaving the sentence. |
+| **▸ Advanced** | Expands to the familiar **Video shape**, **Start at** and **Popup width**, so an inline link can start part-way in just as a block can. |
+
+Click **Apply** to set the link. Selecting it again reopens the popover, where **Remove** turns it back into ordinary text.
+
+This is the lightest-touch option of the three: no thumbnail, no separate block, just a phrase like "the two minute walkthrough" that opens the video where the reader already is.
 
 ## What visitors see
 

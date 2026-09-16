@@ -17,7 +17,7 @@ Controls how videos display in the product gallery — see [Embedded Player](/fe
 - **Show Duration Badge** (default: on)
 - **Privacy/GDPR Mode** — embed via `youtube-nocookie.com` (default: off)
 - **Show Player Controls** (default: on)
-- **Autoplay Shortcode Videos** (default: off) — added in 1.3.0. Controls autoplay for [shortcodes](/features/shortcodes), [blocks](/features/blocks) and inline video links, independently of **Autoplay First Video**, which only affects the product gallery. Before 1.3.0 the two were the same setting, so you could not autoplay one without the other. Browsers only permit autoplay when the video starts muted, so TubeBay mutes it.
+- **Autoplay Shortcode Videos** (default: off) — added in 1.3.0. Applies to [`[tubebay_video]`](/features/shortcodes) embeds only, not the product gallery and not the [video blocks](/features/blocks). Before 1.3.0 shortcode autoplay followed **Autoplay First Video**, so you could not have one without the other. An individual shortcode still wins over this setting with `autoplay="1"` or `autoplay="0"`. Browsers only permit autoplay when the video starts muted, so TubeBay mutes it.
 
 ## Sync Tab
 - **Enable daily automatic sync** — toggles the WP-Cron job that refreshes your video library once a day.
