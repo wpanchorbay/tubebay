@@ -31,6 +31,9 @@ No. TubeBay is built with performance in mind. It caches your video library usin
 ### Where can I display the video?
 Videos render as extra slides inside the product's image gallery — you control whether they sit before or after your product images (see [Visual Placement](/features/placement)). Anywhere else on your site, use the [video blocks](/features/blocks) in the block editor, or [Shortcodes](/features/shortcodes) in a page builder or template.
 
+### Can I put a video in a post or a page, not just a product?
+Yes. TubeBay adds a **TubeBay Video** block and a **TubeBay Video Button** block to the block editor, plus a **Video link** option that turns selected text into a link opening the video in a popup. All of them choose from the same synced library — see [Video Blocks](/features/blocks). For page builders and templates, use a [shortcode](/features/shortcodes) instead.
+
 ### Does the player work on mobile?
 Yes, the TubeBay player is fully responsive and uses the official YouTube IFrame API to ensure smooth playback across all devices.
 
@@ -41,6 +44,17 @@ Per-product overrides for Max Videos, Video Position, Autoplay First Video, and 
 
 ### Can I attach more than one video to a product without Pro?
 Yes. Attaching multiple videos (YouTube and self-hosted) to a product is a free-plugin feature. Pro only adds the ability to override the gallery *settings* — max count, position, autoplay, duration badge — on a per-product basis.
+
+## Troubleshooting
+
+### Videos show "Error 153" instead of playing
+Update to 1.3.1 or newer. YouTube works out which site is embedding a video from the referrer header, and refuses to play when it cannot see one — so any site whose `Referrer-Policy` withholds the referrer from other domains hit this, on blocks, inline links, the product gallery and shortcodes alike. If you were on 1.3.0, clear any CDN or page cache after updating so visitors get the corrected script rather than a cached copy.
+
+### WooCommerce lists TubeBay under "incompatible plugins"
+Update to 1.3.2 or newer. WooCommerce asks every plugin whether it is compatible with High-Performance Order Storage and the block-based Cart & Checkout, and treats silence as "not checked". TubeBay never reads or writes an order, so it was always safe — it simply had not said so. From 1.3.2 it does, and the warning disappears.
+
+### The whole site went blank after WooCommerce was deactivated
+Update to 1.3.2 or newer. Earlier versions assumed WooCommerce was always present and stopped the front end with a fatal error if it vanished. TubeBay now steps aside quietly instead: videos stop rendering, the rest of your site keeps working.
 
 ## Support
 

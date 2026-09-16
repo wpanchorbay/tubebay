@@ -31,4 +31,6 @@ Controls how videos display in the product gallery — see [Embedded Player](/fe
 - **License Settings** *(TubeBay Pro only)* — activate/deactivate your license; see [TubeBay Pro](/guide/pro) or [buy a license](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing).
 
 ## Permissions
-Access to TubeBay's admin pages and REST endpoints requires the `manage_tubebay` capability, which is automatically granted to the Administrator role on activation. To give Shop Managers or another role access, add that capability to their role with a roles-and-capabilities plugin.
+TubeBay's admin pages — the Library, the Manager and these Settings — require the `manage_tubebay` capability, which is granted to the Administrator role automatically on activation. To give Shop Managers or another role access, add that capability to their role with a roles-and-capabilities plugin.
+
+Since 1.3.0 there is one deliberate exception. Anyone who can edit posts can browse your synced library when adding a [video block](/features/blocks), because otherwise editors and authors could not put a video in a post without being handed the keys to your YouTube connection. They see titles and thumbnails only; the connection settings, API key and OAuth tokens stay behind `manage_tubebay`, and searching the whole channel through the YouTube API stays administrator-only to protect your quota.

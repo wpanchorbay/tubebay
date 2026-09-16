@@ -28,6 +28,7 @@ TubeBay is built for speed, ensuring your product pages remain fast and responsi
 
 - **Connect:** Securely link your YouTube account via Google OAuth 2.0 or Manual API keys.
 - **Manage:** Browse your entire YouTube library directly within the WordPress admin.
+- **Publish anywhere:** Add videos to posts, pages and templates with the [TubeBay Video and Video Button blocks](/features/blocks), or turn a phrase into a popup video with an inline Video link.
 - **Map:** Assign videos to specific WooCommerce products with one click.
 - **Configure:** Customize player behavior (autoplay, controls, mute) and placement.
 - **Automate:** Let TubeBay keep your video library up-to-date with periodic syncs.
