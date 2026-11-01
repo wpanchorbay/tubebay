@@ -144,6 +144,13 @@ class VideoShortcode {
 			: (bool) Settings::get( 'show_controls', true );
 		$privacy_mode   = Settings::get( 'privacy_mode', false );
 
+		/*
+		 * Read through get_all(): Settings::get() ignores filtered defaults.
+		 * A missing key means "allowed", matching the setting's default of true.
+		 */
+		$all_settings     = Settings::get_all();
+		$allow_fullscreen = ! isset( $all_settings['allow_fullscreen'] ) || ! empty( $all_settings['allow_fullscreen'] );
+
 		$width  = ! empty( $atts['width'] ) ? intval( $atts['width'] ) : '';
 		$height = ! empty( $atts['height'] ) ? intval( $atts['height'] ) : '';
 
@@ -162,6 +169,9 @@ class VideoShortcode {
 				if ( ! $show_controls ) {
 					$embed_url .= '&controls=0';
 				}
+				if ( ! $allow_fullscreen ) {
+					$embed_url .= '&fs=0';
+				}
 				?>
 				<iframe
 					<?php
@@ -177,7 +187,7 @@ class VideoShortcode {
 					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 					<?php /* Sites that withhold the referrer cross-origin otherwise get YouTube's "Error 153". */ ?>
 					referrerpolicy="strict-origin-when-cross-origin"
-					allowfullscreen>
+					<?php echo $allow_fullscreen ? 'allowfullscreen' : ''; ?>>
 				</iframe>
 			<?php else : ?>
 				<?php
@@ -201,6 +211,9 @@ class VideoShortcode {
 						}
 						if ( $muted_autoplay ) {
 							echo 'autoplay muted ';
+						}
+						if ( ! $allow_fullscreen ) {
+							echo 'controlsList="nofullscreen" ';
 						}
 						?>
 						playsinline

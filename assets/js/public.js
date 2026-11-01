@@ -45,6 +45,11 @@ function tubebayInitGallery() {
             params.push('controls=0');
         }
 
+        // Absent means "fullscreen allowed" (the setting defaults to true).
+        if (config.allow_fullscreen === false) {
+            params.push('fs=0');
+        }
+
         if (muted) {
             params.push('mute=1');
         }
@@ -77,7 +82,10 @@ function tubebayInitGallery() {
             iframe.setAttribute('src', youtubeEmbedUrl(videoId, muted));
             iframe.setAttribute('frameborder', '0');
             iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-            iframe.setAttribute('allowfullscreen', 'true');
+
+            if (config.allow_fullscreen !== false) {
+                iframe.setAttribute('allowfullscreen', 'true');
+            }
 
             /*
              * Required on sites whose Referrer-Policy withholds the referrer
@@ -107,6 +115,10 @@ function tubebayInitGallery() {
 
             video.setAttribute('autoplay', 'autoplay');
             video.setAttribute('playsinline', 'playsinline');
+
+            if (config.allow_fullscreen === false) {
+                video.setAttribute('controlsList', 'nofullscreen');
+            }
 
             if (muted) {
                 // Both: the attribute is what the autoplay policy inspects,
