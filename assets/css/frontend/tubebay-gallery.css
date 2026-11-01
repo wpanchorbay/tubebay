@@ -1,4 +1,36 @@
-.tubebay-virtual-slide .tubebay-video-facade:hover .tubebay-play-bg {
-    fill: #f00 !important;
-    fill-opacity: 1 !important;
+/* Play button: colour comes from --tubebay-play-color set inline on .tubebay-play-button. */
+.tubebay-play-button svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.2s ease-in-out;
+}
+
+.tubebay-play-button .tubebay-play-bg {
+    fill: var(--tubebay-play-color, #212121);
+    transition: fill-opacity 0.2s ease-in-out;
+}
+
+/* Triangle-only: no background plate, so lift it off light thumbnails. */
+.tubebay-icon-triangle .tubebay-play-button svg {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
+}
+
+/* Hover: circle and triangle brighten and grow slightly. */
+.tubebay-icon-circle .tubebay-video-facade:hover .tubebay-play-bg {
+    fill-opacity: 1;
+}
+
+.tubebay-icon-circle .tubebay-video-facade:hover .tubebay-play-button svg,
+.tubebay-icon-triangle .tubebay-video-facade:hover .tubebay-play-button svg {
+    transform: scale(1.1);
+}
+
+/* YouTube: default colour keeps the classic red-on-hover; a custom colour just goes fully opaque. */
+.tubebay-icon-youtube .tubebay-video-facade:hover .tubebay-play-bg {
+    fill-opacity: 1;
+}
+
+.tubebay-icon-youtube[data-play-icon-color="#212121" i] .tubebay-video-facade:hover .tubebay-play-bg {
+    fill: #f00;
 }
