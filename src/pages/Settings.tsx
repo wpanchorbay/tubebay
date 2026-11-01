@@ -138,13 +138,10 @@ export default function Settings() {
       setPendingTab(tabId);
       setShowUnsavedModal(true);
     } else {
+      // The hasChanges/activeTab effect above resets the native button. A
+      // separate timer here re-disabled it after an edit made within 100ms
+      // of switching tabs, leaving Save stuck off.
       setActiveTab(tabId);
-      setTimeout(() => {
-        const nativeSaveButton = document.querySelector('button[name="save"]');
-        if (nativeSaveButton) {
-          (nativeSaveButton as HTMLButtonElement).disabled = true;
-        }
-      }, 100);
     }
   };
 
