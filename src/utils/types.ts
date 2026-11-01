@@ -53,6 +53,26 @@ export interface PluginSettings {
     show_duration: boolean;
     privacy_mode: boolean;
 
+    // Player tab — free
+    play_icon: "youtube" | "circle" | "triangle";
+    play_icon_color: string;
+    video_aspect_ratio: "16-9" | "1-1" | "4-3" | "9-16";
+    gallery_fixed_height: boolean;
+    show_description: boolean;
+    allow_fullscreen: boolean;
+    allow_pip: boolean;
+    video_schema: boolean;
+
+    // Player tab — Pro (stored only when Pro is active)
+    thumb_nav_mode: "click" | "hover";
+    sticky_video: boolean;
+    media_toggle: boolean;
+    thumb_border_width: number;
+    thumb_border_color: string;
+    thumb_radius: number;
+    thumb_active_color: string;
+    custom_css: string;
+
     license_key: string;
     license_status: string;
 }
