@@ -414,6 +414,123 @@ class SettingsController extends ApiController {
 	}
 
 	/**
+	 * The key => sanitizer map for the simple (loop-saved) settings.
+	 *
+	 * Built once per request, before validation, so validate_bools() sees the
+	 * add-on keys too.
+	 *
+	 * @since 1.3.3
+	 * @return array Map of setting key to 'bool' | 'absint' | callable.
+	 */
+	private static function get_simple_settings() {
+		// Pro can register additional keys via add_filter('tubebay_settings_saveable_keys', ...).
+		$simple_settings = array(
+			'cache_duration'                => 'absint',
+			'video_placement'               => 'sanitize_text_field',
+			'debug_enableMode'              => 'bool',
+			'muted_autoplay'                => 'bool',
+			'show_controls'                 => 'bool',
+			'max_videos'                    => 'absint',
+			'video_position'                => 'sanitize_text_field',
+			'autoplay_first'                => 'bool',
+			'show_duration'                 => 'bool',
+			'privacy_mode'                  => 'bool',
+			'is_onboarding_completed'       => 'bool',
+			'advanced_deleteAllOnUninstall' => 'bool',
+			// Enum values are validated by validate_enums() above.
+			'play_icon'                     => 'sanitize_text_field',
+			'play_icon_color'               => static function ( $value ) {
+				return self::sanitize_hex_color_or_default( $value, Settings::get_defaults()['play_icon_color'] ?? '#212121' );
+			},
+			'video_aspect_ratio'            => 'sanitize_text_field',
+			'gallery_fixed_height'          => 'bool',
+			'show_description'              => 'bool',
+			'allow_fullscreen'              => 'bool',
+			'allow_pip'                     => 'bool',
+			'video_schema'                  => 'bool',
+		);
+
+		/*
+		* Add-ons extend this map: key => 'bool' | 'absint' | any callable that
+		* takes the submitted value and returns the value to store, e.g.
+		*   $keys['thumb_border_color'] = static function ( $v ) {
+		*       return \TubeBay\Api\SettingsController::sanitize_hex_color_or_default( $v, '#dcdcde' );
+		*   };
+		* Returning null from a callable would store an empty option, so
+		* callables must always return a usable fallback.
+		*/
+		$simple_settings = apply_filters( 'tubebay_settings_saveable_keys', $simple_settings );
+
+		return $simple_settings;
+	}
+
+	/**
+	 * Strictly interpret a submitted value as a boolean.
+	 *
+	 * (bool) "false" is true, so a plain cast turned the strings "false",
+	 * "off" and "no" into an enabled setting. filter_var understands
+	 * true/false, 1/0, "1"/"0", "true"/"false", "on"/"off", "yes"/"no" and "".
+	 *
+	 * @since 1.3.3
+	 * @param mixed $value The submitted value.
+	 * @return bool|null Null when the value is not recognisably a boolean.
+	 */
+	private static function to_bool( $value ) {
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+		if ( ! is_scalar( $value ) ) {
+			return null;
+		}
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+	}
+
+	/**
+	 * Reject any boolean-typed setting whose value is not recognisably a boolean.
+	 *
+	 * Runs alongside validate_enums(), before the first Settings::set(), so a
+	 * bad value 400s the whole request instead of persisting half of it.
+	 *
+	 * @since 1.3.3
+	 * @param array $body            The raw request body.
+	 * @param array $simple_settings Map from get_simple_settings().
+	 * @return \WP_Error|null WP_Error on the first invalid value, null if all pass.
+	 */
+	private static function validate_bools( $body, $simple_settings ) {
+		if ( ! is_array( $body ) ) {
+			return null;
+		}
+
+		// auto_sync is saved outside the loop (cron side effect) but is a bool too.
+		$bool_keys = array( 'auto_sync' );
+		foreach ( $simple_settings as $key => $sanitizer ) {
+			if ( 'bool' === $sanitizer ) {
+				$bool_keys[] = $key;
+			}
+		}
+
+		foreach ( $bool_keys as $key ) {
+			if ( ! isset( $body[ $key ] ) || null !== self::to_bool( $body[ $key ] ) ) {
+				continue;
+			}
+
+			tubebay_log(
+				'SettingsController: rejected non-boolean ' . $key . ' ' . wp_json_encode( $body[ $key ] ),
+				'error'
+			);
+
+			return new \WP_Error(
+				'tubebay_invalid_boolean',
+				/* translators: %s: setting key */
+				sprintf( __( 'The value for "%s" must be true or false.', 'tubebay' ), $key ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Handle POST request to update settings.
 	 *
 	 * @param \WP_REST_Request $request Full data about the request.
@@ -440,6 +557,13 @@ class SettingsController extends ApiController {
 		$body = self::normalize_legacy_values( $body );
 
 		$invalid = self::validate_enums( $body );
+		if ( is_wp_error( $invalid ) ) {
+			return $invalid;
+		}
+
+		$simple_settings = self::get_simple_settings();
+
+		$invalid = self::validate_bools( $body, $simple_settings );
 		if ( is_wp_error( $invalid ) ) {
 			return $invalid;
 		}
@@ -515,50 +639,13 @@ class SettingsController extends ApiController {
 			}
 		}
 
-		// --- Filterable saveable-keys loop ---
-		// Pro can register additional keys via add_filter('tubebay_settings_saveable_keys', ...).
-		$simple_settings = array(
-			'cache_duration'                => 'absint',
-			'video_placement'               => 'sanitize_text_field',
-			'debug_enableMode'              => 'bool',
-			'muted_autoplay'                => 'bool',
-			'show_controls'                 => 'bool',
-			'max_videos'                    => 'absint',
-			'video_position'                => 'sanitize_text_field',
-			'autoplay_first'                => 'bool',
-			'show_duration'                 => 'bool',
-			'privacy_mode'                  => 'bool',
-			'is_onboarding_completed'       => 'bool',
-			'advanced_deleteAllOnUninstall' => 'bool',
-			// Enum values are validated by validate_enums() above.
-			'play_icon'                     => 'sanitize_text_field',
-			'play_icon_color'               => static function ( $value ) {
-				return self::sanitize_hex_color_or_default( $value, Settings::get_defaults()['play_icon_color'] ?? '#212121' );
-			},
-			'video_aspect_ratio'            => 'sanitize_text_field',
-			'gallery_fixed_height'          => 'bool',
-			'show_description'              => 'bool',
-			'allow_fullscreen'              => 'bool',
-			'allow_pip'                     => 'bool',
-			'video_schema'                  => 'bool',
-		);
-
-		/*
-		 * Add-ons extend this map: key => 'bool' | 'absint' | any callable that
-		 * takes the submitted value and returns the value to store, e.g.
-		 *   $keys['thumb_border_color'] = static function ( $v ) {
-		 *       return \TubeBay\Api\SettingsController::sanitize_hex_color_or_default( $v, '#dcdcde' );
-		 *   };
-		 * Returning null from a callable would store an empty option, so
-		 * callables must always return a usable fallback.
-		 */
-		$simple_settings = apply_filters( 'tubebay_settings_saveable_keys', $simple_settings );
+		// --- Filterable saveable-keys loop (map built above, before validation) ---
 
 		foreach ( $simple_settings as $key => $sanitizer ) {
 			if ( isset( $body[ $key ] ) ) {
 				$value = $body[ $key ];
 				if ( 'bool' === $sanitizer ) {
-					$value = (bool) $value;
+					$value = self::to_bool( $value );
 				} elseif ( 'absint' === $sanitizer ) {
 					$value = absint( $value );
 				} else {
@@ -570,7 +657,7 @@ class SettingsController extends ApiController {
 
 		// auto_sync has a side effect (cron reschedule) so handle it outside the loop.
 		if ( isset( $body['auto_sync'] ) ) {
-			Settings::set( 'auto_sync', (bool) $body['auto_sync'] );
+			Settings::set( 'auto_sync', self::to_bool( $body['auto_sync'] ) );
 			Cron::get_instance()->check_and_schedule();
 		}
 
