@@ -63,8 +63,9 @@ $tubebay_dims_map = array(
 $tubebay_dims     = isset( $tubebay_dims_map[ $ratio ] ) ? $tubebay_dims_map[ $ratio ] : $tubebay_dims_map['16-9'];
 
 // Poster loading priority. The first slide (it is what LCP measures) and an
-// autoplay video are fetched immediately; every other poster is deferred until
-// the browser (or public.js) sees it near the viewport.
+// autoplay video are fetched immediately; every other poster uses native
+// loading="lazy". A WooCommerce thumbnail rail reuses data-thumb (the same URL),
+// so with a rail the browser fetches it anyway for the visible rail image.
 $tubebay_is_first = ! empty( $args['is_first'] );
 $tubebay_critical = $tubebay_is_first || 'true' === $autoplay;
 $tubebay_img_load = $tubebay_critical ? 'decoding="async"' : 'loading="lazy" decoding="async"';
