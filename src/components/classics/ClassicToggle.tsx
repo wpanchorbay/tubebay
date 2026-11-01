@@ -33,13 +33,36 @@ export const ClassicToggle: React.FC<ClassicToggleProps> = ({
           checked ? "tubebay-bg-[#2271b1]" : "tubebay-bg-[#8c8f94]"
         } ${disabled ? "tubebay-opacity-50 tubebay-cursor-not-allowed" : ""}`}
       ></label>
+      {/*
+        wp-admin's forms.css styles input[type=checkbox] (square, 1rem, a
+        checkmark in ::before) with more specificity than a single class, so
+        the knob is restated here with the element and type in the selector.
+      */}
       <style>{`
-        .tubebay-toggle-checkbox:checked {
+        input[type="checkbox"].tubebay-toggle-checkbox {
+          top: 0;
+          width: 1.25rem;
+          height: 1.25rem;
+          min-width: 0;
+          margin: 0;
+          padding: 0;
+          border: 4px solid #8c8f94;
+          border-radius: 9999px;
+          background: #fff;
+          box-shadow: none;
+        }
+        input[type="checkbox"].tubebay-toggle-checkbox:checked {
           right: 0;
           border-color: #2271b1;
         }
-        .tubebay-toggle-checkbox:focus {
-            outline: none;
+        input[type="checkbox"].tubebay-toggle-checkbox:checked::before {
+          content: none;
+        }
+        input[type="checkbox"].tubebay-toggle-checkbox:focus {
+          outline: none;
+        }
+        input[type="checkbox"].tubebay-toggle-checkbox:focus-visible {
+          box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2271b1;
         }
       `}</style>
     </div>
