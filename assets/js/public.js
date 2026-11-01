@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+function tubebayInitGallery() {
 
     /*
      * Settings > Player, as rendered into the page by
@@ -174,18 +174,90 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 1. Bind immediately on load
-    bindVideoFacades();
-    autoplayFirstVideo();
+    /**
+     * Does this node contain (or is it) a video facade / video slide?
+     *
+     * @param {Node} node Added node.
+     * @return {boolean}
+     */
+    function hasFacade(node) {
+        if (!node || node.nodeType !== 1) {
+            return false;
+        }
 
-    // 2. Bind when WooCommerce FlexSlider initializes (to catch cloned slides)
-    if (window.jQuery) {
-        window.jQuery(document).on('woocommerce_gallery_init_flexslider', function() {
+        var sel = '.tubebay-video-facade, .tubebay-video-slide';
+
+        return node.matches(sel) || !!node.querySelector(sel);
+    }
+
+    var bindQueued = false;
+
+    /**
+     * Coalesce a burst of mutations (FlexSlider clones several slides at
+     * once) into a single bind on the next frame.
+     */
+    function queueBind() {
+        if (bindQueued) {
+            return;
+        }
+
+        bindQueued = true;
+
+        window.requestAnimationFrame(function () {
+            bindQueued = false;
             bindVideoFacades();
-            setTimeout(bindVideoFacades, 100);
-            setTimeout(bindVideoFacades, 500);
         });
     }
-    
-    setTimeout(bindVideoFacades, 1000);
-});
+
+    /**
+     * Re-bind whenever gallery nodes are added. WooCommerce's FlexSlider
+     * clones slides after init (racy by nature), and the variation image swap
+     * rebuilds them too. Replaces the old event hook and timer retries.
+     * bindVideoFacades() is idempotent (.tubebay-bound), so extra calls are
+     * harmless.
+     */
+    function observeGallery() {
+        if (!window.MutationObserver) {
+            return;
+        }
+
+        var galleries = document.querySelectorAll('.woocommerce-product-gallery');
+        var scoped = galleries.length > 0;
+
+        var observer = new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var added = mutations[i].addedNodes;
+
+                for (var j = 0; j < added.length; j++) {
+                    // Inside a gallery any added element may be a clone;
+                    // on the body fallback only act on facade-bearing nodes.
+                    if (scoped ? added[j].nodeType === 1 : hasFacade(added[j])) {
+                        queueBind();
+                        return;
+                    }
+                }
+            }
+        });
+
+        var options = { childList: true, subtree: true };
+
+        if (scoped) {
+            galleries.forEach(function (gallery) {
+                observer.observe(gallery, options);
+            });
+        } else {
+            observer.observe(document.body, options);
+        }
+    }
+
+    // Initial bind, then keep watching for cloned/re-rendered slides.
+    bindVideoFacades();
+    autoplayFirstVideo();
+    observeGallery();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tubebayInitGallery);
+} else {
+    tubebayInitGallery();
+}
