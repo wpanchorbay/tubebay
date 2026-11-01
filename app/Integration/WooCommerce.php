@@ -374,6 +374,9 @@ class WooCommerce {
 	 * @return string
 	 */
 	private function resolve_thumbnail( $thumb, $id, $type ) {
+		// A javascript:/data: URL would survive the empty check, then esc_url()
+		// in the template would blank it to src="" -- filter it out here instead.
+		$thumb = is_string( $thumb ) ? esc_url_raw( $thumb ) : '';
 		if ( ! empty( $thumb ) ) {
 			return $thumb;
 		}
