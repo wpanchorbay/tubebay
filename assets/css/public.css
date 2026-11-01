@@ -35,3 +35,44 @@
     opacity: 0.85;
     transition: opacity 0.2s;
 }
+
+/* Video description under the product gallery (public.js builds the panel). */
+.tubebay-video-description {
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.tubebay-video-description[hidden],
+.tubebay-video-description__toggle[hidden] {
+    display: none;
+}
+
+.tubebay-video-description__text {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+}
+
+.tubebay-video-description.is-expanded .tubebay-video-description__text {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+}
+
+.tubebay-video-description__toggle {
+    margin: 6px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}

@@ -230,6 +230,7 @@ function tubebayInitGallery() {
         window.requestAnimationFrame(function () {
             bindQueued = false;
             bindVideoFacades();
+            bindDescriptions();
         });
     }
 
@@ -274,8 +275,212 @@ function tubebayInitGallery() {
         }
     }
 
+    /*
+     * Video description under the gallery (gal-34).
+     *
+     * PHP prints data-description on a .tubebay-video-facade only when
+     * "Show description" is on, so with the setting off no facade carries the
+     * attribute, no gallery qualifies, and this block adds nothing to the DOM.
+     *
+     * One panel per gallery, inserted straight after .woocommerce-product-gallery
+     * (never inside the FlexSlider viewport). It mirrors the ACTIVE slide: shown
+     * with that video's description, hidden for image slides or an empty value.
+     * The text is written with textContent only, so markup in a description is
+     * displayed literally; line breaks are kept by CSS (white-space: pre-line).
+     *
+     * Strings are plain English: public.js has no i18n path today. A host can
+     * override them via config.i18n.show_more / config.i18n.show_less.
+     */
+    var descI18n = config.i18n || {};
+    var descMoreLabel = descI18n.show_more || 'Show more';
+    var descLessLabel = descI18n.show_less || 'Show less';
+    var descSeq = 0;
+
+    function galleryHasDescriptions(gallery) {
+        var facades = gallery.querySelectorAll('.tubebay-video-facade[data-description]');
+
+        for (var i = 0; i < facades.length; i++) {
+            if ((facades[i].getAttribute('data-description') || '').trim() !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The facade of the slide FlexSlider currently shows, or null for an image
+     * slide. Clones are ignored. Without FlexSlider (no active class) the
+     * first real slide is the visible one.
+     */
+    function activeVideoFacade(gallery) {
+        var slide = gallery.querySelector('.woocommerce-product-gallery__image.flex-active-slide:not(.clone)');
+
+        if (!slide && !gallery.querySelector('.flexslider, .flex-viewport')) {
+            slide = gallery.querySelector('.woocommerce-product-gallery__image:not(.clone)');
+        }
+
+        return slide ? slide.querySelector('.tubebay-video-facade') : null;
+    }
+
+    function createDescriptionPanel() {
+        var panel = document.createElement('div');
+        var text = document.createElement('div');
+        var toggle = document.createElement('button');
+        var id = 'tubebay-video-description-' + (++descSeq);
+
+        panel.className = 'tubebay-video-description';
+        panel.setAttribute('aria-live', 'polite');
+        panel.hidden = true;
+
+        text.className = 'tubebay-video-description__text';
+        text.id = id;
+
+        toggle.type = 'button';
+        toggle.className = 'tubebay-video-description__toggle';
+        toggle.setAttribute('aria-controls', id);
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.textContent = descMoreLabel;
+        toggle.hidden = true;
+
+        toggle.addEventListener('click', function () {
+            var expand = toggle.getAttribute('aria-expanded') !== 'true';
+
+            panel.classList.toggle('is-expanded', expand);
+            toggle.setAttribute('aria-expanded', expand ? 'true' : 'false');
+            toggle.textContent = expand ? descLessLabel : descMoreLabel;
+        });
+
+        panel.appendChild(text);
+        panel.appendChild(toggle);
+        
+        return { panel: panel, text: text, toggle: toggle, current: null, overflow: false };
+    }
+
+    /**
+     * Where the panel lives. Normally directly after the gallery element. But
+     * themes such as Storefront float the gallery into a left column, and a
+     * block (or float) placed after it would flow into / push down the summary
+     * column. For a floated gallery the panel is therefore appended as the
+     * gallery's last child (after the slider viewport and thumbnail rail, never
+     * inside the viewport), which keeps it in the gallery's own column.
+     */
+    function placeDescription(gallery, state) {
+        var floated = window.getComputedStyle(gallery).float;
+        var inside = floated === 'left' || floated === 'right';
+        var panel = state.panel;
+
+        if (inside) {
+            if (panel.parentNode !== gallery || gallery.lastElementChild !== panel) {
+                gallery.appendChild(panel);
+            }
+        } else if (panel.previousElementSibling !== gallery || panel.parentNode !== gallery.parentNode) {
+            if (gallery.parentNode) {
+                gallery.parentNode.insertBefore(panel, gallery.nextSibling);
+            }
+        }
+    }
+
+    /** Show "Show more" only when the collapsed text is actually cut off. */
+    function measureDescription(state) {
+        if (state.panel.hidden || state.panel.classList.contains('is-expanded')) {
+            return;
+        }
+
+        var cut = state.text.scrollHeight - state.text.clientHeight > 1;
+
+        state.overflow = cut;
+        state.toggle.hidden = !cut;
+    }
+
+    function syncDescription(gallery) {
+        var state = gallery.tubebayDesc;
+
+        if (!state) {
+            return;
+        }
+
+        placeDescription(gallery, state);
+
+        var facade = gallery.classList.contains('tubebaypro-mode-images') ? null : activeVideoFacade(gallery);
+        var description = facade ? (facade.getAttribute('data-description') || '') : '';
+
+        if (description.trim() === '') {
+            facade = null;
+        }
+
+        // Nothing changed (class churn from sticky/playing state, etc.).
+        if (facade === state.current && (facade || state.panel.hidden)) {
+            return;
+        }
+
+        state.current = facade;
+
+        if (!facade) {
+            state.panel.hidden = true;
+            state.text.textContent = '';
+            state.toggle.hidden = true;
+            return;
+        }
+
+        state.panel.classList.remove('is-expanded');
+        state.toggle.setAttribute('aria-expanded', 'false');
+        state.toggle.textContent = descMoreLabel;
+        state.text.textContent = description;
+        state.panel.hidden = false;
+        measureDescription(state);
+    }
+
+    function bindDescriptions() {
+        var galleries = document.querySelectorAll('.woocommerce-product-gallery');
+
+        galleries.forEach(function (gallery) {
+            if (!gallery.tubebayDesc) {
+                if (!gallery.parentNode || !galleryHasDescriptions(gallery)) {
+                    return;
+                }
+
+                gallery.tubebayDesc = createDescriptionPanel();
+            }
+
+            if (!gallery.tubebayDescBound) {
+                gallery.tubebayDescBound = true;
+
+                // FlexSlider flips .flex-active-slide on every slide change.
+                if (window.MutationObserver) {
+                    new MutationObserver(function () {
+                        syncDescription(gallery);
+                    }).observe(gallery, { attributes: true, attributeFilter: ['class'], subtree: true });
+                }
+
+                // Backup for arrows/thumbs where the class lands a beat later.
+                gallery.addEventListener('click', function () {
+                    window.setTimeout(function () { syncDescription(gallery); }, 60);
+                    window.setTimeout(function () { syncDescription(gallery); }, 400);
+                });
+            }
+
+            syncDescription(gallery);
+        });
+    }
+
+    var descResizeTimer = null;
+
+    window.addEventListener('resize', function () {
+        window.clearTimeout(descResizeTimer);
+        descResizeTimer = window.setTimeout(function () {
+            document.querySelectorAll('.woocommerce-product-gallery').forEach(function (gallery) {
+                if (gallery.tubebayDesc) {
+                    placeDescription(gallery, gallery.tubebayDesc);
+                    measureDescription(gallery.tubebayDesc);
+                }
+            });
+        }, 150);
+    });
+
     // Initial bind, then keep watching for cloned/re-rendered slides.
     bindVideoFacades();
+    bindDescriptions();
     autoplayFirstVideo();
     observeGallery();
 }
