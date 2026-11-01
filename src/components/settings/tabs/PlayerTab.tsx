@@ -511,7 +511,7 @@ export const PlayerTab: FC<PlayerTabProps> = ({ settings, updateLocalSetting }) 
                   value={settings.custom_css ?? ""}
                   onChange={(e) => updateLocalSetting("custom_css", e.target.value)}
                   disabled={locked}
-                  description={__("Extra CSS applied to the product gallery. Only users who are allowed to post unfiltered HTML can save changes here.", TEXT_DOMAIN)}
+                  description={__("Extra CSS added to every front-end page of your store. Only users who are allowed to post unfiltered HTML can save changes here.", TEXT_DOMAIN)}
                 />
               </ProLock>
             ),
