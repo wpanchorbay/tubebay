@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use TubeBay\Data\VideoRepository;
 use TubeBay\Helper\Settings;
 
 /**
@@ -53,7 +54,7 @@ class Upgrader {
 	 * @since 1.3.2
 	 * @var   string
 	 */
-	const TARGET_VERSION = '1.3.2';
+	const TARGET_VERSION = '1.4.0';
 
 	/**
 	 * The single instance of the class.
@@ -115,6 +116,10 @@ class Upgrader {
 			self::migrate_to_1_3_2();
 		}
 
+		if ( version_compare( $from, '1.4.0', '<' ) ) {
+			self::migrate_to_1_4_0();
+		}
+
 		update_option( self::VERSION_OPTION, self::TARGET_VERSION );
 
 		tubebay_log( 'Upgrader: migration complete, now at ' . self::TARGET_VERSION, 'info' );
@@ -129,6 +134,18 @@ class Upgrader {
 	private static function migrate_to_1_3_2() {
 		self::migrate_video_position();
 		self::migrate_enum_values();
+	}
+
+	/**
+	 * Migrations introduced in 1.4.0.
+	 *
+	 * @since 1.4.0
+	 * @return void
+	 */
+	private static function migrate_to_1_4_0() {
+		// Video metadata table. Idempotent, so safe if it already exists.
+		VideoRepository::ensure_table();
+		tubebay_log( 'Upgrader: ensured the videos table exists', 'info' );
 	}
 
 	/*

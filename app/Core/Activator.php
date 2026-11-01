@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use TubeBay\Data\VideoRepository;
 use TubeBay\Helper\Settings;
 
 /**
@@ -64,6 +65,21 @@ class Activator {
 			update_option( Upgrader::VERSION_OPTION, Upgrader::TARGET_VERSION );
 			tubebay_log( 'Activator: Fresh install, seeded data version ' . Upgrader::TARGET_VERSION, 'debug' );
 		}
+
+		/*
+		 * Create the videos table. Must happen here, not only in Upgrader:
+		 * the fresh-install branch above stamps the data version as current,
+		 * which makes Upgrader skip every migration step. Runs on
+		 * re-activation too (ensure_table() is idempotent), which also
+		 * recreates the table after "Delete All Data" dropped it.
+		 *
+		 * Not network-aware: activate() runs once for the site that triggers
+		 * activation, so on a network-wide activation only the main site gets
+		 * its table here. Every other subsite is covered by Upgrader on its
+		 * first admin_init, and by VideoRepository::upsert_many() before any write.
+		 */
+		tubebay_log( 'Activator: Ensuring videos table', 'debug' );
+		VideoRepository::ensure_table();
 
 		// Flush rewrite rules.
 		tubebay_log( 'Activator: Flushing rewrite rules', 'debug' );
