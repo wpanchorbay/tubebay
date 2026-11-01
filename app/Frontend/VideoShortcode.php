@@ -150,6 +150,8 @@ class VideoShortcode {
 		 */
 		$all_settings     = Settings::get_all();
 		$allow_fullscreen = ! isset( $all_settings['allow_fullscreen'] ) || ! empty( $all_settings['allow_fullscreen'] );
+		$allow_pip        = ! isset( $all_settings['allow_pip'] ) || ! empty( $all_settings['allow_pip'] );
+		$iframe_allow     = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope' . ( $allow_pip ? '; picture-in-picture' : '' );
 
 		$width  = ! empty( $atts['width'] ) ? intval( $atts['width'] ) : '';
 		$height = ! empty( $atts['height'] ) ? intval( $atts['height'] ) : '';
@@ -184,7 +186,7 @@ class VideoShortcode {
 					?>
 					src="<?php echo esc_url( $embed_url ); ?>"
 					title="<?php esc_attr_e( 'TubeBay Video', 'tubebay' ); ?>" frameborder="0"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					allow="<?php echo esc_attr( $iframe_allow ); ?>"
 					<?php /* Sites that withhold the referrer cross-origin otherwise get YouTube's "Error 153". */ ?>
 					referrerpolicy="strict-origin-when-cross-origin"
 					<?php echo $allow_fullscreen ? 'allowfullscreen' : ''; ?>>
@@ -214,6 +216,9 @@ class VideoShortcode {
 						}
 						if ( ! $allow_fullscreen ) {
 							echo 'controlsList="nofullscreen" ';
+						}
+						if ( ! $allow_pip ) {
+							echo 'disablepictureinpicture ';
 						}
 						?>
 						playsinline

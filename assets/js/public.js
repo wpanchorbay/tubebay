@@ -81,7 +81,13 @@ function tubebayInitGallery() {
             var iframe = document.createElement('iframe');
             iframe.setAttribute('src', youtubeEmbedUrl(videoId, muted));
             iframe.setAttribute('frameborder', '0');
-            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+
+            // Absent means "picture-in-picture allowed" (the setting defaults to true).
+            var allowTokens = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope';
+            if (config.allow_pip !== false) {
+                allowTokens += '; picture-in-picture';
+            }
+            iframe.setAttribute('allow', allowTokens);
 
             if (config.allow_fullscreen !== false) {
                 iframe.setAttribute('allowfullscreen', 'true');
@@ -118,6 +124,12 @@ function tubebayInitGallery() {
 
             if (config.allow_fullscreen === false) {
                 video.setAttribute('controlsList', 'nofullscreen');
+            }
+
+            if (config.allow_pip === false) {
+                // Attribute for markup parity, property for the live element.
+                video.setAttribute('disablepictureinpicture', '');
+                video.disablePictureInPicture = true;
             }
 
             if (muted) {
