@@ -32,6 +32,7 @@ function tubebay_run_uninstall() {
 	tubebay_delete_plugin_options();
 	tubebay_delete_product_meta();
 	tubebay_delete_transients();
+	tubebay_drop_videos_table();
 	tubebay_remove_capabilities();
 	tubebay_unschedule_cron();
 }
@@ -173,6 +174,24 @@ function tubebay_delete_transients() {
 			$wpdb->esc_like( '_transient_timeout_tubebay_' ) . '%'
 		)
 	);
+}
+
+/**
+ * Drop the videos table.
+ *
+ * WordPress runs this file without loading the plugin or its autoloader, so
+ * VideoRepository is not available and the table is dropped with plain SQL.
+ * Keep the table name in step with VideoRepository::TABLE. Like the options
+ * above, this affects the current site only.
+ *
+ * @since  1.4.0
+ * @return void
+ */
+function tubebay_drop_videos_table() {
+	global $wpdb;
+
+	$table = $wpdb->prefix . 'tubebay_videos';
+	$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- table name is prefix + constant.
 }
 
 /**

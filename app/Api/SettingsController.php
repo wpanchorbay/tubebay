@@ -693,6 +693,15 @@ class SettingsController extends ApiController {
 		);
 		tubebay_log( 'Delete All Data: Deleted all transients', 'debug' );
 
+		/*
+		 * Drop the videos table. DROP TABLE IF EXISTS makes a missing table a
+		 * no-op. The tubebay_db_version option is already gone (step 1), so the
+		 * Upgrader recreates the table on the next admin_init, and
+		 * VideoRepository::upsert_many() recreates it on the next sync.
+		 */
+		\TubeBay\Data\VideoRepository::drop();
+		tubebay_log( 'Delete All Data: Dropped videos table', 'debug' );
+
 		// 4. Unschedule cron
 		wp_clear_scheduled_hook( 'tubebay_daily_sync_event' );
 		tubebay_log( 'Delete All Data: Unscheduled cron events', 'debug' );
