@@ -79,6 +79,25 @@ class SettingsController extends ApiController {
 	const VIDEO_POSITIONS = array( 'first', 'last' );
 
 	/**
+	 * The only values play_icon may hold.
+	 *
+	 * @var string[]
+	 * @since 1.4.0
+	 */
+	const PLAY_ICONS = array( 'youtube', 'circle', 'triangle' );
+
+	/**
+	 * The only values video_aspect_ratio may hold.
+	 *
+	 * Written with a hyphen (not a colon) so the value is safe to drop into a
+	 * CSS class or data attribute as-is.
+	 *
+	 * @var string[]
+	 * @since 1.4.0
+	 */
+	const VIDEO_ASPECT_RATIOS = array( '16-9', '1-1', '4-3', '9-16' );
+
+	/**
 	 * Instance of this class.
 	 *
 	 * @var SettingsController|null
@@ -293,6 +312,27 @@ class SettingsController extends ApiController {
 	}
 
 	/**
+	 * Sanitise a hex colour, falling back to a default when it is invalid.
+	 *
+	 * The core function sanitize_hex_color() returns null for anything that is not '#rgb' or
+	 * '#rrggbb', and Settings::set( $key, null ) would store an empty option —
+	 * which then renders as a blank colour. This wrapper never returns null.
+	 *
+	 * Public and static so an add-on (TubeBay Pro) can use it from its own
+	 * sanitizer callables registered via `tubebay_settings_saveable_keys`.
+	 *
+	 * @since 1.4.0
+	 * @param mixed  $value         The submitted value.
+	 * @param string $default_value Hex colour returned when $value is invalid.
+	 * @return string A valid hex colour.
+	 */
+	public static function sanitize_hex_color_or_default( $value, $default_value ) {
+		$hex = is_scalar( $value ) ? sanitize_hex_color( trim( (string) $value ) ) : null;
+
+		return ( is_string( $hex ) && '' !== $hex ) ? $hex : $default_value;
+	}
+
+	/**
 	 * Check every enum field in the payload against its allow-list.
 	 *
 	 * Runs before anything is persisted, so a rejected request leaves the
@@ -308,15 +348,25 @@ class SettingsController extends ApiController {
 		}
 
 		$enums = array(
-			'connection_method' => array(
+			'connection_method'  => array(
 				'allowed' => self::CONNECTION_METHODS,
 				'code'    => 'tubebay_invalid_connection_method',
 				'message' => __( 'The connection method value is not one this plugin recognises.', 'tubebay' ),
 			),
-			'video_position'    => array(
+			'video_position'     => array(
 				'allowed' => self::VIDEO_POSITIONS,
 				'code'    => 'tubebay_invalid_video_position',
 				'message' => __( 'The video position value is not one this plugin recognises.', 'tubebay' ),
+			),
+			'play_icon'          => array(
+				'allowed' => self::PLAY_ICONS,
+				'code'    => 'tubebay_invalid_play_icon',
+				'message' => __( 'The play icon value is not one this plugin recognises.', 'tubebay' ),
+			),
+			'video_aspect_ratio' => array(
+				'allowed' => self::VIDEO_ASPECT_RATIOS,
+				'code'    => 'tubebay_invalid_video_aspect_ratio',
+				'message' => __( 'The video aspect ratio value is not one this plugin recognises.', 'tubebay' ),
 			),
 
 			/*
@@ -330,7 +380,7 @@ class SettingsController extends ApiController {
 			 * cache warm while every one of those screens rendered its
 			 * disconnected branch, and nothing logged a warning.
 			 */
-			'connection_status' => array(
+			'connection_status'  => array(
 				'allowed' => self::CONNECTION_STATUSES,
 				'code'    => 'tubebay_invalid_connection_status',
 				'message' => __( 'The connection status value is not one this plugin recognises.', 'tubebay' ),
@@ -480,8 +530,28 @@ class SettingsController extends ApiController {
 			'privacy_mode'                  => 'bool',
 			'is_onboarding_completed'       => 'bool',
 			'advanced_deleteAllOnUninstall' => 'bool',
+			// Enum values are validated by validate_enums() above.
+			'play_icon'                     => 'sanitize_text_field',
+			'play_icon_color'               => static function ( $value ) {
+				return self::sanitize_hex_color_or_default( $value, Settings::get_defaults()['play_icon_color'] ?? '#212121' );
+			},
+			'video_aspect_ratio'            => 'sanitize_text_field',
+			'gallery_fixed_height'          => 'bool',
+			'show_description'              => 'bool',
+			'allow_fullscreen'              => 'bool',
+			'allow_pip'                     => 'bool',
+			'video_schema'                  => 'bool',
 		);
 
+		/*
+		 * Add-ons extend this map: key => 'bool' | 'absint' | any callable that
+		 * takes the submitted value and returns the value to store, e.g.
+		 *   $keys['thumb_border_color'] = static function ( $v ) {
+		 *       return \TubeBay\Api\SettingsController::sanitize_hex_color_or_default( $v, '#dcdcde' );
+		 *   };
+		 * Returning null from a callable would store an empty option, so
+		 * callables must always return a usable fallback.
+		 */
 		$simple_settings = apply_filters( 'tubebay_settings_saveable_keys', $simple_settings );
 
 		foreach ( $simple_settings as $key => $sanitizer ) {

@@ -71,6 +71,19 @@ class Settings {
 		'show_duration'                 => true,
 		'privacy_mode'                  => false,
 
+		/*
+		 * ==================================================
+		 * Gallery Appearance / Player Behaviour (1.4.0)
+		 * ==================================================
+		 */
+		'play_icon'                     => 'youtube',
+		'play_icon_color'               => '#212121',
+		'video_aspect_ratio'            => '16-9',
+		'gallery_fixed_height'          => false,
+		'show_description'              => false,
+		'allow_fullscreen'              => true,
+		'allow_pip'                     => true,
+		'video_schema'                  => true,
 
 		/*
 		 * ==================================================
