@@ -125,11 +125,65 @@ Filters the final combined gallery HTML (product images + injected video slides)
 - **File:** `app/Integration/WooCommerce.php`
 - **Parameters:** `$output` (string), `$videos` (array), `$placement` (string — `'first'|'last'`)
 
+### `tubebay_gallery_config`
+Filters the settings TubeBay prints into the hidden `#tubebay-gallery-data` element (as JSON in its `data-config` attribute) for `assets/js/public.js` to read. The built-in keys are `privacy_mode`, `placement`, `show_controls`, `allow_fullscreen`, `allow_pip`, `show_description`, `play_icon`, `video_aspect_ratio` and `gallery_fixed_height`. Add-ons append their own keys here; TubeBay Pro uses it for thumbnail navigation, the sticky video and the Video / Images toggle.
+
+The element is printed once per page, so the filter runs once per page too.
+- **Type:** Filter · **Since:** 1.4.0
+- **File:** `app/Integration/WooCommerce.php` (`output_gallery_config()`)
+- **Parameters:** `$config` (array), `$product_id` (int — the product, or `0` when the player is not for a product, e.g. a `[tubebay]` shortcode on a regular page)
+
+```php
+add_filter( 'tubebay_gallery_config', function ( $config, $product_id ) {
+	$config['my_addon_flag'] = true;
+	return $config;
+}, 10, 2 );
+```
+
+### `tubebay_template_path`
+Filters the path of a TubeBay front-end template just before it is included. Use it to point a template at a file in your own plugin. If the filtered value is not an existing file, nothing is rendered for that slide.
+
+Currently there is one template, `gallery-video-slide.php` (the video slide in the product gallery). Before this filter runs, TubeBay already looks for a theme override at `your-theme/tubebay/gallery-video-slide.php` (child theme first), so most sites can customise the slide just by copying `templates/gallery-video-slide.php` from the plugin into that folder.
+- **Type:** Filter · **Since:** 1.4.0
+- **File:** `app/Integration/WooCommerce.php` (`render_video_slide()`)
+- **Parameters:** `$template` (string, absolute path), `$template_name` (string, e.g. `'gallery-video-slide.php'`), `$video` (array, the video entry), `$args` (array, the resolved slide options)
+
+### `tubebay_gallery_fixed_height_px`
+Sets an exact pixel height for the [Fixed gallery height](/features/global-settings#player-tab) option. Return `0` (the default) to keep the square slot, which is as tall as the gallery is wide and scales with it.
+
+This only has an effect while the **Fixed gallery height** setting is on, and only on products that have a video.
+- **Type:** Filter · **Since:** 1.4.0
+- **File:** `app/Integration/WooCommerce.php` (`get_fixed_height_px()`)
+- **Parameters:** `$height` (int, default `0`)
+
+```php
+add_filter( 'tubebay_gallery_fixed_height_px', function () {
+	return 480;
+} );
+```
+
 ### `tubebay_videos_assigned`
 Fires after one or more videos are assigned to or removed from products (via the metabox save or the bulk-assign REST endpoint).
 - **Type:** Action · **Since:** 1.1.0
 - **File:** `app/Api/YouTubeController.php`
 - **Parameters:** `$product_ids` (array), `$video_ids` (array), `$action` (string — `'assign'|'remove'`)
+
+---
+
+## Structured Data Hooks
+
+### `tubebay_output_video_schema`
+Filters whether TubeBay prints [VideoObject](https://schema.org/VideoObject) JSON-LD on a single product page. The value passed in is the **Video structured data** setting (on by default), so returning `false` switches the markup off for a product, a category of products or the whole site, and returning `true` switches it on regardless of the setting.
+
+The filter does not run when **Yoast Video SEO** is active: TubeBay detects it (`WPSEO_Video_Sitemap`) and prints nothing, so the two never duplicate each other. Videos with no known duration, upload date or thumbnail are left out of the markup, because Google rejects incomplete VideoObject items.
+- **Type:** Filter · **Since:** 1.4.0
+- **File:** `app/Frontend/VideoSchema.php`
+- **Parameters:** `$enabled` (bool), `$product_id` (int)
+
+```php
+// Rank Math (or another SEO plugin) already outputs video markup: turn ours off.
+add_filter( 'tubebay_output_video_schema', '__return_false' );
+```
 
 ---
 
@@ -196,3 +250,21 @@ Filters the data array passed from PHP into the React admin app (`window.tubebay
 - **Type:** Filter · **Since:** 1.0.0
 - **File:** `app/Admin/Admin.php`
 - **Parameters:** `$localize` (array)
+
+---
+
+## TubeBay Pro Hooks
+
+These hooks are added by the **TubeBay Pro** add-on and exist only while it is active.
+
+### `tubebaypro_sticky_video_position`
+Filters the screen corner a pinned (sticky) video floats in. Use it to keep the player clear of a theme's floating cart button or sticky add-to-cart bar. Any value other than the four below is ignored and the default is used.
+- **Type:** Filter
+- **File:** `app/Frontend/StickyVideo.php` (TubeBay Pro)
+- **Parameters:** `$position` (string — `'bottom-right'` (default), `'bottom-left'`, `'top-right'` or `'top-left'`)
+
+```php
+add_filter( 'tubebaypro_sticky_video_position', function () {
+	return 'bottom-left';
+} );
+```

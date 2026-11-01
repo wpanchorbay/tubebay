@@ -40,5 +40,30 @@ If you omit `id` on a product page (or any post/page a video has been mapped to)
 - **Page builders:** Use whichever block/module renders raw shortcodes or HTML in your builder.
 - **Privacy mode:** If **Privacy (GDPR) Mode** is on in [Global Settings](/features/global-settings), shortcode embeds use `youtube-nocookie.com` too.
 
+## `[tubebay_by_pid]`: a product's videos anywhere (Pro)
+
+::: tip TubeBay Pro
+`[tubebay_by_pid]` is part of [TubeBay Pro](/guide/pro#tubebay-by-pid-shortcode). Free sites only have `[tubebay_video]`.
+:::
+
+`[tubebay_by_pid id="123"]` shows **every video assigned to one product** as a responsive grid, on any page, post or builder block. Each tile is the same click-to-play thumbnail used in the product gallery, so YouTube only loads when a shopper clicks.
+
+```text
+[tubebay_by_pid id="123" columns="3" play_icon="circle" aspect_ratio="4:3"]
+```
+
+| Attribute | Values | Default |
+|-----------|--------|---------|
+| `id` (aliases `pid`, `product_id`) | Product ID; the first one present wins | none; required |
+| `columns` | `1` to `6` | automatic grid of 260 px columns; always one column on phones |
+| `autoplay` | `true`/`false` (`1`/`0`, `yes`/`no`); the first video only, muted | off |
+| `play_icon` | `youtube`, `circle`, `triangle` | the **Video Player** setting |
+| `play_icon_color` | a hex colour such as `#e11d48` | the **Video Player** setting |
+| `aspect_ratio` | `16-9`, `1-1`, `4-3`, `9-16` (`16:9`, `16/9` also work) | the **Video Player** setting |
+| `show_duration` | `true`/`false` | the product's own option, then the global setting |
+| `show_description` | `true`/`false` | the global setting; has no visible effect in the grid |
+
+Invalid values are ignored and fall back to the default. Nothing is printed (and no error shown) when the ID is missing, the product is not published or is password-protected, it has no videos, or the shortcode sits in a feed or excerpt. The full description is on the [Pro guide](/guide/pro#tubebay-by-pid-shortcode).
+
 ## Extending the Shortcode
 Developers can filter the parsed attributes, override the resolved video type (to support other providers), or filter the final rendered HTML — see [Hooks & Filters](/developer/hooks#shortcode-hooks) (`tubebay_shortcode_atts`, `tubebay_video_type`, `tubebay_shortcode_video_html`).

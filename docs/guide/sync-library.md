@@ -32,6 +32,14 @@ If you need to fetch your latest videos immediately, trigger a manual sync from 
 
 You can also trigger a sync from **WooCommerce → Settings → TubeBay → Sync** using the **Manual Sync** button.
 
+## What a Sync Stores
+
+Besides the list of videos, a sync saves each video's details in a small database table of its own (`{prefix}tubebay_videos`): its title, description, **duration**, **upload date** and the **best thumbnail YouTube has** (full HD where it exists, falling back through smaller sizes). These details power the [video description](/features/embedded-player#video-description), the [video structured data](/features/embedded-player#video-structured-data-seo) and sharper thumbnails in the gallery.
+
+- Videos you have already assigned to products are filled in too, even if they are older than your latest 50 uploads (up to 500 per sync). Searching your channel in the Library also records any video it shows that is not stored yet.
+- After updating to 1.4.0 the table starts empty. Run **Sync Now** once so existing videos get their duration and upload date; until then they play normally but are left out of the structured data.
+- The table is removed by **Delete All Data** and when the plugin is uninstalled with **Clean Uninstall** on; see [Uninstallation](/guide/uninstallation).
+
 ## Sync Status
 
 When your channel is connected, the Library page shows how many videos it holds and when they last refreshed — for example *"21 videos available · Last sync: 2 hours ago"*.

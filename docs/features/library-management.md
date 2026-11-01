@@ -69,6 +69,10 @@ Use the sort dropdown to find the right content quickly:
 
 Search by product title with the box on the right, and move between pages with the arrows beside the item count.
 
+### Filtering by video
+
+The dropdown beside **Apply** narrows the list to **All products** (default), **With video** or **Without video**. **Without video** is the quickest way to find the products you have not covered yet: filter by it, tick the page, and use **Assign Videos** below. The filter works together with the search box, so you can search for "shirt" among the products that still have no video. When every product already has a video, the list says *Every product has a video.*
+
 ### Assigning videos to many products
 
 1. Tick the products you want. The header checkbox takes the whole page.

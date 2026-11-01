@@ -35,14 +35,14 @@ When the plugin is uninstalled with data deletion enabled, the following is remo
 
 - **Video Mappings:** All links between YouTube videos and WooCommerce products.
 - **YouTube Credentials:** Your API Key or OAuth Refresh Token.
-- **Synced Library Cache:** The local cache of your YouTube video metadata.
+- **Synced Library Cache:** The local cache of your YouTube video metadata, including the `{prefix}tubebay_videos` database table (titles, descriptions, durations, upload dates and thumbnails) added in 1.4.0. The table is dropped, not just emptied.
 - **Plugin Settings:** Global configuration and player settings.
 
 ## Removing TubeBay Pro
 
 Each plugin cleans up only its own data, so removing one never damages the other.
 
-Since Pro 1.0.2, deleting TubeBay Pro removes its licence key and the per-product overrides it owns — Max Videos, Video Position, Autoplay First Video and Show Duration Badge. It respects the same **Clean Uninstall** setting: leave that off and Pro's data stays put, ready for when you reinstall.
+Since Pro 1.0.2, deleting TubeBay Pro removes its licence key and the per-product overrides it owns — Max Videos, Video Position, Autoplay First Video and Show Duration Badge. It also removes Pro's gallery settings: thumbnail navigation, sticky video, the Video / Images toggle, thumbnail border, radius and active colour, and your Custom CSS. It respects the same **Clean Uninstall** setting: leave that off and Pro's data stays put, ready for when you reinstall.
 
 Two things are worth knowing:
 

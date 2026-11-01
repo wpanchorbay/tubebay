@@ -23,6 +23,31 @@ Controls how videos display in the product gallery — see [Embedded Player](/fe
 
 ![The Video Player tab, showing all seven settings](/public/img/settings-autoplay-shortcode.png)
 
+### Appearance & Behavior
+A second section on the same tab, added in 1.4.0. These settings change how the video slide looks and what visitors are allowed to do with it. All of them apply to the product gallery; where they also apply to the `[tubebay_video]` shortcode it is noted.
+
+- **Play Icon** — the play button drawn over each video thumbnail: **YouTube** (the rounded rectangle, default), **Circle** or **Triangle**.
+- **Play Icon Color** (default `#212121`) — the colour of the play icon. With the default colour the **YouTube** button turns YouTube-red when a shopper hovers over it; if you pick your own colour it stays that colour.
+- **Video Aspect Ratio** — the shape of the video: **16:9** (default), **1:1**, **4:3** or **9:16**. See the note below before you update.
+- **Fixed Gallery Height** (default: off) — gives every slide in the gallery, videos and photos alike, the same height, so the page no longer jumps when a shopper moves between a wide video and a tall photo. By default that height is the gallery's width (a square). Developers can set an exact pixel height with the [`tubebay_gallery_fixed_height_px`](/developer/hooks#tubebay-gallery-fixed-height-px) filter. Products with no video are left alone.
+- **Show Video Description** (default: off) — shows the video's YouTube description in a panel under the gallery while that video's slide is active. See [Video description](/features/embedded-player#video-description).
+- **Allow Fullscreen** (default: on) — lets visitors expand the player to full screen. Turn it off to remove the fullscreen button. Also applies to the `[tubebay_video]` shortcode, for YouTube and self-hosted videos alike.
+- **Allow Picture-in-Picture** (default: on) — lets visitors pop the video out into a floating window. Also applies to the `[tubebay_video]` shortcode.
+- **Video Structured Data** (default: on) — adds VideoObject markup for your product videos so search engines can show them as video results. See [Video structured data (SEO)](/features/embedded-player#video-structured-data-seo).
+
+::: warning New default shape: videos are now 16:9
+Before 1.4.0 a video was stretched to fill the same square slot as your product photos. Videos are now **16:9** by default. They still sit in that square slot, so the gallery does not change size, but the video is **letterboxed**: shown at its true shape with black bars above and below. After you update, every existing gallery will look this way.
+
+To get the old look back, set **Video Aspect Ratio** to **1:1**. The setting is store-wide.
+:::
+
+::: details Fullscreen and picture-in-picture are the player's own buttons
+Both options remove the control from the player, and the browser is told not to allow the feature either. For YouTube videos this relies on YouTube honouring the embed settings TubeBay sends; for a self-hosted file it uses the browser's own `<video>` options. A visitor can still watch the video normally.
+:::
+
+### Pro Gallery Options
+Below the settings above, the Player tab shows a **Pro Gallery Options** section. Without TubeBay Pro it is greyed out; with Pro active it holds thumbnail navigation, thumbnail styling, the sticky video, the Video / Images toggle and a Custom CSS box. See [TubeBay Pro features](/guide/pro#gallery-options) for what each one does.
+
 ## Sync Tab
 - **Enable daily automatic sync** — toggles the WP-Cron job that refreshes your video library once a day.
 - **Cache Duration** — how long fetched video data is cached before TubeBay re-checks YouTube: 1 Hour, 6 Hours, 12 Hours (default), 24 Hours, or 1 Week.
@@ -33,6 +58,7 @@ Controls how videos display in the product gallery — see [Embedded Player](/fe
 - **Clean Uninstall** — delete all TubeBay settings, cached videos, and product assignments when the plugin is uninstalled (off by default; see [Uninstallation](/guide/uninstallation)).
 - **Delete All Data** — immediately and permanently wipe all TubeBay settings, credentials, cached videos, and product mappings, resetting the plugin to a factory state. Requires typing `DELETE` to confirm.
 - **License Settings** *(appears with TubeBay Pro installed)* — activate or deactivate your license; see [License & Activation](/guide/pro).
+- **Import / Export Settings** *(TubeBay Pro)* — save your settings to a `.json` file or load them on another site; see [Moving settings between sites](/guide/pro#import-export-settings).
 
 ## Permissions
 TubeBay's admin pages — the Library, the Manager and these Settings — require the `manage_tubebay` capability, which is granted to the Administrator role automatically on activation. To give Shop Managers or another role access, add that capability to their role with a roles-and-capabilities plugin.

@@ -34,6 +34,15 @@ Videos render as extra slides inside the product's image gallery — you control
 ### Can I put a video in a post or a page, not just a product?
 Yes. TubeBay adds a **TubeBay Video** block and a **TubeBay Video Button** block to the block editor, plus a **Video link** option that turns selected text into a link opening the video in a popup. All of them choose from the same synced library — see [Video Blocks](/features/blocks). For page builders and templates, use a [shortcode](/features/shortcodes) instead.
 
+### My videos have black bars above and below after updating. Why?
+Since 1.4.0 videos are shown in their real **16:9** shape inside the gallery's square slot, instead of being stretched to fill it. To get the old full-square look back, set **Video Aspect Ratio** to **1:1** in **WooCommerce → Settings → TubeBay → Video Player**. See [Video shape](/features/embedded-player#video-shape).
+
+### Does TubeBay add video structured data (SEO)? I already use Yoast or Rank Math.
+Yes, on by default: a VideoObject JSON-LD block on product pages. With **Yoast Video SEO** active, TubeBay stays quiet automatically. TubeBay does not detect **Rank Math** (or other SEO plugins that print their own video markup), so if you use one of those, switch **Video Structured Data** off in the Video Player settings to avoid duplicates. Videos without a synced duration are left out until you [run a sync](/guide/sync-library). Details: [Video structured data](/features/embedded-player#video-structured-data-seo).
+
+### Can I stop visitors going fullscreen or using picture-in-picture?
+Yes. Turn off **Allow Fullscreen** or **Allow Picture-in-Picture** in the Video Player settings. They apply to the product gallery and the `[tubebay_video]` shortcode.
+
 ### Does the player work on mobile?
 Yes, the TubeBay player is fully responsive and uses the official YouTube IFrame API to ensure smooth playback across all devices.
 
