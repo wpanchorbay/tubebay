@@ -24,12 +24,6 @@
     border: 0;
 }
 
-/* YouTube Red hover effect for the play button */
-.tubebay-video-facade:hover .tubebay-play-bg {
-    fill: #ff0000 !important;
-    fill-opacity: 1 !important;
-}
-
 /* Slight dimming of the thumbnail on hover */
 .tubebay-video-facade:hover img {
     opacity: 0.85;
