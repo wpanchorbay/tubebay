@@ -23,5 +23,6 @@ return array(
 	\TubeBay\Core\Upgrader::class,
 	\TubeBay\Integration\WooCommerce::class,
 	\TubeBay\Frontend\VideoShortcode::class,
+	\TubeBay\Frontend\VideoSchema::class,
 	\TubeBay\Blocks\BlockManager::class,
 );
