@@ -419,7 +419,7 @@ class SettingsController extends ApiController {
 	 * Built once per request, before validation, so validate_bools() sees the
 	 * add-on keys too.
 	 *
-	 * @since 1.3.3
+	 * @since 1.4.0
 	 * @return array Map of setting key to 'bool' | 'absint' | callable.
 	 */
 	private static function get_simple_settings() {
@@ -471,7 +471,7 @@ class SettingsController extends ApiController {
 	 * "off" and "no" into an enabled setting. filter_var understands
 	 * true/false, 1/0, "1"/"0", "true"/"false", "on"/"off", "yes"/"no" and "".
 	 *
-	 * @since 1.3.3
+	 * @since 1.4.0
 	 * @param mixed $value The submitted value.
 	 * @return bool|null Null when the value is not recognisably a boolean.
 	 */
@@ -491,7 +491,7 @@ class SettingsController extends ApiController {
 	 * Runs alongside validate_enums(), before the first Settings::set(), so a
 	 * bad value 400s the whole request instead of persisting half of it.
 	 *
-	 * @since 1.3.3
+	 * @since 1.4.0
 	 * @param array $body            The raw request body.
 	 * @param array $simple_settings Map from get_simple_settings().
 	 * @return \WP_Error|null WP_Error on the first invalid value, null if all pass.

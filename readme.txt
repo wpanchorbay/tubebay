@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Requires Plugins: woocommerce
 WC requires at least: 6.1
 WC tested up to: 11.0
-Stable tag: 1.3.2
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,6 +176,23 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 
 == Changelog ==
 
+= 1.4.0 =
+
+- Changed: product videos now display at 16:9 by default. Before, a video filled the whole square slot in the gallery, which cropped most YouTube videos. The video now keeps its shape inside the slot, with black bars above and below. To keep the old look, set Video Aspect Ratio to 1:1 in the Video Player settings.
+- New: Video Aspect Ratio setting - 16:9 (default), 1:1, 4:3 or 9:16 - for gallery videos and the video shortcode.
+- New: Play Icon setting - choose the YouTube button, a circle or a triangle, and set its colour.
+- New: Fixed-Height Gallery setting - every slide is the same height, so the gallery stops jumping when you move between a photo and a video. Photos are never cropped. Developers can set an exact pixel height with the tubebay_gallery_fixed_height_px filter.
+- New: Fullscreen and Picture-in-Picture switches for the gallery player and the video shortcode. Both are on by default, as before.
+- New: Video Description setting - shows the playing video's description under the gallery, clamped to four lines with Show more / Show less. Off by default. It is hidden while a photo is showing.
+- New: Video structured data (VideoObject JSON-LD) on product pages, so Google can show your videos in search. Videos without a duration are left out. Skipped automatically when Yoast Video SEO is active; switch it off if Rank Math or another SEO plugin already prints video markup. Developers can control it per product with the tubebay_output_video_schema filter.
+- New: video thumbnails are lazy-loaded, except the first slide, which loads immediately.
+- New: the sync now saves each video's duration, upload date and best available thumbnail (maxres, standard, high, medium, then default) in a new tubebay_videos table. Up to 500 assigned videos that are missing details are filled in on each sync. The table is removed by Delete All Data and on uninstall.
+- New: Without video filter in the TubeBay Manager, with a link to edit each product that has none.
+- New: developer hooks tubebay_gallery_config, tubebay_template_path, tubebay_gallery_fixed_height_px and tubebay_output_video_schema, and a theme-overridable slide template at your-theme/tubebay/gallery-video-slide.php.
+- Changed: the product gallery no longer uses jQuery for its video thumbnails. Videos added after the page loads are picked up automatically.
+- Fixed: yes/no settings sent as text such as "false" or "0" are now read strictly, and an unrecognised value is rejected instead of being saved as on.
+- Fixed: on/off switches in the TubeBay settings showed a square checkbox over the switch. They now show the round knob again, with a visible focus ring for keyboard users.
+
 = 1.3.2 =
 
 - Fixed: "Show Player Controls" could not be turned off. Switching it off looked like it worked, but nothing was saved and controls stayed on. Stores updating from 1.2.0 were affected.
@@ -231,6 +248,9 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 - Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Videos now display at 16:9 by default instead of filling the square gallery slot. If you prefer the old look, set Video Aspect Ratio to 1:1 under TubeBay > Video Player after updating. Adds fullscreen, picture-in-picture, play icon styles, video descriptions and Google video markup. Update TubeBay before TubeBay Pro.
 
 = 1.3.2 =
 Fixes "Show Player Controls" being impossible to turn off, and lets stores on the retired "Mixed" video position save their Player settings again. Recommended for everyone on 1.3.x or earlier.

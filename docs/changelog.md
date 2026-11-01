@@ -2,6 +2,34 @@
 
 All notable changes to TubeBay are documented on this page.
 
+## [1.4.0] - Unreleased
+
+::: warning Videos change shape on update
+Product videos now display at **16:9** inside the square gallery slot, with
+black bars above and below, instead of filling the whole square. To keep the
+old look, set **Video Aspect Ratio** to **1:1** under **TubeBay > Video Player**
+after updating — see [Embedded Player](/features/embedded-player).
+:::
+
+### Added
+- **Video Aspect Ratio** setting: 16:9 (default), 1:1, 4:3 or 9:16, for gallery videos and the video shortcode.
+- **Play Icon** setting: the YouTube button, a circle or a triangle, in a colour you choose.
+- **Fixed-Height Gallery**: every slide is the same height, so the gallery stops jumping between a photo and a video. Photos are never cropped.
+- **Fullscreen** and **Picture-in-Picture** switches for the gallery player and the video shortcode. Both are on by default, as before.
+- **Video Description**: shows the playing video's description under the gallery, clamped to four lines with Show more / Show less. Off by default.
+- **Video structured data** (VideoObject JSON-LD) on product pages, so Google can show your videos in search. Videos without a duration are left out, and it steps aside automatically when Yoast Video SEO is active.
+- **Without video** filter in the TubeBay Manager, linking to each product that has no video.
+- Sync now saves each video's duration, upload date and best available thumbnail in a new `tubebay_videos` table — run [Sync Now](/guide/sync-library) once after updating.
+- Developer hooks [`tubebay_gallery_config`](/developer/hooks#tubebay-gallery-config), [`tubebay_template_path`](/developer/hooks#tubebay-template-path), [`tubebay_gallery_fixed_height_px`](/developer/hooks#tubebay-gallery-fixed-height-px) and [`tubebay_output_video_schema`](/developer/hooks#tubebay-output-video-schema), plus a theme-overridable slide template at `your-theme/tubebay/gallery-video-slide.php`.
+
+### Changed
+- Video thumbnails in the gallery are lazy-loaded, except the first slide.
+- The product gallery no longer uses jQuery for its videos, and videos added after the page loads are picked up automatically.
+
+### Fixed
+- Yes/no settings sent as text such as `"false"` or `"0"` are read strictly, and an unrecognised value is rejected instead of being saved as on.
+- On/off switches in the TubeBay settings showed a square checkbox over the switch. They show the round knob again, with a visible focus ring for keyboard users.
+
 ## [1.3.2] - 2026-09-15
 
 ::: tip Coming from 1.2.0?

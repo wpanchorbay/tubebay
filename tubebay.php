@@ -16,7 +16,7 @@
  * Plugin URI:        https://wpanchorbay.com/products/tubebay
  * Source URI:        https://github.com/wpanchorbay/tubebay
  * Description:       Connect your YouTube channel to WooCommerce and show fast, click-to-play product videos on product pages.
- * Version:           1.3.2
+ * Version:           1.4.0
  * Author:            WPAnchorBay
  * Author URI:        https://wpanchorbay.com
  * License:           GPLv2 or later
@@ -38,7 +38,7 @@ if ( ! defined( 'WPINC' ) ) {
 define( 'TUBEBAY_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TUBEBAY_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TUBEBAY_URL', plugin_dir_url( __FILE__ ) );
-define( 'TUBEBAY_VERSION', '1.3.2' );
+define( 'TUBEBAY_VERSION', '1.4.0' );
 define( 'TUBEBAY_PLUGIN_NAME', 'tubebay' );
 define( 'TUBEBAY_TEXT_DOMAIN', 'tubebay' );
 define( 'TUBEBAY_OPTION_NAME', 'tubebay' );

@@ -6,8 +6,8 @@ A license unlocks automatic updates for TubeBay Pro and entitles you to support.
 [See the pricing](https://wpanchorbay.com/plugins/tubebay-youtube-product-videos-for-woocommerce/#pricing) for TubeBay Pro.
 :::
 
-::: tip Requires TubeBay 1.3.0+
-TubeBay Pro will not activate unless TubeBay is installed, active, and at version 1.3.0 or newer. WordPress will refuse to activate Pro at all if TubeBay is missing; if TubeBay is present but older, Pro stays inactive and tells you which version it needs.
+::: tip Requires TubeBay 1.4.0+
+TubeBay Pro will not activate unless TubeBay is installed, active, and at version 1.4.0 or newer. WordPress will refuse to activate Pro at all if TubeBay is missing; if TubeBay is present but older, Pro stays inactive and tells you which version it needs.
 :::
 
 ## What TubeBay Pro Adds
@@ -156,7 +156,7 @@ Nothing re-checks a key after activation. An expired license keeps showing as ac
 
 | | |
 |---|---|
-| **TubeBay** | 1.3.0 or newer, installed and active |
+| **TubeBay** | 1.4.0 or newer, installed and active |
 | **License** | Required for automatic updates and support |
 | **Outbound HTTPS** | Your server must be able to reach `wpanchorbay.com` for activation and update checks |
 

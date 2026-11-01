@@ -36,10 +36,10 @@ export default defineConfig({
 
 		nav: [
 			{
-				text: 'v1.3.2',
+				text: 'v1.4.0',
 				items: [
 					{
-						text: 'v1.3.2 (Latest)',
+						text: 'v1.4.0 (Latest)',
 						link: '/guide/introduction',
 						activeMatch: '^/(?!v\\d)',
 					},
