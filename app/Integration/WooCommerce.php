@@ -619,6 +619,7 @@ class WooCommerce {
 				array(
 					'autoplay'      => ( 0 === $index && $autoplay_first ),
 					'show_duration' => $show_duration,
+					'is_first'      => ( 0 === $index && 'first' === $placement ),
 				)
 			);
 		}

@@ -24,6 +24,10 @@
  * @var string $ratio            '16-9'|'1-1'|'4-3'|'9-16'.
  * @var string $color            Play icon colour (hex).
  *
+ * Optional key in $args: `is_first` (bool) - true when this is the first slide of
+ * the gallery. When absent the poster is treated as non-critical (lazy), which is
+ * what every video slide did before the key existed.
+ *
  * @package TubeBay
  */
 
@@ -46,6 +50,29 @@ $tubebay_aspect_map = array(
 	'9-16' => '9 / 16',
 );
 $tubebay_aspect     = isset( $tubebay_aspect_map[ $ratio ] ) ? $tubebay_aspect_map[ $ratio ] : '16 / 9';
+
+// Intrinsic size hint for the poster <img> so the browser can reserve its box
+// before the file arrives (no layout shift). CSS (width/height 100% + object-fit)
+// still decides the rendered size.
+$tubebay_dims_map = array(
+	'16-9' => array( 640, 360 ),
+	'1-1'  => array( 480, 480 ),
+	'4-3'  => array( 480, 360 ),
+	'9-16' => array( 360, 640 ),
+);
+$tubebay_dims     = isset( $tubebay_dims_map[ $ratio ] ) ? $tubebay_dims_map[ $ratio ] : $tubebay_dims_map['16-9'];
+
+// Poster loading priority. The first slide (it is what LCP measures) and an
+// autoplay video are fetched immediately; every other poster is deferred until
+// the browser (or public.js) sees it near the viewport.
+$tubebay_is_first = ! empty( $args['is_first'] );
+$tubebay_critical = $tubebay_is_first || 'true' === $autoplay;
+$tubebay_img_load = $tubebay_critical ? 'decoding="async"' : 'loading="lazy" decoding="async"';
+// High priority only when the slide is known to be first, or autoplay without a known "not first".
+$tubebay_known_not_first = isset( $args['is_first'] ) && ! $args['is_first'];
+if ( $tubebay_is_first || ( 'true' === $autoplay && ! $tubebay_known_not_first ) ) {
+	$tubebay_img_load .= ' fetchpriority="high"';
+}
 ?>
 <div data-thumb="<?php echo esc_url( $vid_thumb ); ?>" class="<?php echo esc_attr( $tubebay_slide_classes ); ?>" data-play-icon="<?php echo esc_attr( $play_icon ); ?>" data-play-icon-color="<?php echo esc_attr( $color ); ?>" data-aspect-ratio="<?php echo esc_attr( $ratio ); ?>" style="--tubebay-aspect: <?php echo esc_attr( $tubebay_aspect ); ?>;">
 	<div class="tubebay-video-frame">
@@ -61,7 +88,7 @@ $tubebay_aspect     = isset( $tubebay_aspect_map[ $ratio ] ) ? $tubebay_aspect_m
 		<?php endif; ?>
 		>
 
-		<img src="<?php echo esc_url( $vid_thumb ); ?>" alt="Product Video" loading="lazy" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; margin: 0;" />
+		<img src="<?php echo esc_url( $vid_thumb ); ?>" alt="Product Video" width="<?php echo esc_attr( $tubebay_dims[0] ); ?>" height="<?php echo esc_attr( $tubebay_dims[1] ); ?>" <?php echo $tubebay_img_load; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed literal attributes built above. ?> style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; margin: 0;" />
 
 		<?php
 		// Button box per icon style: YouTube keeps its 68x48 pill; circle/triangle are square.
