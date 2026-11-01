@@ -13,6 +13,7 @@ namespace TubeBay\Data\Entities;
 
 use TubeBay\Helper\Settings;
 use TubeBay\Data\Entities\Video;
+use TubeBay\Data\VideoRepository;
 
 /**
  * Channel class.
@@ -25,6 +26,31 @@ use TubeBay\Data\Entities\Video;
  */
 class Channel {
 
+	/**
+	 * Thumbnail sizes YouTube may return, best first.
+	 *
+	 * @since 1.4.0
+	 * @var   string[]
+	 */
+	const THUMBNAIL_CHAIN = array( 'maxres', 'standard', 'high', 'medium', 'default' );
+
+	/**
+	 * Most IDs videos.list accepts in one request.
+	 *
+	 * @since 1.4.0
+	 * @var   int
+	 */
+	const VIDEOS_LIST_BATCH = 50;
+
+	/**
+	 * Most assigned-but-missing video IDs fetched during a single sync.
+	 *
+	 * Each batch of 50 costs 1 quota unit, so 500 IDs is at most 10 units.
+	 *
+	 * @since 1.4.0
+	 * @var   int
+	 */
+	const BACKFILL_LIMIT = 500;
 
 	/**
 	 * YouTube API key.
@@ -148,6 +174,9 @@ class Channel {
 
 		set_transient( $transient_key, $to_cache, Settings::get_cache_duration() );
 		Settings::set_last_sync_time( time() );
+
+		// Fill the video table (duration, upload date, full description). Never fails the sync.
+		$this->enrich_video_table( $videos );
 
 		return $videos;
 	}
@@ -333,18 +362,7 @@ class Channel {
 		foreach ( $playlist_body['items'] as $item ) {
 			$snippet = $item['snippet'];
 
-			// Thumbnail selection.
-			$thumbnails = $snippet['thumbnails'] ?? array();
-			$thumb_url  = '';
-			if ( isset( $thumbnails['maxres']['url'] ) ) {
-				$thumb_url = $thumbnails['maxres']['url'];
-			} elseif ( isset( $thumbnails['high']['url'] ) ) {
-				$thumb_url = $thumbnails['high']['url'];
-			} elseif ( isset( $thumbnails['medium']['url'] ) ) {
-				$thumb_url = $thumbnails['medium']['url'];
-			} elseif ( isset( $thumbnails['default']['url'] ) ) {
-				$thumb_url = $thumbnails['default']['url'];
-			}
+			$thumb_url = self::pick_thumbnail_url( $snippet['thumbnails'] ?? array() );
 
 			// Real video ID is stored in snippet.resourceId.videoId for playlistItems.
 			$videos[] = new Video(
@@ -359,6 +377,224 @@ class Channel {
 		}
 
 		return $videos;
+	}
+
+	/**
+	 * Pick the best thumbnail URL from a YouTube `thumbnails` object.
+	 *
+	 * Order: maxres, standard, high, medium, default. Sizes that are missing
+	 * or have an empty URL are skipped.
+	 *
+	 * @since 1.4.0
+	 * @param mixed $thumbnails The `snippet.thumbnails` value from the API.
+	 * @return string The URL, or an empty string if there is none.
+	 */
+	public static function pick_thumbnail_url( $thumbnails ) {
+		if ( ! is_array( $thumbnails ) ) {
+			return '';
+		}
+
+		foreach ( self::THUMBNAIL_CHAIN as $size ) {
+			if ( ! empty( $thumbnails[ $size ]['url'] ) && is_string( $thumbnails[ $size ]['url'] ) ) {
+				return $thumbnails[ $size ]['url'];
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Turn a decoded `videos.list` (part=contentDetails,snippet) response into
+	 * rows ready for VideoRepository::upsert_many().
+	 *
+	 * Pure: no HTTP, no database. `snippet.publishedAt` here is the real upload
+	 * date (the playlist item's publishedAt is when it was added to a playlist).
+	 *
+	 * @since 1.4.0
+	 * @param mixed  $body                Decoded JSON body.
+	 * @param string $fallback_channel_id Used when an item has no snippet.channelId.
+	 * @return array[] Rows with video_id, channel_id, title, description,
+	 *                 thumbnail_url, duration and uploaded_at.
+	 */
+	public static function parse_videos_list_response( $body, $fallback_channel_id = '' ) {
+		$rows = array();
+
+		if ( ! is_array( $body ) || empty( $body['items'] ) || ! is_array( $body['items'] ) ) {
+			return $rows;
+		}
+
+		foreach ( $body['items'] as $item ) {
+			if ( ! is_array( $item ) || empty( $item['id'] ) || ! is_string( $item['id'] ) ) {
+				continue;
+			}
+
+			$snippet = isset( $item['snippet'] ) && is_array( $item['snippet'] ) ? $item['snippet'] : array();
+			$details = isset( $item['contentDetails'] ) && is_array( $item['contentDetails'] ) ? $item['contentDetails'] : array();
+
+			$rows[] = array(
+				'video_id'      => sanitize_text_field( $item['id'] ),
+				'channel_id'    => sanitize_text_field( $snippet['channelId'] ?? $fallback_channel_id ),
+				'title'         => sanitize_text_field( $snippet['title'] ?? '' ),
+				'description'   => sanitize_textarea_field( $snippet['description'] ?? '' ),
+				'thumbnail_url' => esc_url_raw( self::pick_thumbnail_url( $snippet['thumbnails'] ?? array() ) ),
+				'duration'      => sanitize_text_field( $details['duration'] ?? '' ),
+				'uploaded_at'   => sanitize_text_field( $snippet['publishedAt'] ?? '' ),
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Fetch duration, upload date and full description for a list of videos.
+	 *
+	 * One `videos.list` call (1 quota unit) per 50 IDs, authenticated exactly
+	 * like the other calls in this class. Never throws: on a network or API
+	 * error it logs, stops, and returns the rows gathered so far (possibly none).
+	 *
+	 * @since 1.4.0
+	 * @param string[] $ids  Video IDs.
+	 * @param int      $max  Most IDs to look up in this call.
+	 * @return array[] Rows as returned by parse_videos_list_response().
+	 */
+	public function fetch_video_details( $ids, $max = self::BACKFILL_LIMIT ) {
+		$ids  = array_slice( array_values( array_unique( array_filter( array_map( 'strval', (array) $ids ) ) ) ), 0, max( 0, (int) $max ) );
+		$rows = array();
+
+		if ( empty( $ids ) || ! $this->is_configured() ) {
+			return $rows;
+		}
+
+		foreach ( array_chunk( $ids, self::VIDEOS_LIST_BATCH ) as $batch ) {
+			$args = array(
+				'part'       => 'contentDetails,snippet',
+				'id'         => implode( ',', $batch ),
+				'maxResults' => self::VIDEOS_LIST_BATCH,
+			);
+
+			if ( empty( $this->refresh_token ) && ! empty( $this->api_key ) ) {
+				$args['key'] = $this->api_key;
+			}
+
+			$response = wp_remote_get(
+				add_query_arg( $args, 'https://www.googleapis.com/youtube/v3/videos' ),
+				$this->get_api_request_args()
+			);
+
+			if ( is_wp_error( $response ) ) {
+				tubebay_log( 'fetch_video_details: Network error - ' . $response->get_error_message(), 'error' );
+				break;
+			}
+
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			if ( ! is_array( $body ) || isset( $body['error'] ) ) {
+				tubebay_log( 'fetch_video_details: API error - ' . ( is_array( $body ) ? ( $body['error']['message'] ?? 'Unknown Error' ) : 'Invalid response' ), 'error' );
+				break;
+			}
+
+			$rows = array_merge( $rows, self::parse_videos_list_response( $body, (string) $this->channel_id ) );
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Video IDs currently assigned to any product.
+	 *
+	 * Reads `_tubebay_video_ids` (JSON list of objects or bare IDs) and the
+	 * legacy `_tubebay_video_id` with a single query. Non-YouTube entries are
+	 * ignored.
+	 *
+	 * @since 1.4.0
+	 * @return string[] Unique IDs.
+	 */
+	public static function get_assigned_video_ids() {
+		global $wpdb;
+
+		$values = $wpdb->get_col( "SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key IN ( '_tubebay_video_ids', '_tubebay_video_id' )" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only lookup of our own meta keys, no user input.
+
+		$ids = array();
+
+		foreach ( (array) $values as $value ) {
+			$decoded = json_decode( (string) $value, true );
+
+			if ( is_array( $decoded ) ) {
+				foreach ( $decoded as $entry ) {
+					if ( is_array( $entry ) ) {
+						if ( isset( $entry['type'] ) && 'youtube' !== $entry['type'] ) {
+							continue;
+						}
+						$entry = $entry['id'] ?? '';
+					}
+					if ( is_string( $entry ) && '' !== $entry ) {
+						$ids[ $entry ] = true;
+					}
+				}
+			} elseif ( is_string( $value ) && '' !== $value ) {
+				$ids[ $value ] = true; // Legacy single ID.
+			}
+		}
+
+		return array_map( 'strval', array_keys( $ids ) );
+	}
+
+	/**
+	 * After a sync: refresh the table rows for the synced videos and backfill
+	 * assigned videos the table does not have yet.
+	 *
+	 * Swallows every failure so the sync result is never affected.
+	 *
+	 * @since 1.4.0
+	 * @param Video[] $videos Videos returned by the playlist fetch.
+	 * @return void
+	 */
+	private function enrich_video_table( $videos ) {
+		try {
+			$ids = wp_list_pluck( (array) $videos, 'id' );
+
+			// Assigned IDs that are not in the table (older than the latest 50 uploads).
+			$assigned_missing = array_slice( VideoRepository::missing_ids( self::get_assigned_video_ids() ), 0, self::BACKFILL_LIMIT );
+
+			// Playlist IDs are always refreshed; the cap applies to the backfill part only.
+			$ids  = array_values( array_unique( array_merge( array_map( 'strval', $ids ), $assigned_missing ) ) );
+			$rows = $this->fetch_video_details( $ids, count( $ids ) );
+
+			if ( ! empty( $rows ) ) {
+				VideoRepository::upsert_many( $rows );
+			}
+		} catch ( \Throwable $e ) {
+			tubebay_log( 'enrich_video_table: ' . $e->getMessage(), 'error' );
+		}
+	}
+
+	/**
+	 * Fetch and store details for those of the given IDs the table lacks.
+	 *
+	 * Used by search so existing rows (with duration and a full description)
+	 * are never overwritten by thinner search data. Never throws; if the
+	 * lookup fails the IDs stay missing and the next sync backfills them.
+	 *
+	 * @since 1.4.0
+	 * @param string[] $ids Video IDs.
+	 * @return void
+	 */
+	private function enrich_video_table_for_ids( $ids ) {
+		try {
+			$missing = VideoRepository::missing_ids( $ids );
+
+			if ( empty( $missing ) ) {
+				return;
+			}
+
+			$rows = $this->fetch_video_details( $missing, self::VIDEOS_LIST_BATCH );
+
+			if ( ! empty( $rows ) ) {
+				VideoRepository::upsert_many( $rows );
+			}
+		} catch ( \Throwable $e ) {
+			tubebay_log( 'enrich_video_table_for_ids: ' . $e->getMessage(), 'error' );
+		}
 	}
 
 	/**
@@ -440,16 +676,7 @@ class Channel {
 			foreach ( $body['items'] as $item ) {
 				$snippet = $item['snippet'];
 
-				// Thumbnail selection.
-				$thumbnails = $snippet['thumbnails'] ?? array();
-				$thumb_url  = '';
-				if ( isset( $thumbnails['high']['url'] ) ) {
-					$thumb_url = $thumbnails['high']['url'];
-				} elseif ( isset( $thumbnails['medium']['url'] ) ) {
-					$thumb_url = $thumbnails['medium']['url'];
-				} elseif ( isset( $thumbnails['default']['url'] ) ) {
-					$thumb_url = $thumbnails['default']['url'];
-				}
+				$thumb_url = self::pick_thumbnail_url( $snippet['thumbnails'] ?? array() );
 
 				// In Search API, ID is in id.videoId.
 				$video_id = $item['id']['videoId'] ?? '';
@@ -476,6 +703,9 @@ class Channel {
 		if ( 'date_asc' === $sort || 'title_desc' === $sort ) {
 			$videos = array_reverse( $videos );
 		}
+
+		// Record videos the table has not seen yet, with real duration and upload date.
+		$this->enrich_video_table_for_ids( wp_list_pluck( $videos, 'id' ) );
 
 		$next_page_token = $body['nextPageToken'] ?? null;
 
