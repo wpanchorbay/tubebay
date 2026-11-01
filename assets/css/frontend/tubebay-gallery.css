@@ -34,3 +34,78 @@
 .tubebay-icon-youtube[data-play-icon-color="#212121" i] .tubebay-video-facade:hover .tubebay-play-bg {
     fill: #f00;
 }
+
+/*
+ * Video shape. The slot (.tubebay-video-frame) is always square so it lines up with the
+ * product images; the facade sits inside it at the chosen ratio (--tubebay-aspect, set
+ * inline on the slide), letterboxed/pillarboxed on black. The player iframe/<video> that
+ * public.js injects is absolutely positioned at 100% of the facade.
+ */
+.tubebay-video-slide .tubebay-video-frame {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #000;
+}
+
+.tubebay-video-slide .tubebay-video-facade {
+    position: relative;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: var(--tubebay-aspect, 16 / 9);
+    overflow: hidden;
+    background: #000;
+    cursor: pointer;
+}
+
+/* Portrait: fill the slot's height, centre horizontally. */
+.tubebay-video-slide.tubebay-ratio-9-16 .tubebay-video-facade {
+    width: auto;
+    height: 100%;
+    max-height: none;
+    max-width: 100%;
+}
+
+/* Browsers without aspect-ratio: square slot via padding, facade placed by percentages. */
+@supports not (aspect-ratio: 1 / 1) {
+    .tubebay-video-slide .tubebay-video-frame {
+        display: block;
+        height: 0;
+        padding-bottom: 100%;
+    }
+
+    .tubebay-video-slide .tubebay-video-facade {
+        position: absolute;
+        top: 21.875%;
+        left: 0;
+        width: 100%;
+        height: 56.25%;
+        max-height: none;
+    }
+
+    .tubebay-video-slide.tubebay-ratio-1-1 .tubebay-video-facade {
+        top: 0;
+        height: 100%;
+    }
+
+    .tubebay-video-slide.tubebay-ratio-4-3 .tubebay-video-facade {
+        top: 12.5%;
+        height: 75%;
+    }
+
+    .tubebay-video-slide.tubebay-ratio-9-16 .tubebay-video-facade {
+        top: 0;
+        left: 21.875%;
+        width: 56.25%;
+        max-width: none;
+        height: 100%;
+    }
+}

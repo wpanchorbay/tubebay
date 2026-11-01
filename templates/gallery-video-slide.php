@@ -37,8 +37,18 @@ $tubebay_slide_classes = 'woocommerce-product-gallery__image tubebay-virtual-sli
 if ( $fixed_height ) {
 	$tubebay_slide_classes .= ' tubebay-fixed-height';
 }
+
+// Ratio keyword -> CSS aspect-ratio value. The slot stays square; the facade is letterboxed inside it.
+$tubebay_aspect_map = array(
+	'16-9' => '16 / 9',
+	'1-1'  => '1 / 1',
+	'4-3'  => '4 / 3',
+	'9-16' => '9 / 16',
+);
+$tubebay_aspect     = isset( $tubebay_aspect_map[ $ratio ] ) ? $tubebay_aspect_map[ $ratio ] : '16 / 9';
 ?>
-<div data-thumb="<?php echo esc_url( $vid_thumb ); ?>" class="<?php echo esc_attr( $tubebay_slide_classes ); ?>" data-play-icon="<?php echo esc_attr( $play_icon ); ?>" data-play-icon-color="<?php echo esc_attr( $color ); ?>" data-aspect-ratio="<?php echo esc_attr( $ratio ); ?>">
+<div data-thumb="<?php echo esc_url( $vid_thumb ); ?>" class="<?php echo esc_attr( $tubebay_slide_classes ); ?>" data-play-icon="<?php echo esc_attr( $play_icon ); ?>" data-play-icon-color="<?php echo esc_attr( $color ); ?>" data-aspect-ratio="<?php echo esc_attr( $ratio ); ?>" style="--tubebay-aspect: <?php echo esc_attr( $tubebay_aspect ); ?>;">
+	<div class="tubebay-video-frame">
 	<div class="tubebay-video-facade"
 		data-video-id="<?php echo esc_attr( $vid_id ); ?>"
 		data-video-type="<?php echo esc_attr( $vid_type ); ?>"
@@ -49,7 +59,7 @@ if ( $fixed_height ) {
 		<?php if ( $show_description ) : ?>
 		data-description="<?php echo esc_attr( $description ); ?>"
 		<?php endif; ?>
-		style="position: relative; padding-bottom: 100%; height: 0; overflow: hidden; width: 100%; background: #000; cursor: pointer;">
+		>
 
 		<img src="<?php echo esc_url( $vid_thumb ); ?>" alt="Product Video" loading="lazy" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; margin: 0;" />
 
@@ -80,5 +90,6 @@ if ( $fixed_height ) {
 			<!-- Badge -->
 			<div class="tubebay-duration-badge" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; padding: 2px 6px; font-size: 11px; border-radius: 4px; z-index: 2; line-height: 1.2;">Video</div>
 		<?php endif; ?>
+	</div>
 	</div>
 </div>
