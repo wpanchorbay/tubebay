@@ -89,8 +89,58 @@ class WooCommerce {
 		tubebay_log( "WooCommerce: Registering render_video_in_gallery on hook: woocommerce_single_product_image_thumbnail_html", 'debug' );
 		$loader->add_filter( 'woocommerce_single_product_image_thumbnail_html', $this, 'render_video_in_gallery', 10, 2 );
 
+		// Fixed-height gallery: tag the gallery wrapper so the CSS can equalise image slides too.
+		$loader->add_filter( 'woocommerce_single_product_image_gallery_classes', $this, 'add_fixed_height_gallery_class' );
+
 		// Add frontend assets hook
 		$loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_frontend_scripts' );
+	}
+
+	/**
+	 * Add `tubebay-gallery-fixed-height` to the product gallery wrapper when the
+	 * Fixed gallery height setting is on and the product has videos.
+	 *
+	 * With the class present, tubebay-gallery.css gives every slide (videos and
+	 * WooCommerce images) the same height, so the gallery does not jump between
+	 * a video and a tall or short image. With the setting off, or on a product
+	 * without videos, the gallery is untouched.
+	 *
+	 * @since 1.4.0
+	 * @param string[] $classes Gallery wrapper classes.
+	 * @return string[]
+	 */
+	public function add_fixed_height_gallery_class( $classes ) {
+		$settings = Settings::get_all();
+		if ( empty( $settings['gallery_fixed_height'] ) ) {
+			return $classes;
+		}
+
+		$product_id = get_the_ID();
+		if ( ! $product_id || ! is_singular( 'product' ) || empty( $this->get_product_videos( $product_id ) ) ) {
+			return $classes;
+		}
+
+		$classes   = (array) $classes;
+		$classes[] = 'tubebay-gallery-fixed-height';
+		return $classes;
+	}
+
+	/**
+	 * Optional fixed pixel height for fixed-height galleries.
+	 *
+	 * @since 1.4.0
+	 * @return int Height in px; 0 (the default) means a square slot, i.e. the
+	 *             slot height equals the gallery width.
+	 */
+	private function get_fixed_height_px() {
+		/**
+		 * Filter the fixed gallery height in pixels. Return 0 (default) for a
+		 * square slot that scales with the gallery width.
+		 *
+		 * @since 1.4.0
+		 * @param int $height Height in px, 0 for square.
+		 */
+		return max( 0, absint( apply_filters( 'tubebay_gallery_fixed_height_px', 0 ) ) );
 	}
 
 	/**
@@ -130,6 +180,12 @@ class WooCommerce {
 		// Same handles and files as Plugin::enqueue_public_styles().
 		wp_enqueue_style( TUBEBAY_OPTION_NAME . '_public', TUBEBAY_URL . 'assets/css/public.css', array(), $version );
 		wp_enqueue_style( 'tubebay-gallery-css', TUBEBAY_URL . 'assets/css/frontend/tubebay-gallery.css', array(), $version );
+
+		// Fixed-height gallery with a custom pixel height (tubebay_gallery_fixed_height_px filter).
+		$fixed_px = $this->get_fixed_height_px();
+		if ( $fixed_px > 0 && ! empty( Settings::get_all()['gallery_fixed_height'] ) ) {
+			wp_add_inline_style( 'tubebay-gallery-css', '.tubebay-gallery-fixed-height{--tubebay-fixed-height:' . $fixed_px . 'px;}' );
+		}
 		wp_enqueue_script( TUBEBAY_OPTION_NAME . '_public_js', TUBEBAY_URL . 'assets/js/public.js', array(), $version, true );
 	}
 

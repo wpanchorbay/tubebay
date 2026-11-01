@@ -74,6 +74,30 @@
     max-width: 100%;
 }
 
+/*
+ * Fixed-height gallery (Settings > Player). The class sits on .woocommerce-product-gallery,
+ * only when the setting is on and the product has videos. Every slide gets the same height
+ * (a square by default, or --tubebay-fixed-height when the tubebay_gallery_fixed_height_px
+ * filter sets one), so flexslider's smoothHeight has nothing to animate. Images are
+ * contained (never cropped); videos keep their ratio inside the slot via the frame above.
+ */
+.woocommerce-product-gallery.tubebay-gallery-fixed-height .woocommerce-product-gallery__image:not(.tubebay-video-slide) > a {
+    display: block;
+}
+
+.woocommerce-product-gallery.tubebay-gallery-fixed-height .woocommerce-product-gallery__image:not(.tubebay-video-slide) img {
+    display: block;
+    width: 100%;
+    height: var(--tubebay-fixed-height, auto);
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    object-position: center;
+}
+
+.woocommerce-product-gallery.tubebay-gallery-fixed-height .tubebay-video-slide .tubebay-video-frame {
+    height: var(--tubebay-fixed-height, auto);
+}
+
 /* Browsers without aspect-ratio: square slot via padding, facade placed by percentages. */
 @supports not (aspect-ratio: 1 / 1) {
     .tubebay-video-slide .tubebay-video-frame {
