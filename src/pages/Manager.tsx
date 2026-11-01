@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import apiFetch from "@wordpress/api-fetch";
+import { __ } from "@wordpress/i18n";
 import { ClassicButton, ClassicInput } from "../components/classics";
 import { useToast } from "../store/toast/use-toast";
+import { TEXT_DOMAIN } from "../utils/textDomain";
+
+type VideoFilter = "all" | "with" | "without";
 
 interface ProductVideo {
     id: string;
@@ -17,6 +21,7 @@ interface Product {
     thumbnail: string;
     assigned_videos: ProductVideo[];
     video_count: number;
+    edit_link?: string;
 }
 
 export default function Manager() {
@@ -24,6 +29,7 @@ export default function Manager() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchInput, setSearchInput] = useState("");
+    const [videoFilter, setVideoFilter] = useState<VideoFilter>("all");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -50,13 +56,13 @@ export default function Manager() {
         }
 
         fetchProducts();
-    }, [currentPage]);
+    }, [currentPage, videoFilter]);
 
     const fetchProducts = async () => {
         setLoading(true);
         try {
             const response: any = await apiFetch({
-                path: `/tubebay/v1/products?page=${currentPage}&search=${searchInput}`,
+                path: `/tubebay/v1/products?page=${currentPage}&search=${encodeURIComponent(searchInput)}&video_filter=${videoFilter}`,
             });
             if (response.success) {
                 setProducts(response.products);
@@ -69,6 +75,15 @@ export default function Manager() {
             setLoading(false);
         }
     };
+
+    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedProducts([]);
+        setCurrentPage(1);
+        setVideoFilter(e.target.value as VideoFilter);
+    };
+
+    const getEditLink = (product: Product) =>
+        product.edit_link || `post.php?post=${product.id}&action=edit`;
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -191,6 +206,15 @@ export default function Manager() {
                     >
                         Apply
                     </ClassicButton>
+                    <select
+                        value={videoFilter}
+                        onChange={handleFilterChange}
+                        aria-label={__("Filter products by video", TEXT_DOMAIN)}
+                    >
+                        <option value="all">{__("All products", TEXT_DOMAIN)}</option>
+                        <option value="with">{__("With video", TEXT_DOMAIN)}</option>
+                        <option value="without">{__("Without video", TEXT_DOMAIN)}</option>
+                    </select>
                 </div>
 
                 <div className="tablenav-pages">
@@ -238,7 +262,13 @@ export default function Manager() {
                     {loading ? (
                         <tr><td colSpan={6}>Loading products...</td></tr>
                     ) : products.length === 0 ? (
-                        <tr><td colSpan={6}>No products found.</td></tr>
+                        <tr>
+                            <td colSpan={6}>
+                                {videoFilter === "without" && searchInput.trim() === ""
+                                    ? __("Every product has a video.", TEXT_DOMAIN)
+                                    : __("No products found.", TEXT_DOMAIN)}
+                            </td>
+                        </tr>
                     ) : (
                         products.map((product) => (
                             <tr key={product.id}>
@@ -253,7 +283,7 @@ export default function Manager() {
                                     <img src={product.thumbnail} alt={product.name} style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
                                 </td>
                                 <td className="column-primary">
-                                    <strong><a href={`post.php?post=${product.id}&action=edit`}>{product.name}</a></strong>
+                                    <strong><a href={getEditLink(product)}>{product.name}</a></strong>
                                 </td>
                                 <td>{product.sku || '—'}</td>
                                 <td>
@@ -264,7 +294,7 @@ export default function Manager() {
                                     ) : 'None'}
                                 </td>
                                 <td>
-                                    <a href={`post.php?post=${product.id}&action=edit`} className="button button-small">Edit Videos</a>
+                                    <a href={getEditLink(product)} className="button button-small">Edit Videos</a>
                                 </td>
                             </tr>
                         ))

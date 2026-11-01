@@ -68,6 +68,16 @@ class ProductController extends ApiController {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_products' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'args'                => array(
+						'video_filter' => array(
+							'description'       => __( 'Limit the list to products with or without an assigned video.', 'tubebay' ),
+							'type'              => 'string',
+							'enum'              => array( 'all', 'with', 'without' ),
+							'default'           => 'all',
+							'sanitize_callback' => 'sanitize_key',
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+					),
 				),
 			)
 		);
@@ -108,6 +118,66 @@ class ProductController extends ApiController {
 			$args['s'] = $search;
 		}
 
+		$video_filter = isset( $params['video_filter'] ) ? sanitize_key( $params['video_filter'] ) : 'all';
+		if ( 'without' === $video_filter ) {
+			// No video = no usable `_tubebay_video_ids` AND no legacy `_tubebay_video_id`
+			// (the row display falls back to the legacy key, so the filter must too).
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-only, paginated, opt-in filter.
+				'relation' => 'AND',
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => '_tubebay_video_ids',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => '_tubebay_video_ids',
+						'value'   => '',
+						'compare' => '=',
+					),
+					array(
+						'key'     => '_tubebay_video_ids',
+						'value'   => '[]',
+						'compare' => '=',
+					),
+				),
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => '_tubebay_video_id',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => '_tubebay_video_id',
+						'value'   => '',
+						'compare' => '=',
+					),
+				),
+			);
+		} elseif ( 'with' === $video_filter ) {
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-only, paginated, opt-in filter.
+				'relation' => 'OR',
+				array(
+					'relation' => 'AND',
+					array(
+						'key'     => '_tubebay_video_ids',
+						'value'   => '',
+						'compare' => '!=',
+					),
+					array(
+						'key'     => '_tubebay_video_ids',
+						'value'   => '[]',
+						'compare' => '!=',
+					),
+				),
+				array(
+					'key'     => '_tubebay_video_id',
+					'value'   => '',
+					'compare' => '!=',
+				),
+			);
+		}
+
 		$query = new \WP_Query( $args );
 
 		$products = array();
@@ -144,6 +214,7 @@ class ProductController extends ApiController {
 				$products[] = array(
 					'id'              => $post->ID,
 					'name'            => $post->post_title,
+					'edit_link'       => get_edit_post_link( $post->ID, 'raw' ),
 					'sku'             => $product->get_sku(),
 					'thumbnail'       => $image_url,
 					'assigned_videos' => $assigned_videos,
@@ -159,6 +230,7 @@ class ProductController extends ApiController {
 				'total_pages'  => $query->max_num_pages,
 				'total_items'  => $query->found_posts,
 				'current_page' => $page,
+				'video_filter' => $video_filter,
 			),
 			200
 		);
