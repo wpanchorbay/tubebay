@@ -13,7 +13,14 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 define( 'TUBEBAY_OPTION_PREFIX', 'tubebay_' );
 
+// Read the "delete all data" choice before the cleanup below removes the option. Same check as tubebay_run_uninstall().
+$tubebay_wpab_delete = (bool) get_option( TUBEBAY_OPTION_PREFIX . 'advanced_deleteAllOnUninstall', false );
+
 tubebay_run_uninstall();
+
+// Shared WPAnchorBay banner cleanup: removes the shared "banner closed" user meta once the last WPAnchorBay plugin is uninstalled.
+require_once __DIR__ . '/includes/wpab-banner/wpab-banner-uninstall.php';
+wpab_banner_uninstall( WP_UNINSTALL_PLUGIN, $tubebay_wpab_delete );
 
 /**
  * The main controller function for the uninstallation process.

@@ -51,6 +51,11 @@ if ( file_exists( TUBEBAY_PATH . 'vendor/autoload.php' ) ) {
 
 require_once TUBEBAY_PATH . 'app/functions.php';
 
+// WPAnchorBay campaign banner. Loaded on every admin request, including admin-ajax.php, so the dismiss handler registers.
+if ( is_admin() ) {
+	require_once TUBEBAY_PATH . 'includes/wpab-banner/wpab-banner-loader.php';
+}
+
 register_activation_hook( __FILE__, 'tubebay_activate' );
 register_deactivation_hook( __FILE__, 'tubebay_deactivate' );
 

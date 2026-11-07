@@ -18,6 +18,7 @@ copy_plugin_files() {
     cp -r assets "$DEST/"
     cp -r build "$DEST/"
     cp -r config "$DEST/"
+    cp -r includes "$DEST/"
     cp -r templates "$DEST/"
     cp -r languages "$DEST/"
     cp -r vendor "$DEST/"
