@@ -19,6 +19,9 @@ copy_plugin_files() {
     cp -r build "$DEST/"
     cp -r config "$DEST/"
     cp -r includes "$DEST/"
+    # The banner README is internal notes for the five plugins sharing it, not
+    # a runtime file. It stays in the repo; only the shipped copy drops it.
+    rm -f "$DEST/includes/wpab-banner/README.md"
     cp -r templates "$DEST/"
     cp -r languages "$DEST/"
     cp -r vendor "$DEST/"

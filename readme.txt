@@ -250,7 +250,7 @@ WPAnchorBay [Privacy Policy](https://wpanchorbay.com/privacy-policy/)
 == Upgrade Notice ==
 
 = 1.4.0 =
-Videos now display at 16:9 by default instead of filling the square gallery slot. If you prefer the old look, set Video Aspect Ratio to 1:1 under TubeBay > Video Player after updating. Adds fullscreen, picture-in-picture, play icon styles, video descriptions and Google video markup. Update TubeBay before TubeBay Pro.
+Videos now show at 16:9 by default instead of filling the square slot. To keep the old look, set Video Aspect Ratio to 1:1 under TubeBay > Video Player. Adds fullscreen, picture-in-picture, play icon styles, video descriptions and Google video markup. Update TubeBay before TubeBay Pro.
 
 = 1.3.2 =
 Fixes "Show Player Controls" being impossible to turn off, and lets stores on the retired "Mixed" video position save their Player settings again. Recommended for everyone on 1.3.x or earlier.

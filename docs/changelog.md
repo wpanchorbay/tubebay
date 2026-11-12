@@ -2,7 +2,7 @@
 
 All notable changes to TubeBay are documented on this page.
 
-## [1.4.0] - Unreleased
+## [1.4.0] - 2026-11-12
 
 ::: warning Videos change shape on update
 Product videos now display at **16:9** inside the square gallery slot, with
